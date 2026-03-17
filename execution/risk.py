@@ -90,7 +90,8 @@ class RiskManager:
         """
         now_ny = datetime.now(NY_TZ)
         today = now_ny.date()
-        week_num = today.isocalendar()[1]
+        iso = today.isocalendar()
+        week_key = (iso[0], iso[1])  # (year, week) — avoids year-boundary collisions
 
         # Daily limit
         daily_count = self.daily_trades.get(today, 0)
@@ -98,7 +99,7 @@ class RiskManager:
             return False, f"Daily limit reached ({daily_count}/{config.MAX_DAILY_TRADES})"
 
         # Weekly limit
-        weekly_count = self.weekly_trades.get(week_num, 0)
+        weekly_count = self.weekly_trades.get(week_key, 0)
         if weekly_count >= config.MAX_WEEKLY_TRADES:
             return False, f"Weekly limit reached ({weekly_count}/{config.MAX_WEEKLY_TRADES})"
 
@@ -112,16 +113,17 @@ class RiskManager:
         """Record that a trade was taken (increment daily/weekly counters)."""
         now_ny = datetime.now(NY_TZ)
         today = now_ny.date()
-        week_num = today.isocalendar()[1]
+        iso = today.isocalendar()
+        week_key = (iso[0], iso[1])  # (year, week) — avoids year-boundary collisions
 
         self.daily_trades[today] = self.daily_trades.get(today, 0) + 1
-        self.weekly_trades[week_num] = self.weekly_trades.get(week_num, 0) + 1
+        self.weekly_trades[week_key] = self.weekly_trades.get(week_key, 0) + 1
 
         logger.info(
             "Trade recorded: daily=%d/%d, weekly=%d/%d",
             self.daily_trades[today],
             config.MAX_DAILY_TRADES,
-            self.weekly_trades[week_num],
+            self.weekly_trades[week_key],
             config.MAX_WEEKLY_TRADES,
         )
 

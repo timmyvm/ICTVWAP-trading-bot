@@ -274,10 +274,10 @@ class SignalEngine:
                     return self._build_signal(rb_1m, fib_levels, bias, current_price, mode="hybrid")
 
             # Invalidate if price has moved too far from the 5m zone
-            if bias == "LONG" and current_price > self._pending_5m_rb.block_high * 1.002:
+            if bias == "BULLISH" and current_price > self._pending_5m_rb.block_high * 1.002:
                 self._pending_5m_rb = None
                 logger.info("Hybrid: 5m zone invalidated — price moved above block")
-            elif bias == "SHORT" and current_price < self._pending_5m_rb.block_low * 0.998:
+            elif bias == "BEARISH" and current_price < self._pending_5m_rb.block_low * 0.998:
                 self._pending_5m_rb = None
                 logger.info("Hybrid: 5m zone invalidated — price moved below block")
 
@@ -462,7 +462,7 @@ class SignalEngine:
             ts_ny = ts if ts.tzinfo else NY_TZ.localize(ts)
             if ts_ny.date() == today:
                 t = ts_ny.time()
-                if time(9, 30) <= t <= time(10, 0):
+                if time(9, 30) <= t < time(10, 0):
                     window_candles.append(row)
 
         if len(window_candles) < 2:

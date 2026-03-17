@@ -196,15 +196,14 @@ class TradingBot:
         self._check_htf_updates(df_4h, "4h", "240")
 
         # --- ATR auto mode switching ---
-        # If entry mode is not hardcoded to "hybrid", check if ATR warrants a switch
-        if config.ENTRY_MODE != "hybrid":
-            recommended_mode = self.atr_switcher.evaluate(df_5m)
-            if recommended_mode != config.ENTRY_MODE:
-                logger.info(
-                    "ATR switcher recommends %s mode (was %s)",
-                    recommended_mode, config.ENTRY_MODE,
-                )
-                config.ENTRY_MODE = recommended_mode
+        # Always evaluate ATR conditions so the bot can switch into AND out of any mode.
+        recommended_mode = self.atr_switcher.evaluate(df_5m)
+        if recommended_mode != config.ENTRY_MODE:
+            logger.info(
+                "ATR switcher recommends %s mode (was %s)",
+                recommended_mode, config.ENTRY_MODE,
+            )
+            config.ENTRY_MODE = recommended_mode
 
         # --- Get current price ---
         current_price = self.feed.get_mark_price()

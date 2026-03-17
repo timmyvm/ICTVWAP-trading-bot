@@ -231,8 +231,10 @@ class KeyLevels:
 
         threshold = config.NO_WICK_THRESHOLD
 
-        # Bullish sus candle: no upper wick (strong buying, no rejection at the top)
-        if upper_wick_pct < threshold:
+        # Bullish sus candle: no upper wick on a bullish body.
+        # Body direction guard prevents a bearish marubozu (open=high, close=low,
+        # therefore upper_wick=0) from being mis-classified as bullish.
+        if upper_wick_pct < threshold and candle["close"] >= candle["open"]:
             sus = SusCandle(
                 timestamp=df.index[-2],
                 timeframe=timeframe,
@@ -248,8 +250,10 @@ class KeyLevels:
                 upper_wick_pct * 100,
             )
 
-        # Bearish sus candle: no lower wick (strong selling, no rejection at the bottom)
-        if lower_wick_pct < threshold:
+        # Bearish sus candle: no lower wick on a bearish body.
+        # Body direction guard prevents a bullish marubozu (open=low, close=high,
+        # therefore lower_wick=0) from double-firing the same price as BEARISH.
+        if lower_wick_pct < threshold and candle["close"] < candle["open"]:
             sus = SusCandle(
                 timestamp=df.index[-2],
                 timeframe=timeframe,
@@ -445,10 +449,14 @@ class ATRModeSwitcher:
     def __init__(self):
         self.current_mode: str = config.ENTRY_MODE
         self._low_atr_count: int = 0
+        self._high_atr_count: int = 0  # Hysteresis counter for 5m switch
 
     def evaluate(self, df_5m: pd.DataFrame) -> str:
         """
         Check ATR and decide if mode should switch.
+
+        Both directions require ATR_COOLDOWN_CANDLES consecutive candles above/below
+        threshold before switching — prevents thrashing on a single spike.
 
         Args:
             df_5m: 5-minute OHLCV DataFrame.
@@ -478,22 +486,25 @@ class ATRModeSwitcher:
         current_atr = atr.iloc[-1]
         avg_atr = atr.iloc[-config.ATR_PERIOD:].mean()
 
-        if avg_atr == 0:
+        if avg_atr == 0 or current_atr <= 0 or pd.isna(current_atr):
             return self.current_mode
 
         ratio = current_atr / avg_atr
 
         if ratio >= config.ATR_HIGH_THRESHOLD:
-            if self.current_mode != "5m":
+            self._high_atr_count += 1
+            self._low_atr_count = 0
+            if self._high_atr_count >= config.ATR_COOLDOWN_CANDLES and self.current_mode != "5m":
                 logger.info(
-                    "ATR high (ratio=%.2f >= %.2f) — switching to 5m mode",
-                    ratio, config.ATR_HIGH_THRESHOLD,
+                    "ATR high for %d candles (ratio=%.2f >= %.2f) — switching to 5m mode",
+                    self._high_atr_count, ratio, config.ATR_HIGH_THRESHOLD,
                 )
                 self.current_mode = "5m"
-            self._low_atr_count = 0
+                self._high_atr_count = 0
 
         elif ratio <= config.ATR_LOW_THRESHOLD:
             self._low_atr_count += 1
+            self._high_atr_count = 0
             if self._low_atr_count >= config.ATR_COOLDOWN_CANDLES and self.current_mode != "1m":
                 logger.info(
                     "ATR low for %d candles (ratio=%.2f <= %.2f) — switching to 1m mode",
@@ -503,5 +514,6 @@ class ATRModeSwitcher:
                 self._low_atr_count = 0
         else:
             self._low_atr_count = 0
+            self._high_atr_count = 0
 
         return self.current_mode

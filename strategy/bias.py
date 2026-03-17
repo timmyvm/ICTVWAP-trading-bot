@@ -5,11 +5,16 @@ ICT Concept: Before looking for entries, we need to know WHICH DIRECTION to trad
 The higher-timeframe (HTF) bias tells us whether to look for longs or shorts.
 
 Rules implemented:
-1. Bullish bias: price closes above the most recent 1H/4H swing high,
-   OR price is retracing into a Discount FVG (below 0.5 of the most recent leg).
-2. Bearish bias: price closes below the most recent 1H/4H swing low (MSS),
-   OR price is retracing into a Premium FVG (above 0.5 of the most recent leg).
-3. NWOG override: an unfilled New Week Opening Gap below price forces BEARISH bias
+1. 4H structure is the primary anchor. If price closes above the most recent 4H
+   swing high → BULLISH. Below the most recent 4H swing low → BEARISH. This is
+   returned immediately without consulting 1H at all.
+2. Only when 4H is genuinely neutral (price is between the 4H swing high and low)
+   do we fall back to 1H structure breaks for a directional read.
+3. 1H FVG retracements add confluence only when 4H AND 1H structure are both
+   neutral. They never override or cancel a clear 4H structural read.
+4. FVG checks are limited to the most recent FVG_LOOKBACK candles to prevent
+   stale historical gaps from flooding both bullish and bearish signals.
+5. NWOG override: an unfilled New Week Opening Gap below price forces BEARISH bias
    until that gap is tapped — the market "owes" a visit to that inefficiency.
 """
 
@@ -148,56 +153,72 @@ class HTFBias:
                     config.NWOG_OVERRIDE_MAX_PCT,
                 )
 
-        # --- Swing Structure ---
-        swing_highs_1h = find_swing_highs(df_1h)
-        swing_lows_1h = find_swing_lows(df_1h)
-        swing_highs_4h = find_swing_highs(df_4h)
-        swing_lows_4h = find_swing_lows(df_4h)
+        # --- Step 1: 4H Structure (primary anchor) ---
+        # 4H breaks are the highest-priority signal. If 4H gives a clear directional
+        # read, return immediately — 1H signals do not override it.
+        #
+        # Use lookback=2 (not the default 5) so that swings within the last 8 hours
+        # are still detectable. The default lookback=5 would exclude the last 20 hours
+        # of 4H candles from ever being swing candidates, causing the early return to
+        # never fire during active market moves.
+        swing_highs_4h = find_swing_highs(df_4h, lookback=2)
+        swing_lows_4h = find_swing_lows(df_4h, lookback=2)
 
-        # Most recent swing high and low
-        recent_sh_1h = df_1h.loc[swing_highs_1h, "high"].iloc[-1] if swing_highs_1h.any() else None
-        recent_sl_1h = df_1h.loc[swing_lows_1h, "low"].iloc[-1] if swing_lows_1h.any() else None
         recent_sh_4h = df_4h.loc[swing_highs_4h, "high"].iloc[-1] if swing_highs_4h.any() else None
         recent_sl_4h = df_4h.loc[swing_lows_4h, "low"].iloc[-1] if swing_lows_4h.any() else None
 
         latest_close = df_1h["close"].iloc[-1]
 
-        # Bullish: close above most recent swing high (Market Structure Shift to the upside)
-        bullish_structure = False
-        if recent_sh_1h and latest_close > recent_sh_1h:
-            bullish_structure = True
-        if recent_sh_4h and latest_close > recent_sh_4h:
-            bullish_structure = True
+        htf_bullish = recent_sh_4h is not None and latest_close > recent_sh_4h
+        htf_bearish = recent_sl_4h is not None and latest_close < recent_sl_4h
 
-        # Bearish: close below most recent swing low (Market Structure Shift to the downside)
-        bearish_structure = False
-        if recent_sl_1h and latest_close < recent_sl_1h:
-            bearish_structure = True
-        if recent_sl_4h and latest_close < recent_sl_4h:
-            bearish_structure = True
+        if htf_bullish and not htf_bearish:
+            self.current_bias = "BULLISH"
+            logger.info(
+                "HTF Bias: BULLISH (4H MSS — close %.2f > 4H swing high %.2f)",
+                latest_close, recent_sh_4h,
+            )
+            return "BULLISH"
 
-        # --- FVG Retracement Check ---
-        # ICT Concept: even without a clean break of structure, if price is retracing
-        # into a discount FVG, bias can be bullish (buying the dip into value).
-        fvgs_1h = detect_fvg(df_1h)
-        fvgs_4h = detect_fvg(df_4h)
-        all_fvgs = fvgs_1h + fvgs_4h
+        if htf_bearish and not htf_bullish:
+            self.current_bias = "BEARISH"
+            logger.info(
+                "HTF Bias: BEARISH (4H MSS — close %.2f < 4H swing low %.2f)",
+                latest_close, recent_sl_4h,
+            )
+            return "BEARISH"
 
-        # Check for retracement into discount FVG (bullish signal)
+        # --- Step 2: 4H is neutral — check 1H structure for confluence ---
+        # Price is between the 4H swing high and low (no 4H structure break yet).
+        # Use 1H swing breaks as a secondary read.
+        swing_highs_1h = find_swing_highs(df_1h)
+        swing_lows_1h = find_swing_lows(df_1h)
+
+        recent_sh_1h = df_1h.loc[swing_highs_1h, "high"].iloc[-1] if swing_highs_1h.any() else None
+        recent_sl_1h = df_1h.loc[swing_lows_1h, "low"].iloc[-1] if swing_lows_1h.any() else None
+
+        bullish_structure = recent_sh_1h is not None and latest_close > recent_sh_1h
+        bearish_structure = recent_sl_1h is not None and latest_close < recent_sl_1h
+
+        # --- Step 3: FVG Confluence (1H only, recent candles only) ---
+        # FVGs are checked only when both 4H and 1H structure are ambiguous.
+        # Limit to the last FVG_LOOKBACK candles to avoid stale historical gaps
+        # flooding both bullish and bearish signals simultaneously across a wide range.
+        FVG_LOOKBACK = 20
+        recent_fvgs_1h = detect_fvg(df_1h.iloc[-FVG_LOOKBACK:])
+
         if recent_sh_1h and recent_sl_1h:
             leg_midpoint = (recent_sh_1h + recent_sl_1h) / 2
-            for fvg in all_fvgs:
+            for fvg in recent_fvgs_1h:
                 if fvg["type"] == "bullish" and fvg["midpoint"] < leg_midpoint:
-                    # Price is in the discount zone of the leg AND there's a bullish FVG
                     if fvg["bottom"] <= current_price <= fvg["top"]:
                         bullish_structure = True
-                        logger.info("Discount FVG retracement detected -> bullish")
+                        logger.info("1H Discount FVG retracement -> bullish confluence")
 
                 if fvg["type"] == "bearish" and fvg["midpoint"] > leg_midpoint:
-                    # Price is in the premium zone AND there's a bearish FVG
                     if fvg["bottom"] <= current_price <= fvg["top"]:
                         bearish_structure = True
-                        logger.info("Premium FVG retracement detected -> bearish")
+                        logger.info("1H Premium FVG retracement -> bearish confluence")
 
         # --- Resolve ---
         if bullish_structure and not bearish_structure:
@@ -205,7 +226,7 @@ class HTFBias:
         elif bearish_structure and not bullish_structure:
             self.current_bias = "BEARISH"
         else:
-            # Conflicting or no clear signal
+            # Conflicting 1H signals or no structure break on any timeframe
             self.current_bias = "NEUTRAL"
 
         logger.info("HTF Bias: %s (close=%.2f)", self.current_bias, latest_close)

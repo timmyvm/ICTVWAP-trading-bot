@@ -178,7 +178,7 @@ class VWAPCalculator:
         A slope of 0.01 means VWAP is drifting 1% of ATR per candle — significant.
         Near-zero slope confirms a ranging, mean-reverting environment.
         """
-        vwap_window = session_df["vwap"].iloc[-10:]
+        vwap_window = session_df["vwap"].iloc[-10:].dropna()
         if len(vwap_window) < 3:
             return 0.0
 
