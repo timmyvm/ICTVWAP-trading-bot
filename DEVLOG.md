@@ -30,7 +30,12 @@ signal when that target is closer than `MIN_TP_DISTANCE_PCT` — no substitute
 targets. Trade count should now fall below baseline (near-target setups are
 skipped), win rate should hold near baseline on survivors.
 
-**Backtest** — corrected 180d ICT-only validation vs v0.3 baseline: RUNNING.
+**Backtest** — corrected 180d ICT-only validation vs v0.3 baseline:
+NOT YET RUN (session stopped to save usage). Reproduce with:
+`VWAP_ENABLED=false ENFORCE_TIER_RR=false python run_backtest.py --days 180 --variant fixed`
+Compare against baseline 22 trades / −5.6 % / PF 0.71. Expect FEWER trades
+(fee-zone setups skipped) with baseline-like win rate on survivors; if trade
+count collapses, retest with `MIN_TP_DISTANCE_PCT=0.15`.
 
 ## v0.4 — Trend gate + fee-aware targets (2026-07-21) `c609d33`
 
