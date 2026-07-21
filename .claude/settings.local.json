@@ -7,7 +7,8 @@
       "Bash(/Users/timothy/Desktop/Projects/powell-trades-bot/.claude/worktrees/serene-leavitt/venv/bin/python3 -c \":*)",
       "Bash(timeout 8 /Users/timothy/Desktop/Projects/powell-trades-bot/.claude/worktrees/serene-leavitt/venv/bin/python3 main.py)",
       "Bash(gtimeout 8 /Users/timothy/Desktop/Projects/powell-trades-bot/.claude/worktrees/serene-leavitt/venv/bin/python3 main.py)",
-      "Bash(curl -s https://api.ipify.org)"
+      "Bash(curl -s https://api.ipify.org)",
+      "Workflow(deep-research)"
     ]
   }
 }
