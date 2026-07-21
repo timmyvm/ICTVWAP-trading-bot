@@ -24,6 +24,9 @@ config.py        — All tuneable parameters (TESTING_MODE, ENTRY_MODE, etc.)
 ## Core Rules
 - After every correction or mistake, update this file with a rule to prevent repeating it.
   End corrections with: "Now update CLAUDE.md so you don't make that mistake again."
+- Update DEVLOG.md with EVERY code/config change: version entry (or patch note), what changed,
+  which bug/evidence motivated it, commit hash, and backtest result once available. Newest first.
+  A change without a DEVLOG entry is not done.
 - Start every complex task in plan mode. Pour energy into the plan, then 1-shot the implementation.
 - When something goes sideways, switch back to plan mode. Don't keep pushing.
 - Use subagents for parallel workstreams. Only one agent edits a given file at a time.
