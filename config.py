@@ -164,7 +164,12 @@ NWOG_BIAS_OVERRIDE = os.getenv("NWOG_BIAS_OVERRIDE", "false").lower() == "true"
 # If 5m ATR exceeds this multiplier of 20-period avg, auto switch to 5m mode.
 ATR_HIGH_THRESHOLD = float(os.getenv("ATR_HIGH_THRESHOLD", "1.5"))
 # If ATR falls below this for 3+ candles, switch back to 1m.
-ATR_LOW_THRESHOLD = float(os.getenv("ATR_LOW_THRESHOLD", "1.2"))
+# NOTE: 1.2 came from the VWAP rulebook's *strategy selection* rule ("VWAP mode
+# when ATR ratio < 1.2"), not from an entry-timeframe rule. The ATR ratio
+# baseline hovers ~1.0, so a 1.2 threshold kept the bot in 1m mode virtually
+# always — against the ICT rulebook's "5m is the recommended default for
+# crypto" (1m = liquidation-cascade noise). 0.8 = genuinely quiet tape only.
+ATR_LOW_THRESHOLD = float(os.getenv("ATR_LOW_THRESHOLD", "0.8"))
 ATR_PERIOD = 20
 ATR_COOLDOWN_CANDLES = 3  # Candles below threshold before switching back
 

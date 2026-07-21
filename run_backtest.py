@@ -44,6 +44,12 @@ VARIANTS: dict[str, dict] = {
     "fixed_notier": {
         "ENFORCE_TIER_RR": False,
     },
+    # The rulebook documents the NWOG bearish override; default is off after
+    # the audit — this variant measures what turning it on does.
+    "fixed_nwog": {
+        "NWOG_BIAS_OVERRIDE": True,
+        "ENFORCE_TIER_RR": False,
+    },
 }
 
 CONFIG_KEYS = [

@@ -74,10 +74,11 @@ class PendingLimit:
     expires_at: pd.Timestamp
 
 
-@dataclass
-class QueuedMarket:
-    signal: object  # VWAPSignal
-    queued_at: pd.Timestamp
+# NOTE ON FILL STYLE: the rulebook is explicit — "Always use LIMIT orders for
+# entry... Taker orders at this account size will destroy profitability" — and
+# execution/orders.py does place limit orders for both strategies. Entries
+# therefore fill as resting limits (maker) that price must come back to, and
+# take-profits fill as resting limits too; only stop-losses pay taker+slippage.
 
 
 class BacktestEngine:
@@ -107,7 +108,7 @@ class BacktestEngine:
         # Simulator state
         self.positions: dict[str, Position] = {}  # keyed by strategy
         self.pending_ict: Optional[PendingLimit] = None
-        self.queued_vwap: Optional[QueuedMarket] = None
+        self.pending_vwap: Optional[PendingLimit] = None
         self.was_stopped_out = False
         self.active_setup_id: Optional[str] = None
 
@@ -124,8 +125,11 @@ class BacktestEngine:
             "ict_orders_replaced": 0,
             "ict_orders_expired": 0,
             "ict_orders_filled": 0,
-            "vwap_orders": 0,
+            "vwap_orders_placed": 0,
+            "vwap_orders_expired": 0,
+            "vwap_orders_filled": 0,
         }
+        self.vwap_ttl_min = 15  # reversion window: 3 five-minute candles
 
         # Precomputed candle boundary arrays for fast windowing
         self._starts = {}
@@ -209,26 +213,31 @@ class BacktestEngine:
         """Fills, stops, targets and breakeven for one 1m candle."""
         slip = config.SLIPPAGE_PCT / 100.0
 
-        # 1. Queued VWAP market order fills at this candle's open
-        if self.queued_vwap is not None:
-            sig = self.queued_vwap.signal
-            if "VWAP" not in self.positions:
-                fill = o * (1 + slip) if sig.direction == "LONG" else o * (1 - slip)
-                qty = self.risk.calculate_position_size(self.balance, fill, sig.stop_loss)
-                if qty > 0 and abs(fill - sig.stop_loss) > 0:
+        # 1. Pending VWAP limit order (resting at the confirmation-candle close)
+        if self.pending_vwap is not None:
+            if ts >= self.pending_vwap.expires_at:
+                self.pending_vwap = None
+                self.counters["vwap_orders_expired"] += 1
+            else:
+                sig = self.pending_vwap.signal
+                touched = (l <= sig.entry_price) if sig.direction == "LONG" else (h >= sig.entry_price)
+                if touched and "VWAP" not in self.positions:
+                    fill = min(sig.entry_price, o) if sig.direction == "LONG" else max(sig.entry_price, o)
+                    qty = self.pending_vwap.qty
                     be_target = fill if not self.legacy_breakeven else sig.breakeven_price
                     self.positions["VWAP"] = Position(
                         strategy="VWAP", direction=sig.direction, qty=qty,
                         entry_price=fill, stop_loss=sig.stop_loss,
                         take_profit=sig.take_profit,
-                        entry_fee=self._fee(fill, qty, "taker"),
-                        opened_at=ts, entry_kind="taker",
+                        entry_fee=self._fee(fill, qty, "maker"),
+                        opened_at=ts, entry_kind="maker",
                         meta={"band": sig.band, "tier": sig.tier, "mode": "vwap",
                               "rr": sig.risk_reward, "orig_sl": sig.stop_loss},
                         be_trigger=sig.breakeven_price, be_target=be_target,
                         fill_candle=ts,
                     )
-            self.queued_vwap = None
+                    self.pending_vwap = None
+                    self.counters["vwap_orders_filled"] += 1
 
         # 2. Pending ICT limit order
         if self.pending_ict is not None:
@@ -278,7 +287,8 @@ class BacktestEngine:
                 self._close_position(pos, exit_px, "taker", "SL", ts)
                 continue
             if tp_hit:
-                self._close_position(pos, pos.take_profit, "taker", "TP", ts)
+                # TP is a resting limit at the target -> maker fee
+                self._close_position(pos, pos.take_profit, "maker", "TP", ts)
                 continue
 
             # Breakeven applies from the NEXT candle (intra-candle sequence unknowable)
@@ -360,7 +370,7 @@ class BacktestEngine:
         # ── VWAP ────────────────────────────────────────────────────────
         # Breakeven is handled candle-by-candle in _process_candle, so with a
         # position open (or trading blocked) there is nothing to compute.
-        if not can_trade or "VWAP" in self.positions or self.queued_vwap is not None:
+        if not can_trade or "VWAP" in self.positions or self.pending_vwap is not None:
             return
         vwap_data = self.vwap_calc.compute(df_5m, now)
         if vwap_data is None:
@@ -369,8 +379,16 @@ class BacktestEngine:
         vwap_signal = self.vwap_engine.evaluate(df_5m, vwap_data, regime, now)
         if vwap_signal is None:
             return
-        self.queued_vwap = QueuedMarket(signal=vwap_signal, queued_at=now)
-        self.counters["vwap_orders"] += 1
+        qty = self.risk.calculate_position_size(
+            self.balance, vwap_signal.entry_price, vwap_signal.stop_loss,
+        )
+        if qty <= 0:
+            return
+        self.pending_vwap = PendingLimit(
+            signal=vwap_signal, qty=qty, placed_at=now,
+            expires_at=now + pd.Timedelta(minutes=self.vwap_ttl_min),
+        )
+        self.counters["vwap_orders_placed"] += 1
         self.risk.record_trade(now)
         self.vwap_engine.record_trade(now)
 
