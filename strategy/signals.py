@@ -124,6 +124,19 @@ class SignalEngine:
             logger.debug("Bias is NEUTRAL — no signal")
             return None
 
+        # --- Step 1b: HTF trend alignment gate ---
+        # A retrace structure-break mid-crash reads as BULLISH bias while the
+        # broader 4H trend is still down — those counter-trend entries were
+        # every losing long in the 180-day backtest. Trade with the cascade.
+        if config.TREND_ALIGNMENT_FILTER:
+            trend = self._htf_trend(df_4h)
+            if trend is not None and trend != bias:
+                logger.info(
+                    "Trend gate: bias %s fights 4H trend %s — no signal",
+                    bias, trend,
+                )
+                return None
+
         # In live mode with htf_bias_strict, require stronger confirmation
         if params.get("htf_bias_strict", False):
             logger.info("Strict bias mode — requiring clear HTF confirmation")
@@ -339,8 +352,11 @@ class SignalEngine:
                 if valid_sls:
                     stop_loss = min(valid_sls)  # Widest = lowest (furthest from entry)
 
-            # Take profit: nearest DOL target above entry
-            dol = self.key_levels.get_nearest_dol(rb.entry_price, "LONG")
+            # Take profit: nearest DOL target above entry that clears the
+            # minimum distance (closer targets can't out-earn fees)
+            dol = self.key_levels.get_nearest_dol(
+                rb.entry_price, "LONG", config.MIN_TP_DISTANCE_PCT,
+            )
             if dol is None:
                 # Fallback: use fib swing high as target
                 dol = fib_levels.swing_high
@@ -361,10 +377,21 @@ class SignalEngine:
                 if valid_sls:
                     stop_loss = max(valid_sls)  # Widest = highest (furthest from entry)
 
-            dol = self.key_levels.get_nearest_dol(rb.entry_price, "SHORT")
+            dol = self.key_levels.get_nearest_dol(
+                rb.entry_price, "SHORT", config.MIN_TP_DISTANCE_PCT,
+            )
             if dol is None:
                 dol = fib_levels.swing_low
             take_profit = dol
+
+        # The fib-swing fallback can still land inside the fee zone — final check
+        min_tp_dist = rb.entry_price * config.MIN_TP_DISTANCE_PCT / 100.0
+        if abs(take_profit - rb.entry_price) < min_tp_dist:
+            logger.info(
+                "Signal rejected: TP %.2f is < %.2f%% from entry — can't out-earn fees",
+                take_profit, config.MIN_TP_DISTANCE_PCT,
+            )
+            return None
 
         # Calculate R:R
         risk = abs(rb.entry_price - stop_loss)
@@ -436,6 +463,26 @@ class SignalEngine:
             rb.tier,
         )
         return signal
+
+    @staticmethod
+    def _htf_trend(df_4h: pd.DataFrame) -> Optional[str]:
+        """
+        Broad 4H trend: last close vs SMA of the last TREND_SMA_PERIOD closes,
+        with a neutral band (TREND_NEUTRAL_BAND_PCT) where no gate applies.
+
+        Returns "BULLISH", "BEARISH", or None (flat / not enough data).
+        """
+        period = config.TREND_SMA_PERIOD
+        if len(df_4h) < period:
+            return None
+        sma = df_4h["close"].iloc[-period:].mean()
+        last = df_4h["close"].iloc[-1]
+        band = config.TREND_NEUTRAL_BAND_PCT / 100.0
+        if last > sma * (1 + band):
+            return "BULLISH"
+        if last < sma * (1 - band):
+            return "BEARISH"
+        return None
 
     @staticmethod
     def _get_session(

@@ -111,6 +111,22 @@ FIB_VALIDITY_MODE = os.getenv("FIB_VALIDITY_MODE", "structural")
 # Toggleable so backtests can quantify how much signal starvation they cause.
 ENFORCE_TIER_RR = os.getenv("ENFORCE_TIER_RR", "true").lower() == "true"
 
+# --- HTF Trend Alignment Gate (RESEARCH.md action #1) ---
+# Blocks entries whose bias fights the broader 4H trend. Osler's cascade
+# asymmetry (continuation beats reversal at swept levels) + our backtest
+# (all 6 counter-trend longs in the March crash lost; shorts were net
+# positive) both point the same way. Trend = 4H close vs SMA of the last
+# TREND_SMA_PERIOD 4H closes, with a neutral band where the gate stays out.
+TREND_ALIGNMENT_FILTER = os.getenv("TREND_ALIGNMENT_FILTER", "true").lower() == "true"
+TREND_SMA_PERIOD = int(os.getenv("TREND_SMA_PERIOD", "50"))          # ~8.3 days of 4H
+TREND_NEUTRAL_BAND_PCT = float(os.getenv("TREND_NEUTRAL_BAND_PCT", "0.5"))
+
+# --- Minimum Take-Profit Distance (RESEARCH.md action #2) ---
+# Skip DOL targets closer than this % of price. 3-minute median holds cannot
+# out-earn the fee line: target must clear ~3x the all-in round-trip cost
+# (maker in + taker stop ~0.075%), so default 0.25%.
+MIN_TP_DISTANCE_PCT = float(os.getenv("MIN_TP_DISTANCE_PCT", "0.25"))
+
 # --- Rejection Block Filters ---
 # "No-wick" threshold: if wick is less than this fraction of total range,
 # the candle is considered a "sus candle" (suspicious = strong directional intent).

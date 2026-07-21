@@ -363,7 +363,9 @@ class KeyLevels:
             self.dol_targets.append(price)
             logger.info("News level recorded: %s at %.2f", event, price)
 
-    def get_nearest_dol(self, price: float, direction: str) -> Optional[float]:
+    def get_nearest_dol(
+        self, price: float, direction: str, min_distance_pct: float = 0.0,
+    ) -> Optional[float]:
         """
         Get the nearest Draw on Liquidity target in the given direction.
 
@@ -403,11 +405,15 @@ class KeyLevels:
         # Deduplicate
         all_targets = list(set(all_targets))
 
+        # Targets closer than min_distance_pct can't out-earn the round-trip
+        # fee — skip them and take the next liquidity pool out.
+        min_dist = price * min_distance_pct / 100.0
+
         if direction == "LONG":
-            above = [t for t in all_targets if t > price]
+            above = [t for t in all_targets if t > price + min_dist]
             return min(above) if above else None
         else:
-            below = [t for t in all_targets if t < price]
+            below = [t for t in all_targets if t < price - min_dist]
             return max(below) if below else None
 
     def load_news_levels(self):
