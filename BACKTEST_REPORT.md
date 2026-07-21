@@ -137,6 +137,37 @@ expired, 1 replaced. VWAP placed 81 → 76 filled, 5 expired.
    — the weekly gap was either tapped early or outside the 5 % proximity band.
    Keeping it off by default costs nothing; the CE still serves as a target.
 
+### 180-day ICT-only run (VWAP off, tier floors off)
+
+`VWAP_ENABLED=false ENFORCE_TIER_RR=false python run_backtest.py --days 180`
+(2026-01-21 → 2026-07-20): **22 trades, 45.5 % win rate, gross +$378,
+fees $940 → net −$562 (−5.6 %), PF 0.71, max DD 12.2 %.** 35 orders placed →
+22 filled, 4 expired, 9 replaced. Median hold: **3 minutes**.
+
+| Slice | n | Gross | Net |
+|---|---|---|---|
+| Jan (chop) | 3 | +$272 | +$162 |
+| Feb (chop) | 9 | +$364 | +$22 |
+| **Mar (crash)** | **5** | **−$522** | **−$825 — all losers** |
+| Apr–May (dormant) | 0 | — | — |
+| Jun–Jul | 5 | +$264 | +$79 |
+| **SHORT trades** | **16** | **+$714** | **+$78** |
+| **LONG trades** | **6** | **−$336** | **−$640** |
+
+Three residual problems, now that the mechanical bugs are gone:
+
+1. **The gross edge is real but smaller than its cost.** +$17 gross/trade ≈
+   0.018 % of notional vs ~0.045 % round-trip cost. Nothing about sizing fixes
+   a ratio — the strategy needs bigger moves per trade or cheaper execution.
+2. **Every LONG lost, and they cluster in the March crash** — the bias engine
+   reads a retrace structure break as BULLISH while the 4H waterfall continues.
+   Shorts alone were net positive even after fees. A higher-timeframe trend
+   alignment gate (no counter-trend longs while 4H/1D structure is bearish)
+   removes most of the damage.
+3. **3-minute median hold** — nearest-DOL take-profits are microscopic, which
+   is why gross/trade is tiny. A minimum TP distance (% of price, or skip the
+   nearest DOL when it's < ~0.3 % away) directly raises move size per trade.
+
 ## What to change before expecting profitability
 
 1. **Turn VWAP off until it's redesigned** (`VWAP_ENABLED=false`). Its target
