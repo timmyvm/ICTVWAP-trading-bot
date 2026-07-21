@@ -370,6 +370,8 @@ class BacktestEngine:
         # ── VWAP ────────────────────────────────────────────────────────
         # Breakeven is handled candle-by-candle in _process_candle, so with a
         # position open (or trading blocked) there is nothing to compute.
+        if not config.VWAP_ENABLED:
+            return
         if not can_trade or "VWAP" in self.positions or self.pending_vwap is not None:
             return
         vwap_data = self.vwap_calc.compute(df_5m, now)

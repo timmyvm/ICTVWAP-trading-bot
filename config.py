@@ -185,6 +185,13 @@ TRADE_LOG_PATH = "logs/trades.csv"
 # Runs independently alongside the ICT strategy. Shares the same daily trade
 # limits and CSV log. Only activates in RANGING regime.
 
+# Master switch. The 60-day backtest (see BACKTEST_REPORT.md) shows the current
+# parameterization is structurally unprofitable on Bybit fees: median move per
+# trade 0.083% of price vs ~0.075-0.11% round-trip cost -> fees were $3,611 of
+# a $4,260 loss. Left ON to preserve existing behavior; flip to false until the
+# setup is re-parameterized for wider targets.
+VWAP_ENABLED = os.getenv("VWAP_ENABLED", "true").lower() == "true"
+
 # Standard deviation band settings
 VWAP_STD_MULTIPLIER = 2.0       # Primary band multiplier (±2 SD is the main setup)
 VWAP_STD_LENGTH = 20             # Rolling window for std deviation calculation

@@ -278,7 +278,8 @@ class TradingBot:
         # ── VWAP STRATEGY ────────────────────────────────────────────────────
         # Runs independently on every tick. Uses 5m data for band calculations.
         # Will not fire if daily trade limit was already reached by ICT.
-        self._tick_vwap(df_5m, current_price)
+        if config.VWAP_ENABLED:
+            self._tick_vwap(df_5m, current_price)
 
     def _tick_vwap(self, df_5m: pd.DataFrame, current_price: float):
         """
