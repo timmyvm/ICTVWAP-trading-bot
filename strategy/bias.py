@@ -134,7 +134,14 @@ class HTFBias:
         # to reach down and tap it. Bias stays bearish until it does.
         # Proximity filter: only applies if NWOG is within NWOG_OVERRIDE_MAX_PCT
         # of current price. If NWOG is too far away, it shouldn't force bias.
-        if self.nwog_level is not None and current_price > self.nwog_level:
+        # Gated behind NWOG_BIAS_OVERRIDE: forcing BEARISH under an up-gap in a
+        # bullish week shorts into strength, so the override is opt-in. The CE
+        # remains a DOL target regardless.
+        if (
+            config.NWOG_BIAS_OVERRIDE
+            and self.nwog_level is not None
+            and current_price > self.nwog_level
+        ):
             distance_pct = ((current_price - self.nwog_level) / current_price) * 100
             if distance_pct <= config.NWOG_OVERRIDE_MAX_PCT:
                 logger.info(

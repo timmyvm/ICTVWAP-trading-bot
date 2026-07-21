@@ -73,3 +73,29 @@ config.py        — All tuneable parameters (TESTING_MODE, ENTRY_MODE, etc.)
 
 - ATR ratio guard in `ATRModeSwitcher` must check both `avg_atr == 0` AND `current_atr <= 0`. A zero-range
   bad tick produces `current_atr = 0.0`, making `ratio = 0.00`, which incorrectly triggers the low-ATR counter.
+
+- Entry conditions and validity conditions must be satisfiable TOGETHER. The fib leg was "valid" only while
+  price had NOT retraced to 0.5, but every RB entry requires price AT >= 0.5 retracement — mutually exclusive,
+  so the ICT strategy could never fire. Validity now means "origin swing unbroken" (FIB_VALIDITY_MODE).
+
+- Bybit's newest kline row is the still-forming candle. Never treat `iloc[-1]` as a closed confirmation
+  candle — the feed drops the forming row (`drop_forming=True`) so all modules see closed candles only.
+
+- Never hard-code price-scale constants. "2.0 points" of stop buffer is ~0.003% on BTC — stops sat on top of
+  entries and died to noise. Use %-of-price (STOP_BUFFER_PCT) or ATR-relative distances.
+
+- Budget-style checks must be split into a pure peek and an explicit consume. `can_re_enter()` incremented
+  its counter on every call and the main loop called it every tick — the whole re-entry budget burned in
+  ~2 minutes. Peek in the signal path; `record_re_entry()` only when a trade executes.
+
+- Paper PnL must include qty, fees, and slippage. Points-only logging hid that taker fees on tight-stop
+  trades cost 0.6-1.0 R per trade — trades that "won" in the CSV lost money net.
+
+- One-shot state overrides need an explicit clear path. The NWOG bias override was set when unfilled but
+  never cleared after the gap filled — bias stuck BEARISH for the process lifetime.
+
+- Paper-position tracking must cover ALL open rows, not `iloc[-1]` — a second concurrent trade orphaned the
+  first as "PAPER" forever and its outcome never counted in stats.
+
+- Backtest any strategy change with `run_backtest.py` before deploying. The engine reuses the real strategy
+  stack via injected `now` params — keep every new time-dependent code path injectable (`now: Optional[datetime]`).

@@ -125,8 +125,11 @@ class RegimeDetector:
             axis=1,
         ).max(axis=1)
 
-        # Current ATR = last single TR value (more responsive than smoothed)
-        current_tr = tr.iloc[-1]
+        # Current ATR = mean of the last 3 TR values. A single candle's TR made
+        # the regime flap to TRENDING/NEWS on any one wide candle, randomly
+        # blocking valid mean-reversion entries; 3 candles keeps it responsive
+        # without the flapping.
+        current_tr = tr.iloc[-3:].mean()
 
         # Average ATR = 20-period rolling mean for baseline comparison
         avg_atr_len = min(config.ATR_PERIOD, len(df))

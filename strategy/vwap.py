@@ -59,13 +59,14 @@ class VWAPCalculator:
     of the deviation (close - vwap), giving adaptive bands.
     """
 
-    def compute(self, df: pd.DataFrame) -> Optional[VWAPData]:
+    def compute(self, df: pd.DataFrame, now: Optional[datetime] = None) -> Optional[VWAPData]:
         """
         Compute VWAP and bands from OHLCV DataFrame.
 
         Args:
             df: OHLCV DataFrame indexed by NY-time datetime. Must have at least
                 VWAP_STD_LENGTH candles in the current session to produce valid bands.
+            now: injectable clock for backtesting (NY-tz aware).
 
         Returns:
             VWAPData if enough session data is available, else None.
@@ -74,7 +75,7 @@ class VWAPCalculator:
             return None
 
         # --- Step 1: Isolate today's session (since midnight NY) ---
-        now_ny = datetime.now(NY_TZ)
+        now_ny = now if now is not None else datetime.now(NY_TZ)
         session_start = now_ny.replace(
             hour=config.VWAP_SESSION_RESET_HOUR,
             minute=0,

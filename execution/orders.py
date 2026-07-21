@@ -195,8 +195,22 @@ class OrderManager:
         Modify the stop loss on an existing position.
 
         Used for moving stop to breakeven after price makes a significant move.
+        In paper mode the CSV row is updated so check_paper_position() honors
+        the new stop — logging alone left the paper position tracking the old SL.
         """
         if config.PAPER_TRADE:
+            try:
+                import pandas as _pd
+                trades = _pd.read_csv(
+                    config.TRADE_LOG_PATH, dtype=str, keep_default_na=False,
+                )
+                open_idx = trades.index[trades["result"].isin(["PAPER", "OPEN"])]
+                if len(open_idx) > 0:
+                    # Most recent open position is the one being managed
+                    trades.at[open_idx[-1], "sl"] = f"{new_sl:.2f}"
+                    trades.to_csv(config.TRADE_LOG_PATH, index=False)
+            except Exception as e:
+                logger.error("Failed to update paper SL: %s", e)
             logger.info("[PAPER] Move SL to %.2f", new_sl)
             return True
 
@@ -215,13 +229,15 @@ class OrderManager:
 
     def check_paper_position(self, current_price: float) -> Optional[str]:
         """
-        Check if the last paper trade has been hit (SL or TP).
+        Check ALL open paper trades against current price and resolve any hits.
 
-        Reads the last row of the CSV. If it's still PAPER/OPEN, checks
-        whether current_price has crossed the SL or TP level.
+        Previously only the LAST CSV row was monitored, so whenever a second
+        trade opened (e.g. a VWAP trade after an ICT trade) the earlier one was
+        orphaned as "PAPER" forever and its outcome never counted.
 
         Returns:
-            "STOPPED" if SL hit, "TP_HIT" if TP hit, None if still open / no trade.
+            "STOPPED" if any position stopped out on this check (re-entry logic
+            keys off this), else "TP_HIT" if any hit TP, else None.
         """
         try:
             import pandas as _pd
@@ -233,43 +249,53 @@ class OrderManager:
             if trades.empty:
                 return None
 
-            last = trades.iloc[-1]
-            if last["result"] not in ("PAPER", "OPEN"):
-                return None  # Already resolved
+            any_stopped = False
+            any_tp = False
+            changed = False
 
-            entry = float(last["entry"])
-            sl = float(last["sl"])
-            tp = float(last["tp"])
-            direction = last["direction"]
+            for idx in trades.index[trades["result"].isin(["PAPER", "OPEN"])]:
+                row = trades.loc[idx]
+                entry = float(row["entry"])
+                sl = float(row["sl"])
+                tp = float(row["tp"])
+                direction = row["direction"]
 
-            result = None
-            pnl = 0.0
+                result = None
+                pnl = 0.0
 
-            if direction == "LONG":
-                if current_price <= sl:
-                    result = "STOPPED"
-                    pnl = (sl - entry)  # Negative
-                elif current_price >= tp:
-                    result = "TP_HIT"
-                    pnl = (tp - entry)  # Positive
-            else:  # SHORT
-                if current_price >= sl:
-                    result = "STOPPED"
-                    pnl = (entry - sl)  # Negative (SL above entry for shorts)
-                elif current_price <= tp:
-                    result = "TP_HIT"
-                    pnl = (entry - tp)  # Positive
+                if direction == "LONG":
+                    if current_price <= sl:
+                        result = "STOPPED"
+                        pnl = (sl - entry)  # Negative
+                    elif current_price >= tp:
+                        result = "TP_HIT"
+                        pnl = (tp - entry)  # Positive
+                else:  # SHORT
+                    if current_price >= sl:
+                        result = "STOPPED"
+                        pnl = (entry - sl)  # Negative (SL above entry for shorts)
+                    elif current_price <= tp:
+                        result = "TP_HIT"
+                        pnl = (entry - tp)  # Positive
 
-            if result:
-                # Update the last row in CSV with result, PnL, and closed_at timestamp
-                now_ny = datetime.now(NY_TZ)
-                trades.at[trades.index[-1], "result"] = result
-                trades.at[trades.index[-1], "pnl"] = round(pnl, 2)
-                trades.at[trades.index[-1], "closed_at"] = now_ny.isoformat()
+                if result:
+                    now_ny = datetime.now(NY_TZ)
+                    trades.at[idx, "result"] = result
+                    trades.at[idx, "pnl"] = round(pnl, 2)
+                    trades.at[idx, "closed_at"] = now_ny.isoformat()
+                    changed = True
+                    any_stopped = any_stopped or result == "STOPPED"
+                    any_tp = any_tp or result == "TP_HIT"
+                    logger.info("[PAPER] Position %s: %s | PnL=%.2f pts", direction, result, pnl)
+
+            if changed:
                 trades.to_csv(config.TRADE_LOG_PATH, index=False)
-                logger.info("[PAPER] Position %s: %s | PnL=%.2f pts", direction, result, pnl)
 
-            return result
+            if any_stopped:
+                return "STOPPED"
+            if any_tp:
+                return "TP_HIT"
+            return None
 
         except Exception as e:
             logger.error("Failed to check paper position: %s", e)

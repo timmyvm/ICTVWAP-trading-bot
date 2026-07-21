@@ -62,6 +62,16 @@ class RiskManager:
 
         qty = risk_amount / risk_per_unit
 
+        # Notional cap: a tight stop otherwise produces a position the exchange
+        # would reject (and whose round-trip fees alone exceed the intended risk).
+        max_qty = (account_balance * config.MAX_LEVERAGE) / entry_price
+        if qty > max_qty:
+            logger.warning(
+                "Position size capped by leverage: %.3f -> %.3f (%.0fx notional limit)",
+                qty, max_qty, config.MAX_LEVERAGE,
+            )
+            qty = max_qty
+
         # Round down to 3 decimal places (Bybit BTCUSDT min qty)
         qty = round(qty, 3)
 
@@ -76,7 +86,7 @@ class RiskManager:
         )
         return qty
 
-    def can_trade(self) -> tuple[bool, str]:
+    def can_trade(self, now: Optional[datetime] = None) -> tuple[bool, str]:
         """
         Check if we're allowed to take a new trade.
 
@@ -85,10 +95,12 @@ class RiskManager:
         2. Weekly trade limit
         3. News blackout windows (NFP, CPI)
 
+        `now` is injectable so backtests can replay history.
+
         Returns:
             (allowed, reason) — reason is empty if allowed.
         """
-        now_ny = datetime.now(NY_TZ)
+        now_ny = now if now is not None else datetime.now(NY_TZ)
         today = now_ny.date()
         iso = today.isocalendar()
         week_key = (iso[0], iso[1])  # (year, week) — avoids year-boundary collisions
@@ -109,9 +121,9 @@ class RiskManager:
 
         return True, ""
 
-    def record_trade(self):
+    def record_trade(self, now: Optional[datetime] = None):
         """Record that a trade was taken (increment daily/weekly counters)."""
-        now_ny = datetime.now(NY_TZ)
+        now_ny = now if now is not None else datetime.now(NY_TZ)
         today = now_ny.date()
         iso = today.isocalendar()
         week_key = (iso[0], iso[1])  # (year, week) — avoids year-boundary collisions
@@ -129,7 +141,7 @@ class RiskManager:
 
     def can_re_enter(self, setup_id: str) -> tuple[bool, str]:
         """
-        Check if re-entry is allowed after a stop-out.
+        Check (without consuming) whether a re-entry is allowed after a stop-out.
 
         ICT Rule: if stopped out, we can try again at deeper fib levels:
         - First re-entry at 0.62 (OTE)
@@ -137,24 +149,42 @@ class RiskManager:
         - Max 2 re-entries per setup
 
         The setup_id ties re-entries to the same trade idea (same fib leg).
+
+        This is a pure check — the budget is only consumed by record_re_entry()
+        when a re-entry trade actually executes. (Previously this method
+        incremented the counter itself and the main loop called it every tick,
+        burning the entire re-entry budget within minutes of a stop-out.)
         """
         if setup_id != self.last_setup_id:
-            # New setup — reset counter
-            self.last_setup_id = setup_id
-            self.re_entry_count = 0
+            return True, "new setup"
 
         if self.re_entry_count >= config.MAX_RE_ENTRIES:
             return False, f"Max re-entries reached ({self.re_entry_count}/{config.MAX_RE_ENTRIES})"
 
-        self.re_entry_count += 1
-        target = "OTE (0.62)" if self.re_entry_count == 1 else "Deep Discount (0.79)"
-        logger.info("Re-entry #%d allowed — looking for RB at %s", self.re_entry_count, target)
-
+        target = "OTE (0.62)" if self.re_entry_count == 0 else "Deep Discount (0.79)"
         return True, target
 
+    def record_re_entry(self, setup_id: str):
+        """
+        Record an executed entry against a setup.
+
+        First entry on a new setup resets the counter; subsequent entries on the
+        same setup consume the re-entry budget.
+        """
+        if setup_id != self.last_setup_id:
+            self.last_setup_id = setup_id
+            self.re_entry_count = 0
+            return
+
+        self.re_entry_count += 1
+        logger.info(
+            "Re-entry #%d/%d recorded for setup %s",
+            self.re_entry_count, config.MAX_RE_ENTRIES, setup_id,
+        )
+
     def get_re_entry_fib_level(self) -> float:
-        """Return the fib level to target for the current re-entry attempt."""
-        if self.re_entry_count <= 1:
+        """Return the fib level to target for the next re-entry attempt."""
+        if self.re_entry_count == 0:
             return 0.62  # OTE
         return 0.79  # Deep Discount
 

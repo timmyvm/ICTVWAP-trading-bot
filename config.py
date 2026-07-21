@@ -85,6 +85,32 @@ MIN_RR = float(os.getenv("MIN_RR", str(active_params()["min_rr"])))
 # --- Risk ---
 RISK_PER_TRADE_PCT = float(os.getenv("RISK_PER_TRADE_PCT", "1.0"))  # % of account per trade
 
+# Cap position notional at account_balance * MAX_LEVERAGE. Without this, a tight
+# stop (risk_amt / tiny_stop_dist) produces absurd notional sizes that Bybit would
+# reject and whose fees alone exceed the intended risk.
+MAX_LEVERAGE = float(os.getenv("MAX_LEVERAGE", "10.0"))
+
+# --- Execution Economics ---
+# Bybit linear perp fees as % of notional per fill. Paper trading and backtests
+# must charge these — with tight stops the round-trip fee can exceed the risk.
+TAKER_FEE_PCT = float(os.getenv("TAKER_FEE_PCT", "0.055"))
+MAKER_FEE_PCT = float(os.getenv("MAKER_FEE_PCT", "0.02"))
+SLIPPAGE_PCT = float(os.getenv("SLIPPAGE_PCT", "0.01"))  # % applied to market fills
+
+# --- Fibonacci Leg Validity ---
+# "structural" (default): a fib leg stays tradeable until its origin swing is
+#   violated (recent low breaks the swing low for longs). This is what allows
+#   entries in the 0.5-0.79 discount zone at all.
+# "legacy": the original rule — leg is valid only while price has NOT retraced
+#   to 0.5. Kept for comparison; it contradicts the RB requirement that entries
+#   form AT >= 0.5 retracement, so no ICT signal can ever fire under it.
+FIB_VALIDITY_MODE = os.getenv("FIB_VALIDITY_MODE", "structural")
+
+# --- Tier R:R Enforcement ---
+# Tier floors (T1 >= 5.0 in OTE/DD, T2 >= 3.0 elsewhere) per the README.
+# Toggleable so backtests can quantify how much signal starvation they cause.
+ENFORCE_TIER_RR = os.getenv("ENFORCE_TIER_RR", "true").lower() == "true"
+
 # --- Rejection Block Filters ---
 # "No-wick" threshold: if wick is less than this fraction of total range,
 # the candle is considered a "sus candle" (suspicious = strong directional intent).
@@ -94,6 +120,12 @@ NO_WICK_THRESHOLD = float(os.getenv("NO_WICK_THRESHOLD", "0.05"))
 # Large rejection block threshold (points). Blocks bigger than this
 # use CE (50%) or 25% level for entry instead of the open.
 LARGE_RB_THRESHOLD = float(os.getenv("LARGE_RB_THRESHOLD", "40.0"))
+
+# Stop-loss buffer beyond the swept level, as % of price. The old constant was
+# 2.0 POINTS — a futures-scale number that is ~0.003% on BTC, so stops sat on
+# top of entries and died to spread noise within the first minute.
+# 0.1% of a 65k BTC ≈ 65 points. A 2-point floor is kept for tiny-priced symbols.
+STOP_BUFFER_PCT = float(os.getenv("STOP_BUFFER_PCT", "0.1"))
 
 # --- News Filter ---
 # Skip trading during high-impact news windows.
@@ -121,6 +153,12 @@ LONDON_SESSION = (3, 0, 6, 0)    # 03:00 - 06:00 NY (valid if bias is clear)
 # NWOG override only applies if the gap is within this % of current price.
 # If NWOG is further than 5% away, it's too distant to force bias override.
 NWOG_OVERRIDE_MAX_PCT = float(os.getenv("NWOG_OVERRIDE_MAX_PCT", "5.0"))
+
+# Master toggle for the NWOG bias override. When True, an unfilled NWOG below
+# price (within NWOG_OVERRIDE_MAX_PCT) forces BEARISH bias until tapped —
+# including during bullish up-gap weeks, which shorts into strength. Off by
+# default: the NWOG CE still participates as a DOL target either way.
+NWOG_BIAS_OVERRIDE = os.getenv("NWOG_BIAS_OVERRIDE", "false").lower() == "true"
 
 # --- ATR Auto Mode Switching ---
 # If 5m ATR exceeds this multiplier of 20-period avg, auto switch to 5m mode.
@@ -159,3 +197,8 @@ VWAP_MAX_STOP_ATR = 1.0         # Stop distance (entry to SL) must be ≤ 1x ATR
 # Session reset
 VWAP_SESSION_RESET_HOUR = 0     # VWAP resets at this NY hour each day (midnight)
 MAX_VWAP_TRADES_PER_SESSION = 2  # Max VWAP entries per session window
+
+# Warm-up: minimum candles in the session before VWAP signals may fire.
+# Right after the midnight reset the std bands are computed from 2-3 candles and
+# hug price, so every wiggle "touches ±2σ" — those are noise trades.
+VWAP_MIN_SESSION_CANDLES = int(os.getenv("VWAP_MIN_SESSION_CANDLES", "12"))

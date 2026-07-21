@@ -77,6 +77,7 @@ class VWAPSignalEngine:
         df: pd.DataFrame,
         vwap_data: VWAPData,
         regime: str,
+        now: Optional[datetime] = None,
     ) -> Optional[VWAPSignal]:
         """
         Check for a valid VWAP mean reversion signal on the current candle.
@@ -85,6 +86,7 @@ class VWAPSignalEngine:
             df:         5m (or 1m) OHLCV DataFrame, indexed by NY time.
             vwap_data:  Freshly computed VWAP data for this session.
             regime:     Current market regime from RegimeDetector.
+            now:        injectable clock for backtesting (NY-tz aware).
 
         Returns:
             VWAPSignal if all conditions are met, else None.
@@ -97,8 +99,18 @@ class VWAPSignalEngine:
         if vwap_data is None or len(df) < 5:
             return None
 
+        # --- Guard: Session warm-up ---
+        # With only a handful of candles since the midnight reset, the std bands
+        # hug price and every wiggle "touches ±2σ". Wait for real bands.
+        if vwap_data.session_candles < config.VWAP_MIN_SESSION_CANDLES:
+            logger.debug(
+                "VWAP: warm-up (%d/%d session candles)",
+                vwap_data.session_candles, config.VWAP_MIN_SESSION_CANDLES,
+            )
+            return None
+
         # --- Guard: Session trade limit ---
-        self._refresh_session_counter()
+        self._refresh_session_counter(now)
         if self._session_trade_count >= config.MAX_VWAP_TRADES_PER_SESSION:
             logger.debug(
                 "VWAP: session limit reached (%d/%d)",
@@ -130,9 +142,9 @@ class VWAPSignalEngine:
 
         return signal
 
-    def record_trade(self):
+    def record_trade(self, now: Optional[datetime] = None):
         """Call after a VWAP trade is executed to increment the session counter."""
-        self._refresh_session_counter()
+        self._refresh_session_counter(now)
         self._session_trade_count += 1
         logger.info(
             "VWAP: session trade count %d/%d",
@@ -343,9 +355,9 @@ class VWAPSignalEngine:
 
         return None
 
-    def _refresh_session_counter(self):
+    def _refresh_session_counter(self, now: Optional[datetime] = None):
         """Reset trade counter if we've crossed into a new session."""
-        now_ny = datetime.now(NY_TZ)
+        now_ny = now if now is not None else datetime.now(NY_TZ)
         # Session key = date + reset hour (e.g. "2026-03-16-00")
         session_key = now_ny.strftime("%Y-%m-%d") + f"-{config.VWAP_SESSION_RESET_HOUR:02d}"
 

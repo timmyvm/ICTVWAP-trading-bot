@@ -57,6 +57,7 @@ class TradeSignal:
     bias: str  # The HTF bias at time of signal
     fib_zone: str  # Which fib zone the entry is in
     tier: int = 1  # Tier 1 = premium (OTE/DD, R:R 1:5+), Tier 2 = confirmation (R:R 1:3+)
+    setup_id: str = ""  # Identity of the fib leg — re-entries after a stop-out share it
 
 
 class SignalEngine:
@@ -93,18 +94,23 @@ class SignalEngine:
         df_1h: pd.DataFrame,
         df_4h: pd.DataFrame,
         current_price: float,
+        now: Optional[datetime] = None,
     ) -> Optional[TradeSignal]:
         """
         Run the full signal evaluation pipeline.
 
+        `now` is injectable so backtests can replay history; live callers omit it.
+
         Returns a TradeSignal if all conditions align, else None.
         """
+        now_ny = now if now is not None else datetime.now(NY_TZ)
+
         # --- Step 0: Session filter ---
         # Powell V3: NY AM is preferred, London is valid only if HTF bias is strong.
         # Outside both sessions: no new entries.
         # Read allowed sessions from active_params() (testing mode allows more sessions)
         params = config.active_params()
-        session = self._get_session(params.get("sessions", ["ny_am"]))
+        session = self._get_session(params.get("sessions", ["ny_am"]), now_ny)
         if session is None:
             logger.debug("Outside trading sessions — no signal")
             return None
@@ -132,7 +138,6 @@ class SignalEngine:
         # (sweeping liquidity) before reversing. If require_10am_filter is True,
         # wait until after 10:00 AM to confirm the Judas move has played out.
         if session == "NY_AM" and params.get("require_10am_filter", False):
-            now_ny = datetime.now(NY_TZ)
             if now_ny.hour == 9 or (now_ny.hour == 10 and now_ny.minute == 0):
                 logger.info("Judas Swing window (9:30-10:00) — waiting for manipulation to complete")
                 return None
@@ -140,22 +145,37 @@ class SignalEngine:
             # After 10:00 AM: detect the Judas direction from the 9:30-10:00 move
             today_str = now_ny.strftime("%Y-%m-%d")
             if self._judas_detected_today != today_str:
-                judas_dir = self._detect_judas_swing(df_1m)
+                judas_dir = self._detect_judas_swing(df_1m, now_ny)
                 if judas_dir:
                     self._judas_detected_today = today_str
                     self._judas_direction = judas_dir
                     logger.info("Judas Swing detected: fake %s move — expecting reversal", judas_dir)
 
+            # Directional filter: a fake move UP implies the real move is DOWN,
+            # so only trades aligned with the post-manipulation direction pass.
+            if self._judas_detected_today == today_str and self._judas_direction:
+                expected = "BEARISH" if self._judas_direction == "BULLISH" else "BULLISH"
+                if bias != expected:
+                    logger.info(
+                        "Judas filter: fake %s move expects %s bias, have %s — no signal",
+                        self._judas_direction, expected, bias,
+                    )
+                    return None
+
         # --- Step 2: Update key levels ---
-        self.key_levels.update_session_opens(df_1m)
+        self.key_levels.update_session_opens(df_1m, now_ny)
         self.key_levels.scan_sus_candles(df_15m, "15m")
         self.key_levels.scan_sus_candles(df_4h, "4h")
         self.key_levels.scan_structural_levels(df_1h, df_4h)
         self.key_levels.check_nwog_filled(current_price)
 
-        # Feed NWOG info back to bias engine for override logic
+        # Feed NWOG info back to bias engine for override logic.
+        # Clearing on fill matters: without it the bias engine keeps a stale
+        # NWOG level and stays force-BEARISH for the rest of the process life.
         if self.key_levels.nwog and not self.key_levels.nwog.filled:
             self.bias_engine.set_nwog(self.key_levels.nwog.ce)
+        else:
+            self.bias_engine.set_nwog(None)
 
         # --- Step 3: Compute Fibonacci levels ---
         fib_levels = self.fib_tracer.compute(df_1h, bias)
@@ -296,10 +316,13 @@ class SignalEngine:
 
         Calculates stop loss, take profit, and validates minimum R:R.
         """
+        # Price-relative stop buffer (see STOP_BUFFER_PCT) with a small floor
+        buffer = max(2.0, rb.entry_price * config.STOP_BUFFER_PCT / 100.0)
+
         if rb.direction == "LONG":
             # Stop loss: just below the manipulation low (the swept swing low)
-            # Adding a small buffer so we don't get clipped by a wick
-            stop_loss = rb.manipulation_high - 2.0  # 2-point buffer below swept low
+            # Adding a buffer so we don't get clipped by a wick
+            stop_loss = rb.manipulation_high - buffer
 
             # For 5m mode: stop must COVER the CE of the 5m block OR the 0.79 fib.
             # Per Powell V4: "place stop to cover the CE (50%) of the 5m candle, OR
@@ -308,8 +331,8 @@ class SignalEngine:
             if mode == "5m":
                 sl_options = [
                     stop_loss,
-                    rb.block_low - 2.0,  # Below the block
-                    fib_levels.deep_discount - 2.0,  # Below 0.79 fib
+                    rb.block_low - buffer,  # Below the block
+                    fib_levels.deep_discount - buffer,  # Below 0.79 fib
                 ]
                 # Use the WIDEST stop that's still below entry — most protective
                 valid_sls = [s for s in sl_options if s < rb.entry_price]
@@ -325,14 +348,14 @@ class SignalEngine:
 
         else:  # SHORT
             # Stop loss: just above the manipulation high (the swept swing high)
-            stop_loss = rb.manipulation_high + 2.0  # 2-point buffer above swept high
+            stop_loss = rb.manipulation_high + buffer
 
             # For 5m shorts: use WIDEST stop (most protective), same logic as longs
             if mode == "5m":
                 sl_options = [
                     stop_loss,
-                    rb.block_high + 2.0,
-                    fib_levels.deep_discount + 2.0,
+                    rb.block_high + buffer,
+                    fib_levels.deep_discount + buffer,
                 ]
                 valid_sls = [s for s in sl_options if s > rb.entry_price]
                 if valid_sls:
@@ -371,14 +394,21 @@ class SignalEngine:
         else:
             tier = 2  # Equilibrium or shallower = Tier 2
 
-        # Tier-specific minimum R:R check
-        min_rr_for_tier = 5.0 if tier == 1 else 3.0
-        if rr < min_rr_for_tier:
-            logger.info(
-                "Signal rejected: Tier %d requires R:R >= %.1f, got %.2f",
-                tier, min_rr_for_tier, rr,
-            )
-            return None
+        # Tier-specific minimum R:R check (toggleable — see ENFORCE_TIER_RR)
+        if config.ENFORCE_TIER_RR:
+            min_rr_for_tier = 5.0 if tier == 1 else 3.0
+            if rr < min_rr_for_tier:
+                logger.info(
+                    "Signal rejected: Tier %d requires R:R >= %.1f, got %.2f",
+                    tier, min_rr_for_tier, rr,
+                )
+                return None
+
+        # Setup identity = the fib leg, NOT the individual RB. Re-entries after a
+        # stop-out form a NEW rejection block on the same leg; keying by RB
+        # timestamp would make every re-entry look like a fresh setup and reset
+        # the re-entry budget.
+        setup_id = f"{rb.direction}_{fib_levels.swing_low:.0f}_{fib_levels.swing_high:.0f}"
 
         signal = TradeSignal(
             direction=rb.direction,
@@ -391,6 +421,7 @@ class SignalEngine:
             bias=bias,
             fib_zone=rb.fib_zone,
             tier=tier,
+            setup_id=setup_id,
         )
 
         logger.info(
@@ -407,7 +438,10 @@ class SignalEngine:
         return signal
 
     @staticmethod
-    def _get_session(allowed_sessions: list[str] | None = None) -> Optional[str]:
+    def _get_session(
+        allowed_sessions: list[str] | None = None,
+        now: Optional[datetime] = None,
+    ) -> Optional[str]:
         """
         Determine which trading session we're in.
 
@@ -417,6 +451,7 @@ class SignalEngine:
         Args:
             allowed_sessions: list of allowed session keys, e.g. ["ny_am", "london"].
                               If None, defaults to ["ny_am"].
+            now: injectable clock for backtesting (NY-tz aware).
 
         Returns:
             "NY_AM", "LONDON", or None (outside sessions = no trading)
@@ -424,7 +459,7 @@ class SignalEngine:
         if allowed_sessions is None:
             allowed_sessions = ["ny_am"]
 
-        now_ny = datetime.now(NY_TZ)
+        now_ny = now if now is not None else datetime.now(NY_TZ)
         current = now_ny.time()
 
         ny_start = time(config.NY_AM_SESSION[0], config.NY_AM_SESSION[1])
@@ -440,7 +475,9 @@ class SignalEngine:
         return None
 
     @staticmethod
-    def _detect_judas_swing(df_1m: pd.DataFrame) -> Optional[str]:
+    def _detect_judas_swing(
+        df_1m: pd.DataFrame, now: Optional[datetime] = None,
+    ) -> Optional[str]:
         """
         Detect the Judas Swing from the 9:30-10:00 AM NY window.
 
@@ -453,7 +490,7 @@ class SignalEngine:
         if df_1m.empty:
             return None
 
-        now_ny = datetime.now(NY_TZ)
+        now_ny = now if now is not None else datetime.now(NY_TZ)
         today = now_ny.date()
 
         # Filter 1m candles from 9:30 to 10:00 today

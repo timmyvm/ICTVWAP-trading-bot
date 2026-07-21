@@ -20,6 +20,7 @@ and handles KeyboardInterrupt for clean shutdown.
 """
 
 import logging
+import os
 import sys
 import time
 from datetime import datetime
@@ -38,6 +39,8 @@ from strategy.vwap import VWAPCalculator
 from strategy.vwap_signals import VWAPSignalEngine
 
 # --- Logging Setup ---
+# logs/ is gitignored — without this a fresh clone crashes on the FileHandler
+os.makedirs("logs", exist_ok=True)
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
@@ -98,6 +101,7 @@ class TradingBot:
         # VWAP trade state: breakeven tracking for open VWAP positions
         self._vwap_breakeven_price: float | None = None   # Price to trigger breakeven move
         self._vwap_trade_direction: str | None = None     # Direction of open VWAP trade
+        self._vwap_entry_price: float | None = None       # Entry — where the stop moves to
 
     def run(self):
         """Main loop — runs until interrupted."""
@@ -158,8 +162,11 @@ class TradingBot:
         logger.debug("Tick at %s NY", now_ny.strftime("%H:%M:%S"))
 
         # --- Fetch candle data ---
+        # 1m depth of 1000 (~16h) so the midnight and 10 AM opens are still in
+        # the window during the NY AM session — 200 candles only spans 3.3h,
+        # which silently dropped both DOL levels for most of the day.
         try:
-            df_1m = self.feed.get_candles_by_tf("1m", limit=200)
+            df_1m = self.feed.get_candles_by_tf("1m", limit=1000)
             df_5m = self.feed.get_candles_by_tf("5m", limit=200)
             df_15m = self.feed.get_candles_by_tf("15m", limit=100)
             df_1h = self.feed.get_candles_by_tf("1h", limit=100)
@@ -230,22 +237,23 @@ class TradingBot:
             current_price=current_price,
         )
 
-        if signal is None:
-            # --- Check for re-entry after stop-out ---
-            # Per Powell: if stopped out, look for new RB at deeper fib levels.
-            # Sequence: 0.62 (OTE) -> 0.79 (Deep Discount). Max 2 re-entries.
-            if self._was_stopped_out and self._active_setup_id:
-                can_re, target = self.risk_manager.can_re_enter(self._active_setup_id)
-                if can_re:
-                    logger.info("Re-entry allowed — looking for new RB at %s", target)
-                    # The signal engine will naturally find an RB at the deeper level
-                    # on the next tick if price has reached there.
+        if signal is not None:
+            # --- Re-entry budget check ---
+            # Per Powell: after a stop-out, up to 2 re-entries on the SAME fib leg
+            # (0.62 then 0.79). The budget is only consumed when a re-entry trade
+            # actually executes — checking it every tick used to burn the whole
+            # budget within minutes of a stop-out, before any trade could happen.
+            if self._was_stopped_out and self._active_setup_id == signal.setup_id:
+                can_re, target = self.risk_manager.can_re_enter(signal.setup_id)
+                if not can_re:
+                    logger.info(
+                        "Re-entry exhausted for setup %s — skipping signal", signal.setup_id,
+                    )
+                    signal = None
                 else:
-                    logger.info("Re-entry exhausted for setup %s — waiting for new setup",
-                                self._active_setup_id)
-                    self._was_stopped_out = False
-                    self._active_setup_id = None
-        else:
+                    logger.info("Re-entry signal on setup %s (%s)", signal.setup_id, target)
+
+        if signal is not None:
             # --- Execute ICT signal ---
             balance = self.feed.get_account_balance()
             if balance is None or balance <= 0:
@@ -262,7 +270,8 @@ class TradingBot:
                     success = self.order_manager.execute_signal(signal, qty, strategy="ICT")
                     if success:
                         self.risk_manager.record_trade()
-                        self._active_setup_id = f"{signal.fib_zone}_{signal.rb.timestamp}"
+                        self.risk_manager.record_re_entry(signal.setup_id)
+                        self._active_setup_id = signal.setup_id
                         self._was_stopped_out = False
                     return  # Don't also check VWAP on the same candle as an ICT trade
 
@@ -305,9 +314,15 @@ class TradingBot:
                     self._vwap_breakeven_price,
                     "lower_1" if self._vwap_trade_direction == "LONG" else "upper_1",
                 )
-                # Move stop to entry price (stored as breakeven_price trigger, not entry)
-                # The order manager handles paper/live mode
-                self.order_manager.modify_stop_loss("vwap_position", current_price)
+                # Move stop to the ENTRY price. Moving it to current_price (the
+                # ±1σ band) parked the stop right where price oscillates on its
+                # way to VWAP, wicking winners out for scratch losses.
+                be_stop = (
+                    self._vwap_entry_price
+                    if self._vwap_entry_price is not None
+                    else current_price
+                )
+                self.order_manager.modify_stop_loss("vwap_position", be_stop)
                 self._vwap_breakeven_price = None  # Reset — only move once
 
         # --- Check if we can trade ---
@@ -344,6 +359,7 @@ class TradingBot:
             # Arm breakeven tracking for this VWAP position
             self._vwap_breakeven_price = vwap_signal.breakeven_price
             self._vwap_trade_direction = vwap_signal.direction
+            self._vwap_entry_price = vwap_signal.entry_price
 
     def _check_position_status(self, current_price: float):
         """
@@ -365,12 +381,14 @@ class TradingBot:
                 # Clear VWAP position tracking on any stop-out
                 self._vwap_breakeven_price = None
                 self._vwap_trade_direction = None
+                self._vwap_entry_price = None
                 logger.info("Paper position stopped out at %.2f — re-entry logic armed", current_price)
             elif result == "TP_HIT":
                 self._was_stopped_out = False
                 self._active_setup_id = None
                 self._vwap_breakeven_price = None
                 self._vwap_trade_direction = None
+                self._vwap_entry_price = None
                 logger.info("Paper position hit TP at %.2f", current_price)
         else:
             # Live mode: check if position still exists via Bybit API
@@ -404,13 +422,16 @@ class TradingBot:
 
     def _update_nwog(self):
         """
-        Calculate NWOG on startup using historical 1m data.
+        Calculate NWOG on startup using targeted historical 1m data.
 
-        We need candles spanning the most recent Friday close to Sunday open,
-        so we fetch a large batch of 1m data.
+        The anchors are Friday 16:59 NY close and Sunday 18:00 NY open. A plain
+        limit=200 fetch only covers ~3.3 hours, so unless the bot happened to
+        boot on Sunday evening it could never see both anchors and NWOG was
+        silently never set. get_weekend_candles_1m() fetches the two anchor
+        windows directly.
         """
         logger.info("Calculating NWOG from historical data...")
-        df_1m = self.feed.get_candles_by_tf("1m", limit=200)
+        df_1m = self.feed.get_weekend_candles_1m()
         if not df_1m.empty:
             self.signal_engine.key_levels.update_nwog(df_1m)
             nwog = self.signal_engine.key_levels.nwog

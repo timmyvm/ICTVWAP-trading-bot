@@ -40,6 +40,19 @@ The pre-filter always passes before the tier check, so the **effective minimums 
 python main.py
 ```
 
+## Backtesting
+
+```bash
+python run_backtest.py --days 60                # current (fixed) code
+python run_backtest.py --days 60 --variant all  # fixed vs legacy vs no-tier-floors
+python run_backtest.py --refresh-data 180       # re-pull 1m data from Bybit (needs API access)
+```
+
+The engine replays the real strategy stack (bias, fibs, rejection blocks, key
+levels, VWAP, regime, risk manager) over cached 1m candles with limit-order
+fills, intrabar SL/TP, fees and slippage. Results land in `backtest/results/`.
+See `BACKTEST_REPORT.md` for the audit findings and the latest numbers.
+
 ## Strategy Overview
 
 1. **HTF Bias** (1H/4H) — determine long or short direction

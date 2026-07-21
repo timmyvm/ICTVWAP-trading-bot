@@ -23,7 +23,34 @@ from typing import Optional
 
 import pandas as pd
 
+import config
+
 logger = logging.getLogger(__name__)
+
+
+def _long_leg_valid(recent_low: float, swing_low: float, equilibrium: float) -> bool:
+    """
+    Decide whether a bullish fib leg is still tradeable.
+
+    structural (default): the leg holds until its origin swing low is violated.
+    Entries live in the 0.5-0.79 retracement zone, so the leg MUST be allowed
+    to retrace past equilibrium — that retracement IS the entry condition.
+
+    legacy: the original rule (recent_low > equilibrium). It marks the leg
+    invalid the moment price reaches 0.5 — but the rejection block detector
+    only accepts candles AT OR BELOW 0.5. The two conditions are mutually
+    exclusive, so under legacy mode no ICT signal can ever fire.
+    """
+    if config.FIB_VALIDITY_MODE == "legacy":
+        return recent_low > equilibrium
+    return recent_low > swing_low
+
+
+def _short_leg_valid(recent_high: float, swing_high: float, equilibrium: float) -> bool:
+    """Mirror of _long_leg_valid for bearish legs."""
+    if config.FIB_VALIDITY_MODE == "legacy":
+        return recent_high < equilibrium
+    return recent_high < swing_high
 
 
 @dataclass
@@ -142,9 +169,9 @@ class FibonacciTracer:
         leg_range = fib_high - swing_low
         equilibrium = fib_high - (leg_range * 0.5)
 
-        # Check recent candles — if price already retraced to 0.5, leg is balanced
+        # Leg validity: structural mode = swing low unbroken; legacy = untouched 0.5
         recent_low = df["low"].iloc[-5:].min()
-        is_valid = recent_low > equilibrium  # Hasn't reached equilibrium yet
+        is_valid = _long_leg_valid(recent_low, swing_low, equilibrium)
 
         if not is_valid:
             retracement_pct = (fib_high - recent_low) / leg_range * 100
@@ -165,7 +192,7 @@ class FibonacciTracer:
             leg_range = fib_high - swing_low
             equilibrium = fib_high - (leg_range * 0.5)
             recent_low = df["low"].iloc[-5:].min()
-            is_valid = recent_low > equilibrium
+            is_valid = _long_leg_valid(recent_low, swing_low, equilibrium)
             logger.debug(
                 "Fib LONG redrawn: old_high=%.2f → new_high=%.2f | "
                 "new_range=%.2f new_EQ=%.2f valid=%s",
@@ -231,9 +258,9 @@ class FibonacciTracer:
         # For shorts, fibs are drawn upward from the low
         equilibrium = fib_low + (leg_range * 0.5)
 
-        # Check if still unbalanced
+        # Leg validity: structural mode = swing high unbroken; legacy = untouched 0.5
         recent_high = df["high"].iloc[-5:].max()
-        is_valid = recent_high < equilibrium
+        is_valid = _short_leg_valid(recent_high, swing_high, equilibrium)
 
         if not is_valid:
             retracement_pct = (recent_high - fib_low) / leg_range * 100
@@ -254,7 +281,7 @@ class FibonacciTracer:
             leg_range = swing_high - fib_low
             equilibrium = fib_low + (leg_range * 0.5)
             recent_high = df["high"].iloc[-5:].max()
-            is_valid = recent_high < equilibrium
+            is_valid = _short_leg_valid(recent_high, swing_high, equilibrium)
             logger.debug(
                 "Fib SHORT redrawn: old_low=%.2f → new_low=%.2f | "
                 "new_range=%.2f new_EQ=%.2f valid=%s",

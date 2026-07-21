@@ -99,42 +99,43 @@ class KeyLevels:
     internal_lows: list = field(default_factory=list)
     news_levels: list = field(default_factory=list)  # NFP/CPI extremes
 
-    def update_session_opens(self, df_1m: pd.DataFrame):
+    def update_session_opens(self, df_1m: pd.DataFrame, now: Optional[datetime] = None):
         """
         Extract the midnight and 10 AM NY opening prices from 1m data.
 
         These are checked once and cached for the current trading day.
+        `now` is injectable so backtests can replay history.
         """
         if df_1m.empty:
             return
 
-        now_ny = datetime.now(NY_TZ)
+        now_ny = now if now is not None else datetime.now(NY_TZ)
         today = now_ny.date()
 
-        # Clear sus candle tracking at the start of each new session
-        # (detected by midnight open changing)
-        for ts, _row in df_1m.iterrows():
-            ts_ny = ts if ts.tzinfo else NY_TZ.localize(ts)
-            if ts_ny.date() == today and ts_ny.hour == 0 and ts_ny.minute == 0:
-                if self.midnight_open != _row["open"]:
-                    self._logged_sus_keys.clear()
-                break
+        # Vectorized lookups — the old per-row iterrows scan was O(n) per tick
+        # and dominated runtime in backtests.
+        idx = df_1m.index
+        if idx.tz is None:
+            idx = idx.tz_localize(NY_TZ)
+        is_today = pd.Index(idx.date) == today
 
-        # Midnight open: first 1m candle at 00:00 NY time today
-        for ts, row in df_1m.iterrows():
-            ts_ny = ts if ts.tzinfo else NY_TZ.localize(ts)
-            if ts_ny.date() == today and ts_ny.hour == 0 and ts_ny.minute == 0:
-                self.midnight_open = row["open"]
+        # Midnight open: first 1m candle at 00:00 NY time today.
+        # A change in midnight open marks a new session — reset sus tracking.
+        mid_mask = is_today & (idx.hour == 0) & (idx.minute == 0)
+        if mid_mask.any():
+            open_px = float(df_1m.loc[mid_mask, "open"].iloc[0])
+            if self.midnight_open != open_px:
+                self._logged_sus_keys.clear()
+                self.midnight_open = open_px
                 logger.info("Midnight open set: %.2f", self.midnight_open)
-                break
 
         # 10:00 AM open: first 1m candle at 10:00 NY time today
-        for ts, row in df_1m.iterrows():
-            ts_ny = ts if ts.tzinfo else NY_TZ.localize(ts)
-            if ts_ny.date() == today and ts_ny.hour == 10 and ts_ny.minute == 0:
-                self.ten_am_open = row["open"]
+        ten_mask = is_today & (idx.hour == 10) & (idx.minute == 0)
+        if ten_mask.any():
+            open_px = float(df_1m.loc[ten_mask, "open"].iloc[0])
+            if self.ten_am_open != open_px:
+                self.ten_am_open = open_px
                 logger.info("10 AM open set: %.2f", self.ten_am_open)
-                break
 
     def update_nwog(self, df_1m: pd.DataFrame):
         """
@@ -243,6 +244,7 @@ class KeyLevels:
             )
             self.sus_candles.append(sus)
             self.dol_targets.append(candle["close"])
+            self._prune_targets()
             logger.info(
                 "Sus candle detected (%s): BULLISH at %.2f (upper wick=%.1f%%)",
                 timeframe,
@@ -262,12 +264,21 @@ class KeyLevels:
             )
             self.sus_candles.append(sus)
             self.dol_targets.append(candle["close"])
+            self._prune_targets()
             logger.info(
                 "Sus candle detected (%s): BEARISH at %.2f (lower wick=%.1f%%)",
                 timeframe,
                 candle["close"],
                 lower_wick_pct * 100,
             )
+
+    def _prune_targets(self, max_len: int = 100):
+        """Cap unbounded growth — a multi-day process otherwise accumulates
+        stale sus-candle levels forever and they pollute nearest-DOL selection."""
+        if len(self.dol_targets) > max_len:
+            self.dol_targets = self.dol_targets[-max_len:]
+        if len(self.sus_candles) > max_len:
+            self.sus_candles = self.sus_candles[-max_len:]
 
     def scan_structural_levels(self, df_1h: pd.DataFrame, df_4h: pd.DataFrame):
         """
