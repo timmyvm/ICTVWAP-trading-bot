@@ -352,11 +352,12 @@ class SignalEngine:
                 if valid_sls:
                     stop_loss = min(valid_sls)  # Widest = lowest (furthest from entry)
 
-            # Take profit: nearest DOL target above entry that clears the
-            # minimum distance (closer targets can't out-earn fees)
-            dol = self.key_levels.get_nearest_dol(
-                rb.entry_price, "LONG", config.MIN_TP_DISTANCE_PCT,
-            )
+            # Take profit: the NEAREST DOL above entry — price is drawn to the
+            # closest pool, so farther pools are not a substitute. If the
+            # nearest target sits inside the fee zone the SIGNAL is rejected
+            # below (reject, don't retarget: retargeting to the next pool
+            # 5x'd trade count and halved the account in validation).
+            dol = self.key_levels.get_nearest_dol(rb.entry_price, "LONG")
             if dol is None:
                 # Fallback: use fib swing high as target
                 dol = fib_levels.swing_high
@@ -377,18 +378,18 @@ class SignalEngine:
                 if valid_sls:
                     stop_loss = max(valid_sls)  # Widest = highest (furthest from entry)
 
-            dol = self.key_levels.get_nearest_dol(
-                rb.entry_price, "SHORT", config.MIN_TP_DISTANCE_PCT,
-            )
+            dol = self.key_levels.get_nearest_dol(rb.entry_price, "SHORT")
             if dol is None:
                 dol = fib_levels.swing_low
             take_profit = dol
 
-        # The fib-swing fallback can still land inside the fee zone — final check
+        # Fee-zone rejection: if the nearest draw (or fib fallback) is too close
+        # to out-earn the round-trip cost, there is no trade — do NOT swap in a
+        # farther target the entry quality can't reach.
         min_tp_dist = rb.entry_price * config.MIN_TP_DISTANCE_PCT / 100.0
         if abs(take_profit - rb.entry_price) < min_tp_dist:
             logger.info(
-                "Signal rejected: TP %.2f is < %.2f%% from entry — can't out-earn fees",
+                "Signal rejected: nearest target %.2f is < %.2f%% from entry — can't out-earn fees",
                 take_profit, config.MIN_TP_DISTANCE_PCT,
             )
             return None

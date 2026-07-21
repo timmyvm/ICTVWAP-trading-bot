@@ -14,6 +14,24 @@ Conventions:
 
 ---
 
+## v0.4.1 — TP floor rejects instead of retargeting (2026-07-21)
+
+**Negative result, documented.** v0.4's TP floor *retargeted* to the next
+liquidity pool when the nearest one sat inside the fee zone. Validation
+(180d ICT-only): **105 trades, 25.7 % win, net −$5,311, −53.1 %, PF 0.39** —
+far worse than the v0.3 baseline (22 trades, −5.6 %, PF 0.71). Lesson: the
+nearest pool is load-bearing for the ~45 % win rate — price reliably reaches
+the first draw, not the second. Retargeting converted a high-win/small-target
+system into a low-win/far-target system the entries can't support, and let
+through dozens of signals the small targets used to reject via R:R.
+
+**Change** `_build_signal` keeps the TRUE nearest DOL as TP and REJECTS the
+signal when that target is closer than `MIN_TP_DISTANCE_PCT` — no substitute
+targets. Trade count should now fall below baseline (near-target setups are
+skipped), win rate should hold near baseline on survivors.
+
+**Backtest** — corrected 180d ICT-only validation vs v0.3 baseline: RUNNING.
+
 ## v0.4 — Trend gate + fee-aware targets (2026-07-21) `c609d33`
 
 **Changes**
@@ -21,13 +39,8 @@ Conventions:
   broad 4H trend (last 4H close vs 50-period 4H SMA, ±0.5 % neutral band).
   Evidence: all 6 losing longs in the v0.3 180d run were counter-trend
   entries into the March crash; Osler's cascade asymmetry (RESEARCH.md).
-- `MIN_TP_DISTANCE_PCT` (default 0.25 %): nearest-DOL targets inside the fee
-  zone are skipped for the next pool out; signals whose final TP can't clear
-  ~3× round-trip cost are rejected. Evidence: v0.3 median hold was 3 minutes,
-  +$17 gross/trade vs ~$43 fees/trade.
-
-**Backtest** — 180d ICT-only validation vs v0.3 baseline (22 trades, −5.6 %,
-PF 0.71): RUNNING — result to be logged here when complete.
+- `MIN_TP_DISTANCE_PCT` (default 0.25 %): TP floor — **initial retargeting
+  implementation was wrong, see v0.4.1.**
 
 **Open**
 - If trade count collapses under the 0.25 % TP floor, retest at 0.15 %.
