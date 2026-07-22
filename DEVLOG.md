@@ -86,7 +86,35 @@ re-labeled "FVG + ICT killzones".
 single-variable run, diff the FULL effective config against the baseline —
 flags are not the only config.
 
-**Backtest** — pending.
+**Backtest (2026-07-22): quality criteria PASS, activity criterion FAIL —
+the most promising variant tested.** 180d ICT-only, true single variable:
+**8 trades, 50.0 % win, gross +$233 (+$29/trade), fees $311, net −$78
+(−0.8 %), PF 0.87.** Fills 8/16 (50 %). Trades preserved at
+`backtest/baselines/v072_180d_trades.csv`.
+
+Criteria: gross/trade ≥ +$17 → **+$29 PASS**; win ≥ 40 % → **50 % PASS**;
+trades ≥ 12 → **8 FAIL**. By the pre-registered letter the production default
+stays "rb" — but unlike v0.4–v0.6, the activity drop came WITH quality
+improvement, and the confound resolution is decisive: same trigger under ICT
+sessions won 28.6 %, under the proven sessions 50 % — the session shift, not
+the trigger, wrecked the first FVG run.
+
+Fee sweep comparison (analytic, from preserved trade lists):
+
+| Config | n | Bybit (0.02/0.055) | VIP (0.01/0.03) | Rebate (0/0.02) | Free |
+|---|---|---|---|---|---|
+| v0.3 RB | 22 | −$562 | −$114 | +$202 | +$378 |
+| v0.3+FVG | 8 | **−$78** | **+$70** | +$178 | +$233 |
+
+The FVG variant is fee-robust: near-breakeven at retail fees and net-positive
+from VIP-ish tiers up (better entry prices → more gross per unit of notional).
+v0.3 RB out-earns it only in near-zero-fee regimes (volume advantage).
+
+**Status**: `ENTRY_TRIGGER=fvg` is the designated walk-forward candidate.
+8-trade sample + ~8th configuration examined = heavy statistical discount;
+neither config displaces the other without out-of-sample survival. Signal
+iteration remains CLOSED; next steps are venue selection and walk-forward
+of BOTH configs on new data as it accrues.
 
 ## v0.7.1 — SETTLEMENT: production config = v0.3 behavior (2026-07-22)
 
