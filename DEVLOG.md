@@ -40,6 +40,24 @@ longs still slipped through the trend gate's ±0.5 % neutral band and lost
 not edge. Both gate defaults reverted to OFF (v0.4.2); v0.3 behavior is the
 tested least-bad configuration.
 
+## v0.6 — ICT alignment pack: R1+R2+R3 from the 2022 Mentorship (2026-07-22)
+
+**Changes** (individually flagged so any piece can be ablated without edits)
+- R1 `REQUIRE_MSS_SWEEP` (on): the 15m structure break only arms entries when
+  the move before it wicked through opposite-side liquidity within 4h —
+  Ep3's "sweep first, then shift; a break without a sweep is noise".
+- R2 `DAILY_LEVELS_IN_DOL` (on): old daily swing highs/lows join the DOL/TP
+  map (Ep2: the daily chart is the liquidity map).
+- R3 killzones: NY 9:30-12:00 → **8:30-11:00**, London 3-6 → **2-5** (Ep3).
+
+**Pre-registered success criteria** (vs v0.3 baseline 22 tr / 45.5% / +$378
+gross, and vs v0.5 result): gross/trade up; win rate not materially below
+baseline; trade count 10-30 (R3 widens mornings, R1 filters — net ambiguous);
+March counter-trend cluster reduced. Bundle judged as a whole; if negative,
+ablate flags individually before reverting.
+
+**Backtest** — pending (queued behind the v0.5 validation run).
+
 ## v0.5 — Top-down multi-timeframe: D1 anchor + M15 MSS (2026-07-22)
 
 **Changes** (one structural change, per the one-variable rule)

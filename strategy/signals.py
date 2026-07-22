@@ -181,7 +181,7 @@ class SignalEngine:
         self.key_levels.update_session_opens(df_1m, now_ny)
         self.key_levels.scan_sus_candles(df_15m, "15m")
         self.key_levels.scan_sus_candles(df_4h, "4h")
-        self.key_levels.scan_structural_levels(df_1h, df_4h)
+        self.key_levels.scan_structural_levels(df_1h, df_4h, df_1d)
         self.key_levels.check_nwog_filled(current_price)
 
         # Feed NWOG info back to bias engine for override logic.
@@ -479,39 +479,66 @@ class SignalEngine:
     @staticmethod
     def _has_recent_15m_mss(df_15m: pd.DataFrame, bias: str) -> bool:
         """
-        Did a 15m close break structure in the bias direction recently?
+        Did a 15m close break structure in the bias direction recently — and
+        (R1, sweep-coupled) did the move before that break trade INTO
+        opposite-side liquidity?
 
-        BULLISH: some close within the last MSS_15M_LOOKBACK closed 15m candles
-        exceeded the most recent 15m swing high formed before it.
-        BEARISH: mirror with swing lows.
+        BULLISH: a close within the last MSS_15M_LOOKBACK candles exceeded the
+        most recent 15m swing high formed before it, preceded (within
+        MSS_SWEEP_LOOKBACK candles) by a wick BELOW a prior swing low
+        (sell-side sweep). BEARISH: mirror. Per ICT Ep3: the sweep needs only
+        a wick through the level; the shift needs the close.
         """
         if df_15m.empty or len(df_15m) < 10:
             return False
 
         n = config.MSS_15M_LOOKBACK
         closes = df_15m["close"].to_numpy()
+        highs = df_15m["high"].to_numpy()
+        lows = df_15m["low"].to_numpy()
 
         if bias == "BULLISH":
-            swings = find_swing_highs(df_15m, lookback=2).to_numpy()
-            levels = df_15m["high"].to_numpy()
+            break_swings = find_swing_highs(df_15m, lookback=2).to_numpy()
+            break_levels = highs
+            sweep_swings = find_swing_lows(df_15m, lookback=2).to_numpy()
+            sweep_levels = lows
         else:
-            swings = find_swing_lows(df_15m, lookback=2).to_numpy()
-            levels = df_15m["low"].to_numpy()
+            break_swings = find_swing_lows(df_15m, lookback=2).to_numpy()
+            break_levels = lows
+            sweep_swings = find_swing_highs(df_15m, lookback=2).to_numpy()
+            sweep_levels = highs
 
-        swing_idxs = [i for i, is_swing in enumerate(swings) if is_swing]
-        if not swing_idxs:
+        break_idxs = [i for i, s in enumerate(break_swings) if s]
+        if not break_idxs:
+            return False
+        sweep_idxs = [i for i, s in enumerate(sweep_swings) if s]
+
+        def _swept_before(j: int) -> bool:
+            """A wick through opposite-side liquidity within the window before j."""
+            lo = max(1, j - config.MSS_SWEEP_LOOKBACK)
+            for k in range(lo, j + 1):
+                prior_sw = [i for i in sweep_idxs if i < k]
+                if not prior_sw:
+                    continue
+                level = sweep_levels[prior_sw[-1]]
+                if bias == "BULLISH" and lows[k] < level:
+                    return True
+                if bias == "BEARISH" and highs[k] > level:
+                    return True
             return False
 
         start = max(1, len(df_15m) - n)
         for j in range(start, len(df_15m)):
-            # most recent swing formed strictly before candle j
-            prior = [i for i in swing_idxs if i < j]
+            prior = [i for i in break_idxs if i < j]
             if not prior:
                 continue
-            level = levels[prior[-1]]
-            if bias == "BULLISH" and closes[j] > level:
+            level = break_levels[prior[-1]]
+            broke = (closes[j] > level) if bias == "BULLISH" else (closes[j] < level)
+            if not broke:
+                continue
+            if not config.REQUIRE_MSS_SWEEP:
                 return True
-            if bias == "BEARISH" and closes[j] < level:
+            if _swept_before(j):
                 return True
         return False
 

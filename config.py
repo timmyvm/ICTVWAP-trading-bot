@@ -131,6 +131,19 @@ DAILY_BIAS_ANCHOR = os.getenv("DAILY_BIAS_ANCHOR", "true").lower() == "true"
 REQUIRE_15M_MSS = os.getenv("REQUIRE_15M_MSS", "true").lower() == "true"
 MSS_15M_LOOKBACK = int(os.getenv("MSS_15M_LOOKBACK", "8"))  # 8 x 15m = 2h window
 
+# v0.6 R1 — sweep-coupled MSS (ICT 2022 Ep3: "a swing break is significant
+# ONLY if the preceding move traded into liquidity"). The 15m structure break
+# counts only when, within MSS_SWEEP_LOOKBACK candles before it, a candle
+# WICKED through opposite-side liquidity (above a prior swing high for
+# bearish shifts, below a prior swing low for bullish ones). Wick suffices —
+# the sweep does not need a close beyond the level.
+REQUIRE_MSS_SWEEP = os.getenv("REQUIRE_MSS_SWEEP", "true").lower() == "true"
+MSS_SWEEP_LOOKBACK = int(os.getenv("MSS_SWEEP_LOOKBACK", "16"))  # 16 x 15m = 4h
+
+# v0.6 R2 — old DAILY highs/lows join the DOL map (Ep2: the daily chart is
+# the liquidity map; "majority of your analysis should be linked to it").
+DAILY_LEVELS_IN_DOL = os.getenv("DAILY_LEVELS_IN_DOL", "true").lower() == "true"
+
 # DEFAULT OFF after v0.4.1 validation: with both gates on, win rate fell
 # 45.5% -> 28.6% and the gross edge went negative (+$378 -> -$76) — the gates
 # removed February's small-target winners while two March longs still slipped
@@ -179,11 +192,12 @@ NEWS_LEVELS: list[dict] = [
 ]
 
 # --- Session Filter ---
-# Powell V3: "Preferred session: New York AM. Also valid: London Session,
-# provided HTF bias is strong."
 # Times are in NY Time (ET).
-NY_AM_SESSION = (9, 30, 12, 0)   # 09:30 - 12:00 NY (preferred)
-LONDON_SESSION = (3, 0, 6, 0)    # 03:00 - 06:00 NY (valid if bias is clear)
+# v0.6 R3: aligned to ICT's killzones (2022 Mentorship Ep3) — NY 8:30-11:00
+# ("that sweet little spot in the morning", extendable to noon; we stop at 11)
+# and London 2:00-5:00. Previous Powell-derived windows were 9:30-12 / 3-6.
+NY_AM_SESSION = (8, 30, 11, 0)   # 08:30 - 11:00 NY (ICT killzone)
+LONDON_SESSION = (2, 0, 5, 0)    # 02:00 - 05:00 NY (ICT London killzone)
 
 # --- NWOG Proximity ---
 # NWOG override only applies if the gap is within this % of current price.

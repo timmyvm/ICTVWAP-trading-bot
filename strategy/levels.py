@@ -280,7 +280,12 @@ class KeyLevels:
         if len(self.sus_candles) > max_len:
             self.sus_candles = self.sus_candles[-max_len:]
 
-    def scan_structural_levels(self, df_1h: pd.DataFrame, df_4h: pd.DataFrame):
+    def scan_structural_levels(
+        self,
+        df_1h: pd.DataFrame,
+        df_4h: pd.DataFrame,
+        df_1d: Optional[pd.DataFrame] = None,
+    ):
         """
         Extract old highs/lows and internal swing highs/lows from HTF data.
 
@@ -288,12 +293,16 @@ class KeyLevels:
         are pools of resting liquidity (stop losses). Internal highs/lows are
         intermediate targets within the current leg.
 
-        Docx: "Internal highs / lows, Old highs / old lows" are primary DOL targets.
+        v0.6 R2: daily extremes join the map — per ICT 2022 Ep2, the daily
+        chart IS the liquidity map ("majority of your analysis should be
+        linked to this timeframe").
         """
         if not df_1h.empty:
             self._extract_swing_levels(df_1h, "1h")
         if not df_4h.empty:
             self._extract_swing_levels(df_4h, "4h")
+        if config.DAILY_LEVELS_IN_DOL and df_1d is not None and not df_1d.empty:
+            self._extract_swing_levels(df_1d, "1d")
 
     def _extract_swing_levels(self, df: pd.DataFrame, timeframe: str):
         """
