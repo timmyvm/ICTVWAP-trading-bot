@@ -40,6 +40,28 @@ longs still slipped through the trend gate's ±0.5 % neutral band and lost
 not edge. Both gate defaults reverted to OFF (v0.4.2); v0.3 behavior is the
 tested least-bad configuration.
 
+## v0.5 — Top-down multi-timeframe: D1 anchor + M15 MSS (2026-07-22)
+
+**Changes** (one structural change, per the one-variable rule)
+- `DAILY_BIAS_ANCHOR` (default on): daily candles added to the data layer;
+  bias is now hierarchical — D1 structure governs direction, the existing
+  4H/1H read refines it. D1+LTF agreement trades; **D1 vs LTF conflict =
+  NEUTRAL** (the March trap: a 4H retrace break against the daily trend);
+  D1 neutral = v0.3 behavior.
+- `REQUIRE_15M_MSS` (default on): before any RB scan, a 15m close must have
+  broken a 15m swing level in the bias direction within the last 8 closed
+  15m candles (2h). Execution only arms after structure has actually shifted.
+- Entries/stops/targets untouched.
+
+**Pre-registered success criteria (written BEFORE the validation run):**
+1. March counter-trend longs mostly blocked (baseline: 6 longs, −$640 net).
+2. Jan–Feb aligned winners mostly retained (baseline: +$184 net).
+3. Gross edge per trade up meaningfully vs baseline (+$17/trade).
+4. Trade count ≥ ~12/180d (a collapse below that = over-filtering, reject).
+If these fail, v0.5 reverts like v0.4.1 did and signal-side iteration STOPS.
+
+**Backtest** — pending; compare against regenerated v0.3 baseline.
+
 ## v0.4.2 — Gate defaults reverted to off (2026-07-22)
 
 **Change** `TREND_ALIGNMENT_FILTER` default → false, `MIN_TP_DISTANCE_PCT`

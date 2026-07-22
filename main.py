@@ -171,6 +171,7 @@ class TradingBot:
             df_15m = self.feed.get_candles_by_tf("15m", limit=100)
             df_1h = self.feed.get_candles_by_tf("1h", limit=100)
             df_4h = self.feed.get_candles_by_tf("4h", limit=100)
+            df_1d = self.feed.get_candles_by_tf("1d", limit=60)
         except Exception as e:
             logger.error("Data fetch failed: %s", e)
             return
@@ -235,6 +236,7 @@ class TradingBot:
             df_1h=df_1h,
             df_4h=df_4h,
             current_price=current_price,
+            df_1d=df_1d,
         )
 
         if signal is not None:

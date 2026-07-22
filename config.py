@@ -25,13 +25,14 @@ SYMBOL = os.getenv("SYMBOL", "BTCUSDT")
 CATEGORY = "linear"  # Linear perpetual
 
 # --- Timeframes ---
-TIMEFRAMES = ["1", "5", "15", "60", "240"]  # Bybit interval codes for 1m, 5m, 15m, 1h, 4h
+TIMEFRAMES = ["1", "5", "15", "60", "240", "D"]  # Bybit codes: 1m, 5m, 15m, 1h, 4h, 1d
 TIMEFRAME_MAP = {
     "1m": "1",
     "5m": "5",
     "15m": "15",
     "1h": "60",
     "4h": "240",
+    "1d": "D",
 }
 
 # --- Entry Mode ---
@@ -117,6 +118,19 @@ ENFORCE_TIER_RR = os.getenv("ENFORCE_TIER_RR", "true").lower() == "true"
 # (all 6 counter-trend longs in the March crash lost; shorts were net
 # positive) both point the same way. Trend = 4H close vs SMA of the last
 # TREND_SMA_PERIOD 4H closes, with a neutral band where the gate stays out.
+# --- v0.5: Top-Down Multi-Timeframe (D1 anchor + M15 MSS) ---
+# The rulebook's top-down flow: broader direction from Daily structure,
+# structural shift confirmation on 15m, execution on 1m/5m. v0.3's bias was
+# too reactive (a 4H retrace break flipped bias BULLISH inside a Daily
+# downtrend — every catastrophic long in the 180d backtest).
+# DAILY_BIAS_ANCHOR: D1 structure governs direction. 4H/1H agreement trades
+#   strongest; 4H/1H conflict = stand down (NEUTRAL); D1 neutral = old logic.
+DAILY_BIAS_ANCHOR = os.getenv("DAILY_BIAS_ANCHOR", "true").lower() == "true"
+# REQUIRE_15M_MSS: an M15 close must have broken structure in bias direction
+#   within the last MSS_15M_LOOKBACK closed 15m candles before RBs may arm.
+REQUIRE_15M_MSS = os.getenv("REQUIRE_15M_MSS", "true").lower() == "true"
+MSS_15M_LOOKBACK = int(os.getenv("MSS_15M_LOOKBACK", "8"))  # 8 x 15m = 2h window
+
 # DEFAULT OFF after v0.4.1 validation: with both gates on, win rate fell
 # 45.5% -> 28.6% and the gross edge went negative (+$378 -> -$76) — the gates
 # removed February's small-target winners while two March longs still slipped

@@ -38,6 +38,7 @@ RESAMPLE_RULES = {
     "15m": "15min",
     "1h": "1h",
     "4h": "4h",
+    "1d": "1D",  # UTC-anchored days, matching Bybit's daily candles
 }
 
 

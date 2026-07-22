@@ -33,7 +33,7 @@ import pandas as pd
 import pytz
 
 import config
-from strategy.bias import HTFBias
+from strategy.bias import HTFBias, find_swing_highs, find_swing_lows
 from strategy.fibonacci import FibLevels, FibonacciTracer
 from strategy.levels import KeyLevels
 from strategy.rejection_block import RejectionBlock, RejectionBlockDetector
@@ -95,11 +95,13 @@ class SignalEngine:
         df_4h: pd.DataFrame,
         current_price: float,
         now: Optional[datetime] = None,
+        df_1d: Optional[pd.DataFrame] = None,
     ) -> Optional[TradeSignal]:
         """
         Run the full signal evaluation pipeline.
 
         `now` is injectable so backtests can replay history; live callers omit it.
+        `df_1d` enables the v0.5 top-down hierarchy (D1 anchor in bias).
 
         Returns a TradeSignal if all conditions align, else None.
         """
@@ -118,7 +120,7 @@ class SignalEngine:
         # --- Step 1: Determine HTF bias ---
         # We need to know if we're looking for longs or shorts BEFORE anything else.
         # Trading against the HTF bias is how retail traders get trapped.
-        bias = self.bias_engine.evaluate(df_1h, df_4h, current_price)
+        bias = self.bias_engine.evaluate(df_1h, df_4h, current_price, df_1d)
 
         if bias == "NEUTRAL":
             logger.debug("Bias is NEUTRAL — no signal")
@@ -189,6 +191,15 @@ class SignalEngine:
             self.bias_engine.set_nwog(self.key_levels.nwog.ce)
         else:
             self.bias_engine.set_nwog(None)
+
+        # --- Step 2b: M15 structural shift gate (v0.5) ---
+        # Top-down flow: direction from D1/4H/1H, but execution only arms after
+        # the 15m chart has actually SHIFTED structure in that direction. Without
+        # this, the bot jumps straight from "1H fib zone" to "5m candle pattern"
+        # with no evidence the turn has begun.
+        if config.REQUIRE_15M_MSS and not self._has_recent_15m_mss(df_15m, bias):
+            logger.debug("No recent 15m MSS in %s direction — no signal", bias)
+            return None
 
         # --- Step 3: Compute Fibonacci levels ---
         fib_levels = self.fib_tracer.compute(df_1h, bias)
@@ -464,6 +475,45 @@ class SignalEngine:
             rb.tier,
         )
         return signal
+
+    @staticmethod
+    def _has_recent_15m_mss(df_15m: pd.DataFrame, bias: str) -> bool:
+        """
+        Did a 15m close break structure in the bias direction recently?
+
+        BULLISH: some close within the last MSS_15M_LOOKBACK closed 15m candles
+        exceeded the most recent 15m swing high formed before it.
+        BEARISH: mirror with swing lows.
+        """
+        if df_15m.empty or len(df_15m) < 10:
+            return False
+
+        n = config.MSS_15M_LOOKBACK
+        closes = df_15m["close"].to_numpy()
+
+        if bias == "BULLISH":
+            swings = find_swing_highs(df_15m, lookback=2).to_numpy()
+            levels = df_15m["high"].to_numpy()
+        else:
+            swings = find_swing_lows(df_15m, lookback=2).to_numpy()
+            levels = df_15m["low"].to_numpy()
+
+        swing_idxs = [i for i, is_swing in enumerate(swings) if is_swing]
+        if not swing_idxs:
+            return False
+
+        start = max(1, len(df_15m) - n)
+        for j in range(start, len(df_15m)):
+            # most recent swing formed strictly before candle j
+            prior = [i for i in swing_idxs if i < j]
+            if not prior:
+                continue
+            level = levels[prior[-1]]
+            if bias == "BULLISH" and closes[j] > level:
+                return True
+            if bias == "BEARISH" and closes[j] < level:
+                return True
+        return False
 
     @staticmethod
     def _htf_trend(df_4h: pd.DataFrame) -> Optional[str]:

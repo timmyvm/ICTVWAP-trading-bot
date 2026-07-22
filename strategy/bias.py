@@ -118,9 +118,14 @@ class HTFBias:
         df_1h: pd.DataFrame,
         df_4h: pd.DataFrame,
         current_price: float,
+        df_1d: Optional[pd.DataFrame] = None,
     ) -> str:
         """
         Determine HTF bias based on structure and FVGs.
+
+        With DAILY_BIAS_ANCHOR and daily data, the top-down hierarchy applies:
+        D1 structure governs direction; the 4H/1H read below acts as timing
+        refinement. D1 + 4H/1H agreement = trade; conflict = stand down.
 
         Returns: "BULLISH", "BEARISH", or "NEUTRAL"
         """
@@ -128,6 +133,11 @@ class HTFBias:
             logger.warning("Empty candle data — returning NEUTRAL bias")
             self.current_bias = "NEUTRAL"
             return "NEUTRAL"
+
+        # --- Step 0: Daily anchor (v0.5 top-down hierarchy) ---
+        d1_bias: Optional[str] = None
+        if config.DAILY_BIAS_ANCHOR and df_1d is not None and len(df_1d) >= 6:
+            d1_bias = self._structural_read(df_1d)
 
         # --- NWOG Override ---
         # ICT Rule: if there's an unfilled NWOG below price, the market needs
@@ -180,20 +190,22 @@ class HTFBias:
         htf_bearish = recent_sl_4h is not None and latest_close < recent_sl_4h
 
         if htf_bullish and not htf_bearish:
-            self.current_bias = "BULLISH"
+            bias = self._combine_with_daily(d1_bias, "BULLISH")
+            self.current_bias = bias
             logger.info(
-                "HTF Bias: BULLISH (4H MSS — close %.2f > 4H swing high %.2f)",
-                latest_close, recent_sh_4h,
+                "HTF Bias: %s (4H MSS — close %.2f > 4H swing high %.2f; D1=%s)",
+                bias, latest_close, recent_sh_4h, d1_bias,
             )
-            return "BULLISH"
+            return bias
 
         if htf_bearish and not htf_bullish:
-            self.current_bias = "BEARISH"
+            bias = self._combine_with_daily(d1_bias, "BEARISH")
+            self.current_bias = bias
             logger.info(
-                "HTF Bias: BEARISH (4H MSS — close %.2f < 4H swing low %.2f)",
-                latest_close, recent_sl_4h,
+                "HTF Bias: %s (4H MSS — close %.2f < 4H swing low %.2f; D1=%s)",
+                bias, latest_close, recent_sl_4h, d1_bias,
             )
-            return "BEARISH"
+            return bias
 
         # --- Step 2: 4H is neutral — check 1H structure for confluence ---
         # Price is between the 4H swing high and low (no 4H structure break yet).
@@ -229,12 +241,59 @@ class HTFBias:
 
         # --- Resolve ---
         if bullish_structure and not bearish_structure:
-            self.current_bias = "BULLISH"
+            ltf_bias = "BULLISH"
         elif bearish_structure and not bullish_structure:
-            self.current_bias = "BEARISH"
+            ltf_bias = "BEARISH"
         else:
             # Conflicting 1H signals or no structure break on any timeframe
-            self.current_bias = "NEUTRAL"
+            ltf_bias = "NEUTRAL"
 
-        logger.info("HTF Bias: %s (close=%.2f)", self.current_bias, latest_close)
+        self.current_bias = self._combine_with_daily(d1_bias, ltf_bias)
+        logger.info(
+            "HTF Bias: %s (close=%.2f, D1=%s, 4H/1H=%s)",
+            self.current_bias, latest_close, d1_bias, ltf_bias,
+        )
         return self.current_bias
+
+    @staticmethod
+    def _structural_read(df: pd.DataFrame) -> str:
+        """
+        Pure structural bias on one timeframe: latest close vs the most recent
+        swing high/low (lookback=2, same convention as the 4H read).
+        """
+        swing_highs = find_swing_highs(df, lookback=2)
+        swing_lows = find_swing_lows(df, lookback=2)
+        recent_sh = df.loc[swing_highs, "high"].iloc[-1] if swing_highs.any() else None
+        recent_sl = df.loc[swing_lows, "low"].iloc[-1] if swing_lows.any() else None
+        close = df["close"].iloc[-1]
+
+        is_bull = recent_sh is not None and close > recent_sh
+        is_bear = recent_sl is not None and close < recent_sl
+        if is_bull and not is_bear:
+            return "BULLISH"
+        if is_bear and not is_bull:
+            return "BEARISH"
+        return "NEUTRAL"
+
+    @staticmethod
+    def _combine_with_daily(d1_bias: Optional[str], ltf_bias: str) -> str:
+        """
+        Top-down combiner: D1 governs direction.
+
+        - No daily anchor / D1 neutral -> the 4H/1H read stands (v0.3 behavior).
+        - D1 directional + 4H/1H agree  -> that direction (strongest).
+        - D1 directional + 4H/1H neutral -> D1 direction (the M15 MSS gate
+          supplies the timing confirmation downstream).
+        - D1 directional + 4H/1H OPPOSE -> NEUTRAL. This is the March fix: a
+          4H retrace break against the daily trend is a trap, not a bias.
+        """
+        if d1_bias is None or d1_bias == "NEUTRAL":
+            return ltf_bias
+        if ltf_bias == "NEUTRAL":
+            return d1_bias
+        if ltf_bias == d1_bias:
+            return d1_bias
+        logger.info(
+            "Daily anchor veto: D1 %s vs 4H/1H %s — standing down", d1_bias, ltf_bias,
+        )
+        return "NEUTRAL"

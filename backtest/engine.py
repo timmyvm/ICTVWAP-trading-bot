@@ -44,8 +44,8 @@ logger = logging.getLogger(__name__)
 
 NY_TZ = pytz.timezone("America/New_York")
 
-WINDOW_LIMITS = {"1m": 1000, "5m": 200, "15m": 100, "1h": 100, "4h": 100}
-TF_SECONDS = {"1m": 60, "5m": 300, "15m": 900, "1h": 3600, "4h": 14400}
+WINDOW_LIMITS = {"1m": 1000, "5m": 200, "15m": 100, "1h": 100, "4h": 100, "1d": 60}
+TF_SECONDS = {"1m": 60, "5m": 300, "15m": 900, "1h": 3600, "4h": 14400, "1d": 86400}
 
 
 @dataclass
@@ -308,6 +308,7 @@ class BacktestEngine:
         df_15m = self._window("15m", now_ns)
         df_1h = self._window("1h", now_ns)
         df_4h = self._window("4h", now_ns)
+        df_1d = self._window("1d", now_ns) if "1d" in self.frames else None
 
         if len(df_1h) < 12 or len(df_4h) < 6 or len(df_5m) < 30:
             return
@@ -341,7 +342,7 @@ class BacktestEngine:
             signal = self.signal_engine.evaluate(
                 df_1m=df_1m, df_5m=df_5m, df_15m=df_15m,
                 df_1h=df_1h, df_4h=df_4h,
-                current_price=current_price, now=now,
+                current_price=current_price, now=now, df_1d=df_1d,
             )
             if signal is not None:
                 if self.was_stopped_out and self.active_setup_id == signal.setup_id:
