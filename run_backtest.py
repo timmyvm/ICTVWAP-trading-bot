@@ -87,6 +87,8 @@ def run_variant(name: str, frames: dict, balance: float) -> dict:
 def main():
     ap = argparse.ArgumentParser(description="Backtest the Powell Trades bot")
     ap.add_argument("--days", type=int, default=60, help="trailing days to test")
+    ap.add_argument("--cache-file", default=None,
+                    help="alternative 1m cache (e.g. the multi-year regime set)")
     ap.add_argument("--variant", default="fixed",
                     choices=[*VARIANTS.keys(), "all"])
     ap.add_argument("--balance", type=float, default=10_000.0)
@@ -109,7 +111,7 @@ def main():
         print(f"Fetching {args.refresh_data} days of 1m data from Bybit...")
         fetch_bybit_1m(args.refresh_data)
 
-    frames = load_frames(days=args.days)
+    frames = load_frames(days=args.days, cache_path=args.cache_file)
     span = f"{frames['1m'].index[0]} -> {frames['1m'].index[-1]}"
     print(f"Backtesting {args.days} days: {span}\n")
 

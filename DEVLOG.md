@@ -71,6 +71,24 @@ strong enough to run never retrace to the CE (those winners go unfilled),
 while the gaps that DO retrace deep enough to fill are disproportionately the
 failing ones. The entry price improved; the entry *population* got worse.
 
+## v0.8 — REGIME TEST: 2023→2026 multi-year validation (2026-07-22)
+
+User standard: the 180d results aren't strong enough to justify paper
+trading. Correct response is more DATA on the surviving configs, not more
+tuning. Both survivors (v0.3 RB, v0.3+FVG) run unchanged over 3.55 years of
+1m data (2023-01 → 2026-07: the 2023 recovery, 2024 bull, 2025 top, 2026
+bear; 1.87M candles, zero gaps; cache too large to commit — regenerate via
+DEVLOG instructions / `--cache-file`).
+
+**Pre-registered criteria, per config:** (1) win rate within ±10 pp of its
+180d value; (2) gross per trade positive over the full period AND in at
+least 3 of 4 calendar years; (3) no year worse than −15 % net at Bybit
+retail fees; (4) combined sample ≥ 60 trades. PASS → the config earns
+paper-trade/forward validation. FAIL → strategy shelved for this instrument.
+No parameter changes are permitted in response to these results.
+
+**Backtest** — running (both configs, sequential; ~3h wall time).
+
 ## v0.7.2 — CORRECTION: v0.7 was confounded; true v0.3+FVG rerun (2026-07-22)
 
 **Design flaw found (user-caught):** the v0.7 run disabled the v0.5/v0.6

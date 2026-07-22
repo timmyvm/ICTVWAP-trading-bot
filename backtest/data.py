@@ -42,14 +42,15 @@ RESAMPLE_RULES = {
 }
 
 
-def load_cached_1m() -> pd.DataFrame:
-    """Load the committed 1m cache into a NY-tz indexed OHLCV DataFrame."""
-    if not os.path.exists(CACHE_1M):
+def load_cached_1m(path: Optional[str] = None) -> pd.DataFrame:
+    """Load a 1m cache (default: the committed one) into a NY-tz indexed frame."""
+    path = path or CACHE_1M
+    if not os.path.exists(path):
         raise FileNotFoundError(
-            f"No cached data at {CACHE_1M}. Run fetch_bybit_1m() on a machine "
+            f"No cached data at {path}. Run fetch_bybit_1m() on a machine "
             "with exchange API access, or restore the committed cache file."
         )
-    df = pd.read_csv(CACHE_1M)
+    df = pd.read_csv(path)
     return _normalize_1m(df)
 
 
@@ -140,17 +141,21 @@ def resample_ohlcv(df_1m: pd.DataFrame, tf: str) -> pd.DataFrame:
     return out.tz_convert(NY_TZ)
 
 
-def load_frames(days: Optional[int] = None) -> dict[str, pd.DataFrame]:
+def load_frames(
+    days: Optional[int] = None, cache_path: Optional[str] = None,
+) -> dict[str, pd.DataFrame]:
     """
     Load 1m data (cache) and build all strategy timeframes.
 
     Args:
         days: keep only the trailing N days (None = everything cached).
+        cache_path: alternative 1m cache file (e.g. the multi-year regime set,
+            which is too large to commit).
 
     Returns:
-        {"1m": ..., "5m": ..., "15m": ..., "1h": ..., "4h": ...}
+        {"1m": ..., "5m": ..., "15m": ..., "1h": ..., "4h": ..., "1d": ...}
     """
-    df_1m = load_cached_1m()
+    df_1m = load_cached_1m(cache_path)
     if days is not None:
         cutoff = df_1m.index.max() - pd.Timedelta(days=days)
         df_1m = df_1m[df_1m.index >= cutoff]
