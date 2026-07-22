@@ -30,12 +30,28 @@ signal when that target is closer than `MIN_TP_DISTANCE_PCT` — no substitute
 targets. Trade count should now fall below baseline (near-target setups are
 skipped), win rate should hold near baseline on survivors.
 
-**Backtest** — corrected 180d ICT-only validation vs v0.3 baseline:
-NOT YET RUN (session stopped to save usage). Reproduce with:
-`VWAP_ENABLED=false ENFORCE_TIER_RR=false python run_backtest.py --days 180 --variant fixed`
-Compare against baseline 22 trades / −5.6 % / PF 0.71. Expect FEWER trades
-(fee-zone setups skipped) with baseline-like win rate on survivors; if trade
-count collapses, retest with `MIN_TP_DISTANCE_PCT=0.15`.
+**Backtest (2026-07-22)** — corrected 180d ICT-only validation vs v0.3
+baseline (22 trades / 45.5 % win / gross +$378 / net −5.6 % / PF 0.71):
+**7 trades, 28.6 % win, gross −$76, fees $352, net −$428 (−4.3 %), PF 0.47.**
+NEGATIVE. The gates removed February's small-target winners (the win rate
+lived in nearest-pool quick hits the TP floor now skips) while two March
+longs still slipped through the trend gate's ±0.5 % neutral band and lost
+−$323. Net was smaller only because there were fewer trades — risk reduction,
+not edge. Both gate defaults reverted to OFF (v0.4.2); v0.3 behavior is the
+tested least-bad configuration.
+
+## v0.4.2 — Gate defaults reverted to off (2026-07-22)
+
+**Change** `TREND_ALIGNMENT_FILTER` default → false, `MIN_TP_DISTANCE_PCT`
+default → 0.0. Code paths retained for isolated testing.
+
+**Conclusion after 4 tested configurations** (legacy, v0.3, v0.4-retarget,
+v0.4.1): none is net-profitable at Bybit non-VIP fees; v0.3 keeps the only
+positive gross edge (+$378/180d, eaten 2.5× by fees). Per the overfitting
+literature (RESEARCH.md #3), further parameter iteration on 7–22-trade
+samples manufactures noise. Remaining levers are structural: execution costs
+(VIP/maker tiers, rebate venue), instrument choice (larger %-moves relative
+to costs), or accepting the strategy as discretionary-only.
 
 ## v0.4 — Trend gate + fee-aware targets (2026-07-21) `c609d33`
 

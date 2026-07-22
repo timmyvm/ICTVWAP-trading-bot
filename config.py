@@ -117,15 +117,21 @@ ENFORCE_TIER_RR = os.getenv("ENFORCE_TIER_RR", "true").lower() == "true"
 # (all 6 counter-trend longs in the March crash lost; shorts were net
 # positive) both point the same way. Trend = 4H close vs SMA of the last
 # TREND_SMA_PERIOD 4H closes, with a neutral band where the gate stays out.
-TREND_ALIGNMENT_FILTER = os.getenv("TREND_ALIGNMENT_FILTER", "true").lower() == "true"
+# DEFAULT OFF after v0.4.1 validation: with both gates on, win rate fell
+# 45.5% -> 28.6% and the gross edge went negative (+$378 -> -$76) — the gates
+# removed February's small-target winners while two March longs still slipped
+# through the neutral band. Untested in isolation; see DEVLOG backlog.
+TREND_ALIGNMENT_FILTER = os.getenv("TREND_ALIGNMENT_FILTER", "false").lower() == "true"
 TREND_SMA_PERIOD = int(os.getenv("TREND_SMA_PERIOD", "50"))          # ~8.3 days of 4H
 TREND_NEUTRAL_BAND_PCT = float(os.getenv("TREND_NEUTRAL_BAND_PCT", "0.5"))
 
 # --- Minimum Take-Profit Distance (RESEARCH.md action #2) ---
-# Skip DOL targets closer than this % of price. 3-minute median holds cannot
-# out-earn the fee line: target must clear ~3x the all-in round-trip cost
-# (maker in + taker stop ~0.075%), so default 0.25%.
-MIN_TP_DISTANCE_PCT = float(os.getenv("MIN_TP_DISTANCE_PCT", "0.25"))
+# Reject signals whose nearest-DOL target is closer than this % of price.
+# DEFAULT OFF (0.0) after v0.4.1: the nearest-pool small targets ARE the win
+# rate — skipping them destroyed the gross edge. The fee problem is real but
+# has to be solved on the cost side (fee tiers/venue), not by discarding the
+# strategy's best trades.
+MIN_TP_DISTANCE_PCT = float(os.getenv("MIN_TP_DISTANCE_PCT", "0.0"))
 
 # --- Rejection Block Filters ---
 # "No-wick" threshold: if wick is less than this fraction of total range,
