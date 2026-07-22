@@ -62,6 +62,28 @@ If these fail, v0.5 reverts like v0.4.1 did and signal-side iteration STOPS.
 
 **Backtest** — pending; compare against regenerated v0.3 baseline.
 
+**Fee sweep (2026-07-22)** — computed analytically from the regenerated and
+byte-identical v0.3 baseline (22 trades, preserved at
+`backtest/baselines/v03_180d_trades.csv`); trade list is fee-independent:
+
+| Fee scenario (maker/taker %) | 180d net |
+|---|---|
+| Bybit non-VIP (0.02 / 0.055) | **−$562** |
+| VIP-ish (0.01 / 0.03) | −$114 |
+| Rebate venue (0.00 / 0.02) | **+$202** |
+| Zero fees | +$378 |
+
+The unmodified v0.3 signal is net-POSITIVE on a 0.00/0.02 venue with no
+strategy changes — execution cost, not signal quality, is the binding
+constraint. (22-trade sample caveat applies.)
+
+**ICT source study** — 2022 Mentorship Ep2/Ep3 transcripts distilled into
+`docs/ict/distilled_rules.md`: sweep-coupled MSS (R1), daily extremes in the
+DOL map (R2), killzone alignment (R3), FVG entries (R4) queued as future
+single-change experiments. Ep2/Ep3 explicitly teach "closest target, low
+hanging fruit" — independent confirmation of the nearest-DOL TP design and
+of v0.4.1's negative retargeting result.
+
 ## v0.4.2 — Gate defaults reverted to off (2026-07-22)
 
 **Change** `TREND_ALIGNMENT_FILTER` default → false, `MIN_TP_DISTANCE_PCT`
