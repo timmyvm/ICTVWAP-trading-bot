@@ -63,6 +63,26 @@ RESEARCH.md, that's where mechanization degrades.
 4. **R4 — FVG entry mode**: enter on retrace into the displacement FVG
    instead of the RB open (bigger change; only after R1–R3 verdicts).
 
+## R8 — PDH/PDL-sweep FVG variant (third-party source, credibility-discounted)
+
+Source: anonymous YouTube video "Mind BLOWING ICT Strategy With an 80% Win
+Rate" (user-supplied transcript). The 80 % claim is UNEVIDENCED — one
+hindsight example, no trade log, ends in a paid-community funnel; at the
+recommended 2.5R+ targets an 80 % win rate implies PF ≈ 10, which is
+self-refuting. Treated purely as a variant description, not evidence.
+
+Mechanics (≈ our v0.7.2 FVG variant with three deltas):
+1. Sweep reference = **previous day's high/low** (midnight-to-midnight NY),
+   not generic swings — a cleaner liquidity pool, consistent with Ep2's
+   daily liquidity map.
+2. MSS = break of the **origin low/high of the leg that performed the sweep**
+   (same timeframe, displacement-driven — not a lagging HTF close gate).
+3. 3m execution TF; optional minimum-displacement filter.
+
+Status: candidate ONLY if the v0.8 regime test passes for the FVG variant;
+would be one pre-registered run sharpening the sweep condition. If the
+regime test fails the family, R8 is moot.
+
 ## Logged but NOT mechanized (discretionary)
 
 - Two stacked FVGs: sacrifice the better (lower) one, enter the upper after
