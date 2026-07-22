@@ -1,5 +1,11 @@
 # Why the bot wasn't working — audit findings + backtest
 
+> **Post-report series (v0.4–v0.7):** four further experiment rounds (target
+> floors, D1 anchor, M15 MSS variants, FVG entries) all failed pre-registered
+> criteria and are documented with mechanisms in `DEVLOG.md`. Production
+> config = the v0.3 behavior described here; the proven profitability lever
+> is venue fees (see the fee sweep in DEVLOG: +$202/180d at 0.00/0.02).
+
 Audit of the full strategy/execution stack, the bugs found (ranked by damage),
 and a backtest of the before/after behavior on real BTC 1-minute data.
 

@@ -59,7 +59,38 @@ fill rate of placed orders reported (limit-at-CE may fill less often).
 **Hard stop**: this is trial #7 — whatever the outcome, signal-side iteration
 ends here; results are in-sample evidence only until walk-forward validation.
 
-**Backtest** — pending (queued behind v0.6).
+**Backtest (2026-07-22): FAIL on pre-registered criteria.** 180d ICT-only:
+**7 trades, 28.6 % win, gross −$242, fees $280, net −$523, PF 0.30.**
+Orders: 14 placed → **7 filled (50 %)**, 7 replaced unfilled. Criteria
+(gross/trade ≥ +$17, win ≥ 40 %, trades ≥ 12): all missed. Trades preserved
+at `backtest/baselines/v07_180d_trades.csv`.
+
+Mechanism — textbook **adverse selection on passive fills**, exactly as the
+market-maker's-dilemma literature (RESEARCH.md §2) predicted: displacements
+strong enough to run never retrace to the CE (those winners go unfilled),
+while the gaps that DO retrace deep enough to fill are disproportionately the
+failing ones. The entry price improved; the entry *population* got worse.
+
+## v0.7.1 — SETTLEMENT: production config = v0.3 behavior (2026-07-22)
+
+Seven configurations tested; final map:
+
+| Config | Trades | Win % | Gross | Net | PF |
+|---|---|---|---|---|---|
+| legacy (original) | 0 ICT / 73 VWAP | — | — | −45.1 % | 0.12 |
+| **v0.3 (bug fixes, tier off)** | **22** | **45.5** | **+$378** | **−5.6 %** | **0.71** |
+| v0.4.1 (TP retarget→reject) | 105→7 | 25.7→— | −$1,531 | −53 % | 0.39 |
+| v0.5 (D1 + plain MSS) | 14 | 21.4 | −$522 | −11.8 % | 0.30 |
+| v0.6 (+ sweep-coupled MSS, R2, R3) | 12 | 25.0 | −$436 | −10.3 % | 0.26 |
+| v0.7 (FVG-CE entries) | 7 | 28.6 | −$242 | −5.2 % | 0.30 |
+
+All flag defaults now encode v0.3 behavior (anchors/gates off, RB trigger,
+proven killzones); every alternative remains one env var away. **v0.3 is the
+only gross-positive configuration**, and with the fee sweep it is net-positive
+(+$202/180d) at 0.00/0.02 venue rates. Signal-side iteration is CLOSED per the
+pre-registered hard stop; any future signal claim requires walk-forward /
+out-of-sample survival before it can displace v0.3. Next levers are
+structural: venue/fee selection, then live-order lifecycle hardening.
 
 ## v0.6 — ICT alignment pack: R1+R2+R3 from the 2022 Mentorship (2026-07-22)
 
