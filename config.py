@@ -144,6 +144,15 @@ MSS_SWEEP_LOOKBACK = int(os.getenv("MSS_SWEEP_LOOKBACK", "16"))  # 16 x 15m = 4h
 # the liquidity map; "majority of your analysis should be linked to it").
 DAILY_LEVELS_IN_DOL = os.getenv("DAILY_LEVELS_IN_DOL", "true").lower() == "true"
 
+# v0.7 R4 — entry trigger selection.
+# "rb"  (default): Powell's rejection-block entry at the initial candle open.
+# "fvg": the 2022-model entry — a resting limit at the CE (midpoint) of the
+#   fair value gap left by displacement on the entry TF. Attacks entry PRICE
+#   (fills on the retrace, at a better price or not at all) instead of adding
+#   the entry DELAY that killed v0.4.1/v0.5-style confirmation filters.
+ENTRY_TRIGGER = os.getenv("ENTRY_TRIGGER", "rb")
+FVG_MAX_AGE_CANDLES = int(os.getenv("FVG_MAX_AGE_CANDLES", "6"))  # freshness window
+
 # DEFAULT OFF after v0.4.1 validation: with both gates on, win rate fell
 # 45.5% -> 28.6% and the gross edge went negative (+$378 -> -$76) — the gates
 # removed February's small-target winners while two March longs still slipped

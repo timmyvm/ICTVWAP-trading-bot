@@ -33,7 +33,7 @@ import pandas as pd
 import pytz
 
 import config
-from strategy.bias import HTFBias, find_swing_highs, find_swing_lows
+from strategy.bias import HTFBias, detect_fvg, find_swing_highs, find_swing_lows
 from strategy.fibonacci import FibLevels, FibonacciTracer
 from strategy.levels import KeyLevels
 from strategy.rejection_block import RejectionBlock, RejectionBlockDetector
@@ -233,7 +233,7 @@ class SignalEngine:
         All standard RB rules apply. This gives the tightest entries
         but requires watching 1m chart noise.
         """
-        rb = self.rb_detector.scan(df_1m, fib_levels, bias)
+        rb = self._scan_entry(df_1m, fib_levels, bias)
         if rb is None:
             return None
 
@@ -256,7 +256,7 @@ class SignalEngine:
 
         R:R must be between 1:3 and 1:6 for 5m mode.
         """
-        rb = self.rb_detector.scan(df_5m, fib_levels, bias)
+        rb = self._scan_entry(df_5m, fib_levels, bias)
         if rb is None:
             return None
 
@@ -293,7 +293,7 @@ class SignalEngine:
         The 1m RB gives us precision on entry and a much tighter stop.
         """
         # Check for new 5m RB
-        rb_5m = self.rb_detector.scan(df_5m, fib_levels, bias)
+        rb_5m = self._scan_entry(df_5m, fib_levels, bias)
         if rb_5m is not None:
             self._pending_5m_rb = rb_5m
             logger.info(
@@ -303,7 +303,7 @@ class SignalEngine:
 
         # If we have a pending 5m RB, look for 1m confirmation within it
         if self._pending_5m_rb is not None:
-            rb_1m = self.rb_detector.scan(df_1m, fib_levels, bias)
+            rb_1m = self._scan_entry(df_1m, fib_levels, bias)
             if rb_1m is not None:
                 # Verify the 1m RB is within the 5m block's range
                 within_zone = (
@@ -475,6 +475,79 @@ class SignalEngine:
             rb.tier,
         )
         return signal
+
+    def _scan_entry(
+        self, df: pd.DataFrame, fib_levels: FibLevels, bias: str,
+    ) -> Optional[RejectionBlock]:
+        """Entry-trigger dispatch: Powell RB (default) or 2022-model FVG."""
+        if config.ENTRY_TRIGGER == "fvg":
+            return self._scan_fvg_entry(df, fib_levels, bias)
+        return self.rb_detector.scan(df, fib_levels, bias)
+
+    @staticmethod
+    def _scan_fvg_entry(
+        df: pd.DataFrame, fib_levels: FibLevels, bias: str,
+    ) -> Optional[RejectionBlock]:
+        """
+        v0.7 R4 — the 2022-model entry: a resting limit at the CE (midpoint)
+        of a fresh fair value gap left by displacement in the bias direction.
+
+        Requirements:
+        - FVG formed within the last FVG_MAX_AGE_CANDLES closed candles
+        - the gap has not been fully traded through since it formed
+        - its CE sits in the fib discount/premium zone (pipeline unchanged)
+
+        Returns a RejectionBlock-shaped object so _build_signal's stop/target/
+        R:R logic applies identically — the trigger is the only variable.
+        """
+        if df.empty or len(df) < 5:
+            return None
+
+        window = df.iloc[-(config.FVG_MAX_AGE_CANDLES + 2):]
+        fvgs = detect_fvg(window)
+        want = "bullish" if bias == "BULLISH" else "bearish"
+
+        for fvg in reversed(fvgs):  # newest first
+            if fvg["type"] != want:
+                continue
+            top, bottom = fvg["top"], fvg["bottom"]
+
+            # Freshness: skip gaps price has already fully traded through
+            after = df[df.index > fvg["timestamp"]]
+            if not after.empty:
+                if bias == "BULLISH" and after["low"].min() <= bottom:
+                    continue
+                if bias == "BEARISH" and after["high"].max() >= top:
+                    continue
+
+            ce = (top + bottom) / 2
+            fib_zone = fib_levels.get_zone(ce)
+            if fib_zone is None:
+                continue  # entry must still sit in discount/premium
+
+            # The displacement's 3-candle extreme is the swept level the stop
+            # hides behind (same field semantics as the RB detector).
+            pos = df.index.get_loc(fvg["timestamp"])
+            leg = df.iloc[max(0, pos - 2): pos + 1]
+            swept = float(leg["low"].min()) if bias == "BULLISH" else float(leg["high"].max())
+
+            logger.info(
+                "FVG entry (%s): gap %.2f-%.2f, CE=%.2f, zone=%s",
+                want, bottom, top, ce, fib_zone,
+            )
+            return RejectionBlock(
+                timestamp=df.index[-1],
+                direction="LONG" if bias == "BULLISH" else "SHORT",
+                entry_price=ce,
+                block_high=top,
+                block_low=bottom,
+                block_range=top - bottom,
+                manipulation_high=swept,
+                fib_zone=fib_zone,
+                is_large=False,
+            )
+
+        return None
 
     @staticmethod
     def _has_recent_15m_mss(df_15m: pd.DataFrame, bias: str) -> bool:

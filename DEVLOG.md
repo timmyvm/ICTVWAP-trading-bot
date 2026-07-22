@@ -40,6 +40,27 @@ longs still slipped through the trend gate's ±0.5 % neutral band and lost
 not edge. Both gate defaults reverted to OFF (v0.4.2); v0.3 behavior is the
 tested least-bad configuration.
 
+## v0.7 — R4: the 2022-model FVG entry (2026-07-22)
+
+**Change** `ENTRY_TRIGGER="fvg"` (default stays "rb"): entries become resting
+limits at the CE of a fresh displacement fair value gap (≤ FVG_MAX_AGE_CANDLES
+old, not yet traded through, CE inside the fib zone). Everything downstream —
+stops, targets, R:R, tiers — unchanged via a RejectionBlock-shaped adapter.
+Rationale: every failed filter *delayed* entries; the FVG limit improves entry
+PRICE (fills on the retrace or not at all). This is Huddleston's actual 2022
+entry, untested until now.
+
+**Experimental config**: v0.3 stack + fvg trigger ONLY (all v0.5/v0.6 gates
+off) so the trigger is the single variable vs the v0.3 baseline.
+
+**Pre-registered criteria** (vs baseline 22 tr / 45.5 % / +$378 gross /
+PF 0.71): gross/trade ≥ baseline's +$17; win rate ≥ ~40 %; trades ≥ 12;
+fill rate of placed orders reported (limit-at-CE may fill less often).
+**Hard stop**: this is trial #7 — whatever the outcome, signal-side iteration
+ends here; results are in-sample evidence only until walk-forward validation.
+
+**Backtest** — pending (queued behind v0.6).
+
 ## v0.6 — ICT alignment pack: R1+R2+R3 from the 2022 Mentorship (2026-07-22)
 
 **Changes** (individually flagged so any piece can be ablated without edits)
