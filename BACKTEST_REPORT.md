@@ -1,10 +1,13 @@
 # Why the bot wasn't working — audit findings + backtest
 
-> **Post-report series (v0.4–v0.7):** four further experiment rounds (target
-> floors, D1 anchor, M15 MSS variants, FVG entries) all failed pre-registered
-> criteria and are documented with mechanisms in `DEVLOG.md`. Production
-> config = the v0.3 behavior described here; the proven profitability lever
-> is venue fees (see the fee sweep in DEVLOG: +$202/180d at 0.00/0.02).
+> **Post-report series (v0.4–v0.8):** four experiment rounds (target floors,
+> D1 anchor, M15 MSS variants, FVG entries) failed pre-registered criteria,
+> and the v0.8 multi-year regime test (2023→2026, 1.87M candles) found BOTH
+> surviving configs gross-negative across regimes — the strong 180-day
+> window was regime luck. **The mechanized strategy is shelved for BTCUSDT**
+> per the pre-registered rule; full record and per-year tables in
+> `DEVLOG.md`. The audit fixes, backtest engine, and fee analysis remain the
+> durable outputs.
 
 Audit of the full strategy/execution stack, the bugs found (ranked by damage),
 and a backtest of the before/after behavior on real BTC 1-minute data.

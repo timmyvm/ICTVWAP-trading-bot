@@ -87,7 +87,36 @@ retail fees; (4) combined sample ≥ 60 trades. PASS → the config earns
 paper-trade/forward validation. FAIL → strategy shelved for this instrument.
 No parameter changes are permitted in response to these results.
 
-**Backtest** — running (both configs, sequential; ~3h wall time).
+**Backtest (2026-07-22): BOTH CONFIGS FAIL — strategy shelved per
+pre-registration.**
+
+| Config | Trades | Win % (180d ref) | Gross total | Gross/trade | Net @ retail | Max DD |
+|---|---|---|---|---|---|---|
+| v0.3 RB | 118 | 34.7 (45.5) | **−$578** | −$4.9 | **−49.6 %** | 51 % |
+| v0.3+FVG | 53 | 28.3 (50.0) | **−$1,264** | −$23.9 | −31.9 % | 34 % |
+
+Per-year gross/trade (v0.3): 2023 +$1, 2024 +$2, **2025 −$38**, 2026 +$12.
+Per-year (FVG): 2023 −$31, 2024 −$26, **2025 −$40**, 2026 +$20.
+
+Criteria: win-rate band — v0.3 34.7 % vs ≥35.5 % FAIL; FVG 28.3 % vs ≥40 %
+FAIL. Gross/trade positive overall — both FAIL. Year floor (−15 %) — v0.3
+breaches in 2024 and 2025; FVG borderline in 2024. Only the sample-size
+criterion passed.
+
+**The decisive finding: both configs are gross-NEGATIVE over 3.55 years —
+no fee tier can save a strategy with no gross edge.** The 2026 window we
+measured everything on (48-50 % win, positive gross/trade in BOTH configs)
+was the friendliest regime in the whole dataset; the 180-day results were
+substantially regime luck, exactly the in-sample selection effect the
+overfitting literature (RESEARCH.md §3) describes. 2025 was catastrophic
+for both variants.
+
+**Disposition per the pre-registered rule: the mechanized strategy family is
+SHELVED for BTCUSDT.** No parameter changes in response to these results; no
+paper trading. R8 and all queued candidates are moot for this instrument.
+What remains valid: the audit fixes, the backtest engine, the fee analysis
+method, and the documented negative — which prevented months of forward
+testing (or live losses) on a regime-lucky system.
 
 ## v0.7.2 — CORRECTION: v0.7 was confounded; true v0.3+FVG rerun (2026-07-22)
 
