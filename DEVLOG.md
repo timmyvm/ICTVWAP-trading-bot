@@ -78,7 +78,21 @@ ablate flags individually before reverting.
 4. Trade count ≥ ~12/180d (a collapse below that = over-filtering, reject).
 If these fail, v0.5 reverts like v0.4.1 did and signal-side iteration STOPS.
 
-**Backtest** — pending; compare against regenerated v0.3 baseline.
+**Backtest (2026-07-22): FAIL on pre-registered criteria.** 180d ICT-only:
+**14 trades, 21.4 % win, gross −$522, fees $655, net −$1,178, PF 0.30**
+(baseline: 22 / 45.5 % / +$378 / −$562 / 0.71). Trades preserved at
+`backtest/baselines/v05_180d_trades.csv`.
+
+Criteria: (1) March longs blocked — **NO**: March −$648, 0 wins. Mechanism:
+in a relentless daily decline no daily swing lows FORM (monotonic series has
+no local minima), so the D1 read goes NEUTRAL and the veto goes blind exactly
+when it's needed. (2) Feb winners retained — **NO**: 3 trades −$33 vs 12 for
++$184; the plain M15 MSS gate choked off the chop entries. (3) Gross/trade up
+— **NO**: −$37 vs +$17. Additional pathology: even shorts lost (11 for −$683
+vs +$78 baseline) — waiting for a 15m close-through-swing admits entries LATE
+in the leg, at worse prices. Lesson: close-confirmed M15 MSS is a lag filter,
+not a quality filter; and a structural D1 anchor needs a fallback read (e.g.
+close vs prior day's range) for swing-less trend days.
 
 **Fee sweep (2026-07-22)** — computed analytically from the regenerated and
 byte-identical v0.3 baseline (22 trades, preserved at
