@@ -71,6 +71,23 @@ strong enough to run never retrace to the CE (those winners go unfilled),
 while the gaps that DO retrace deep enough to fill are disproportionately the
 failing ones. The entry price improved; the entry *population* got worse.
 
+## v0.7.2 — CORRECTION: v0.7 was confounded; true v0.3+FVG rerun (2026-07-22)
+
+**Design flaw found (user-caught):** the v0.7 run disabled the v0.5/v0.6
+FLAGS via env, but the killzone times were plain constants still set to the
+ICT windows (8:30-11 / 2-5) — so v0.7 actually tested FVG entries + shifted
+sessions, not FVG alone. Sessions are now env-controllable
+(`NY_AM_SESSION`/`LONDON_SESSION`) and the true single-variable experiment
+(v0.3 stack incl. proven windows + `ENTRY_TRIGGER=fvg`) is running. Same
+pre-registered criteria as v0.7. The v0.7 FAIL verdict stands but is
+re-labeled "FVG + ICT killzones".
+
+**Process lesson (also added to CLAUDE.md):** before claiming a
+single-variable run, diff the FULL effective config against the baseline —
+flags are not the only config.
+
+**Backtest** — pending.
+
 ## v0.7.1 — SETTLEMENT: production config = v0.3 behavior (2026-07-22)
 
 Seven configurations tested; final map:

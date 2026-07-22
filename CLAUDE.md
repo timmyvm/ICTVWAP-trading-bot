@@ -102,3 +102,7 @@ config.py        — All tuneable parameters (TESTING_MODE, ENTRY_MODE, etc.)
 
 - Backtest any strategy change with `run_backtest.py` before deploying. The engine reuses the real strategy
   stack via injected `now` params — keep every new time-dependent code path injectable (`now: Optional[datetime]`).
+
+- Before claiming a "single-variable" experiment, diff the FULL effective config against the baseline —
+  flags are not the only config. The v0.7 run silently carried changed session-window CONSTANTS along with
+  the intended trigger change. Make experiment-relevant constants env-controllable.

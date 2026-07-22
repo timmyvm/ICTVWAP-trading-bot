@@ -205,8 +205,10 @@ NEWS_LEVELS: list[dict] = [
 # v0.6 R3: aligned to ICT's killzones (2022 Mentorship Ep3) — NY 8:30-11:00
 # ("that sweet little spot in the morning", extendable to noon; we stop at 11)
 # and London 2:00-5:00. Previous Powell-derived windows were 9:30-12 / 3-6.
-NY_AM_SESSION = (9, 30, 12, 0)   # 09:30 - 12:00 NY (v0.3 proven window; ICT alt: 8:30-11)
-LONDON_SESSION = (3, 0, 6, 0)    # 03:00 - 06:00 NY (v0.3 proven window; ICT alt: 2-5)
+# Env-controllable ("h,m,h,m") so experiments can vary sessions explicitly —
+# a constant slipped through the v0.7 single-variable design (see DEVLOG).
+NY_AM_SESSION = tuple(int(x) for x in os.getenv("NY_AM_SESSION", "9,30,12,0").split(","))
+LONDON_SESSION = tuple(int(x) for x in os.getenv("LONDON_SESSION", "3,0,6,0").split(","))
 
 # --- NWOG Proximity ---
 # NWOG override only applies if the gap is within this % of current price.
