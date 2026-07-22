@@ -77,7 +77,16 @@ baseline; trade count 10-30 (R3 widens mornings, R1 filters — net ambiguous);
 March counter-trend cluster reduced. Bundle judged as a whole; if negative,
 ablate flags individually before reverting.
 
-**Backtest** — pending (queued behind the v0.5 validation run).
+**Backtest (2026-07-22): FAIL on pre-registered criteria.** 180d ICT-only:
+**12 trades, 25.0 % win, gross −$436, fees $594, net −$1,030, PF 0.26**
+(baseline: 22 / 45.5 % / +$378 / −$562 / 0.71). Trades preserved at
+`backtest/baselines/v06_180d_trades.csv`. The sweep-coupled MSS was more
+selective (12 vs 14 trades) and marginally less bad than v0.5 per trade, but
+the family pathology is unchanged: close-confirmed 15m gating admits LATE
+entries, and the D1 anchor's swing-blindness persists. Criteria (gross/trade
+up, win rate ≈ baseline, March cluster reduced): all missed. Conclusion: the
+v0.5/v0.6 confirmation-layer family is rejected; v0.3 remains the best RB
+configuration. Flag defaults to be settled after the v0.7 (FVG-entry) trial.
 
 ## v0.5 — Top-down multi-timeframe: D1 anchor + M15 MSS (2026-07-22)
 
