@@ -1,5 +1,35 @@
 # DEVLOG — Powell Trades Bot
 
+## v0.9 — HOME-INSTRUMENT TEST: NAS100 (Nasdaq-100) 2015→2020 (2026-08-17)
+
+ICT's concepts are taught on index futures, not crypto perps. After the v0.8
+BTCUSDT shelving, this tests the SAME two configs — v0.3 RB and v0.3+FVG,
+zero parameter changes, committed defaults — on the strategy's home
+instrument.
+
+**Data**: Oanda NAS100 (Nasdaq-100 CFD) 1m, 2015-01 → 2020-05 (5.4 years,
+1.83M candles; source FutureSharks/financial-data, UTC timestamps verified
+empirically via the DST drift of the 9:30 ET volume spike, converted to NY).
+Caveats, stated up front: index CFD prices as a proxy for NQ futures (same
+price action, no exchange volume — irrelevant, the ICT pipeline is
+price-only); data ends 2020 (fully out-of-sample vs both ICT's 2022 lessons
+and all our development); ~89 % minute coverage (thin overnight minutes
+absent from tick-derived bars).
+
+**Economics (futures-style)**: maker 0.001 % / taker 0.002 % / slippage
+0.005 % — models NQ e-mini's ~$2.5-3 per-side all-in cost on $85-260k
+notional. Fee scenarios re-sweepable analytically from trade lists afterward.
+
+**Pre-registered criteria, per config**: (1) n ≥ 100; (2) overall
+gross/trade > 0; (3) gross-positive in ≥ 4 of 6 calendar-year buckets (2020
+is a partial year, noted); (4) no year worse than −15 % net at the above
+costs. PASS → the concept family has measurable edge on its home instrument;
+next step is out-of-sample extension (2005-2014 held in reserve, unseen).
+FAIL → the family is concluded — no instrument left where it's claimed to
+work best. No parameter changes permitted in response to results.
+
+**Backtest** — running (both configs, sequential).
+
 Living record of every version: what changed, which bugs were found/fixed,
 what the backtest said, and what's open. **Update this file with every code or
 config change** (rule in CLAUDE.md). Newest version at the top.
