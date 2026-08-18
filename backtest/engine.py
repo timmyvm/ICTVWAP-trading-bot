@@ -169,6 +169,14 @@ class BacktestEngine:
 
     # ------------------------------------------------------------ trade close
 
+    @staticmethod
+    def _gap_invalidates(direction: str, stop_loss: float, fill: float) -> bool:
+        """True when a gap fill lands at or beyond the stop — the live stop
+        order would trigger the instant the position opened."""
+        if direction == "LONG":
+            return fill <= stop_loss
+        return fill >= stop_loss
+
     def _fee(self, price: float, qty: float, kind: str) -> float:
         rate = config.MAKER_FEE_PCT if kind == "maker" else config.TAKER_FEE_PCT
         return price * qty * rate / 100.0
@@ -223,21 +231,28 @@ class BacktestEngine:
                 touched = (l <= sig.entry_price) if sig.direction == "LONG" else (h >= sig.entry_price)
                 if touched and "VWAP" not in self.positions:
                     fill = min(sig.entry_price, o) if sig.direction == "LONG" else max(sig.entry_price, o)
-                    qty = self.pending_vwap.qty
-                    be_target = fill if not self.legacy_breakeven else sig.breakeven_price
-                    self.positions["VWAP"] = Position(
-                        strategy="VWAP", direction=sig.direction, qty=qty,
-                        entry_price=fill, stop_loss=sig.stop_loss,
-                        take_profit=sig.take_profit,
-                        entry_fee=self._fee(fill, qty, "maker"),
-                        opened_at=ts, entry_kind="maker",
-                        meta={"band": sig.band, "tier": sig.tier, "mode": "vwap",
-                              "rr": sig.risk_reward, "orig_sl": sig.stop_loss},
-                        be_trigger=sig.breakeven_price, be_target=be_target,
-                        fill_candle=ts,
-                    )
-                    self.pending_vwap = None
-                    self.counters["vwap_orders_filled"] += 1
+                    if self._gap_invalidates(sig.direction, sig.stop_loss, fill):
+                        # Gap through the level put the stop on the wrong side of
+                        # the fill — live, the stop order triggers instantly.
+                        # Model as cancel, not as a free ride to the old stop.
+                        self.pending_vwap = None
+                        self.counters["vwap_orders_expired"] += 1
+                    else:
+                        qty = self.pending_vwap.qty
+                        be_target = fill if not self.legacy_breakeven else sig.breakeven_price
+                        self.positions["VWAP"] = Position(
+                            strategy="VWAP", direction=sig.direction, qty=qty,
+                            entry_price=fill, stop_loss=sig.stop_loss,
+                            take_profit=sig.take_profit,
+                            entry_fee=self._fee(fill, qty, "maker"),
+                            opened_at=ts, entry_kind="maker",
+                            meta={"band": sig.band, "tier": sig.tier, "mode": "vwap",
+                                  "rr": sig.risk_reward, "orig_sl": sig.stop_loss},
+                            be_trigger=sig.breakeven_price, be_target=be_target,
+                            fill_candle=ts,
+                        )
+                        self.pending_vwap = None
+                        self.counters["vwap_orders_filled"] += 1
 
         # 2. Pending ICT limit order
         if self.pending_ict is not None:
@@ -250,20 +265,27 @@ class BacktestEngine:
                 if touched and "ICT" not in self.positions:
                     # Limit fills at limit or better (gap through the level)
                     fill = min(sig.entry_price, o) if sig.direction == "LONG" else max(sig.entry_price, o)
-                    qty = self.pending_ict.qty
-                    self.positions["ICT"] = Position(
-                        strategy="ICT", direction=sig.direction, qty=qty,
-                        entry_price=fill, stop_loss=sig.stop_loss,
-                        take_profit=sig.take_profit,
-                        entry_fee=self._fee(fill, qty, "maker"),
-                        opened_at=ts, entry_kind="maker",
-                        meta={"tier": sig.tier, "fib_zone": sig.fib_zone,
-                              "mode": sig.mode, "rr": sig.risk_reward,
-                              "orig_sl": sig.stop_loss},
-                        fill_candle=ts,
-                    )
-                    self.pending_ict = None
-                    self.counters["ict_orders_filled"] += 1
+                    if self._gap_invalidates(sig.direction, sig.stop_loss, fill):
+                        # Fill gapped past the stop — live, the resting stop
+                        # triggers immediately; the +1R "SL win" this used to
+                        # book (e.g. 2020-03-16, +$5.8k) was an artifact.
+                        self.pending_ict = None
+                        self.counters["ict_orders_expired"] += 1
+                    else:
+                        qty = self.pending_ict.qty
+                        self.positions["ICT"] = Position(
+                            strategy="ICT", direction=sig.direction, qty=qty,
+                            entry_price=fill, stop_loss=sig.stop_loss,
+                            take_profit=sig.take_profit,
+                            entry_fee=self._fee(fill, qty, "maker"),
+                            opened_at=ts, entry_kind="maker",
+                            meta={"tier": sig.tier, "fib_zone": sig.fib_zone,
+                                  "mode": sig.mode, "rr": sig.risk_reward,
+                                  "orig_sl": sig.stop_loss},
+                            fill_candle=ts,
+                        )
+                        self.pending_ict = None
+                        self.counters["ict_orders_filled"] += 1
 
         # 3. SL / TP / breakeven per open position
         for strategy in list(self.positions.keys()):

@@ -31,7 +31,8 @@ import config
 from backtest.data import load_frames, fetch_bybit_1m
 from backtest.engine import BacktestEngine
 
-RESULTS_DIR = os.path.join("backtest", "results")
+# RESULTS_SUBDIR env lets parallel runs write to separate directories
+RESULTS_DIR = os.path.join("backtest", os.getenv("RESULTS_SUBDIR", "results"))
 
 # Config attributes each variant overrides (snapshot/restored between runs)
 VARIANTS: dict[str, dict] = {

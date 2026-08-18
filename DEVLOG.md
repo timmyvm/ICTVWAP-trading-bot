@@ -28,7 +28,24 @@ next step is out-of-sample extension (2005-2014 held in reserve, unseen).
 FAIL → the family is concluded — no instrument left where it's claimed to
 work best. No parameter changes permitted in response to results.
 
-**Backtest** — running (both configs, sequential).
+**First RB pass (2026-08-17): INVALIDATED by a simulator artifact — and the
+artifact is the whole result.** Raw output: 44 trades, +48.7 %, PF 2.38. But
+the top trade (+$5,845, 2020-03-16 limit-down day) was a gap-fill bug: the
+resting long limit filled 465 pts below the intended entry at the COVID gap
+open, kept the signal's ORIGINAL stop — now 465 pts ABOVE the fill — and
+booked the bounce to that "stop" as a +1R win. Live, a stop resting above
+market triggers instantly; the trade would have been a scratch. Adjusted
+result: **−$972 over 5.4y, mean −0.12 R/trade** (31.8 % win, +1.91R winners
+vs −1.06R losers), n=44 (< the 100 floor), 2017 produced zero trades.
+
+**Engine fix (v0.9.1)**: `_gap_invalidates()` — a fill at/beyond the signal's
+stop cancels the order (counted under orders_expired) instead of opening a
+position with a wrong-side stop. Applies to both ICT and VWAP pending limits.
+Lesson: every windfall trade in a backtest must be audited before belief —
+one artifact manufactured a +48.7 % illusion on an otherwise negative system.
+
+**Backtest** — both configs RERUNNING in parallel on the fixed engine
+(RESULTS_SUBDIR isolation). Criteria unchanged.
 
 Living record of every version: what changed, which bugs were found/fixed,
 what the backtest said, and what's open. **Update this file with every code or
