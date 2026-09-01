@@ -19,7 +19,28 @@ untouched holdouts (BTC 2025→2026-07, NAS100 2018→2020-05). Only
 holdout-positive cells earn further attention. The grid is labeled
 exploration — its in-sample winners carry no evidential weight on their own.
 
-**Results** — pending.
+**Results (2026-09-01): NO CELL VALIDATED — and the protocol earned its keep
+twice over.**
+
+BTC exploration (2023-24) made all three TREND cells look excellent
+(net +$18.4k/+$10.2k/+$8.2k, PF 1.31-1.44) while every REVERT cell — the
+message's literal "fairly above → short" reading — was ruinous (PF 0.72,
+−73-79 % drawdown). But on the untouched holdout (2025→2026-08) **all three
+trend survivors went negative** (−$2.3k/−$1.6k/−$2.4k, PF 0.83-0.90): the
+exploration edge was the 2023-24 bull regime, not a durable rule. NAS100:
+no cell was even exploration-positive (PF 0.82-0.96, sign-flipping years);
+nothing advanced.
+
+Findings: (1) the fade reading is catastrophically wrong on crypto — testing
+both directions was not pedantry; (2) an "obvious" recent-window backtest
+(2023-24 only) would have shipped a PF-1.44 illusion — the identical failure
+mode as the ICT 2026-window results, caught this time in a single pass by
+design; (3) the trend cells show the classic profile (19-21 % win, big
+winners) but don't clear costs+chop across regimes at 1H on a single asset —
+consistent with the literature, where surviving trend edges live on daily
+bars across diversified assets with vol targeting. Disposition: rule NOT
+adopted; harness (`backtest/ema_experiment.py`) retained as the template for
+future quick strategy screens.
 
 
 
