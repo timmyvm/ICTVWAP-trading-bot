@@ -4,3 +4,4 @@ __pycache__/
 *.pyc
 logs/
 backtest/results/
+backtest/data_cache/local/

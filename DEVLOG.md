@@ -1,5 +1,28 @@
 # DEVLOG — Powell Trades Bot
 
+## v0.10-exp — 1H 200-EMA distance experiment (2026-08-18)
+
+User-proposed, separate from the ICT family: 200-EMA on 1H, act when price
+is "fairly" away from it. The proposal's wording was direction-ambiguous
+(titled trend-following, described as fading), so BOTH mirror rules run:
+`trend` (d ≥ +T → LONG) and `revert` (d ≥ +T → SHORT), d = (close−EMA200)/
+ATR14, exits on EMA touch + 2×ATR stop, entries next-bar-open at taker cost.
+Literature prior (RESEARCH.md): higher-TF trend rules are among the few
+cost-survivors in crypto — this is the first tested idea whose target size
+(0.5-2 %) dwarfs its cost (0.01-0.1 %).
+
+**Pre-registered protocol (written before results):** exploration grid
+T ∈ {1,2,3} × {trend, revert} on BTC 2023-2024 (Bybit costs 0.055 %+0.01 %)
+and NAS100 2015-2017 (futures costs 0.002 %+0.005 %). A cell survives
+exploration only with n ≥ 20 and net > 0; survivors run ONCE on the
+untouched holdouts (BTC 2025→2026-07, NAS100 2018→2020-05). Only
+holdout-positive cells earn further attention. The grid is labeled
+exploration — its in-sample winners carry no evidential weight on their own.
+
+**Results** — pending.
+
+
+
 ## v0.9 — HOME-INSTRUMENT TEST: NAS100 (Nasdaq-100) 2015→2020 (2026-08-17)
 
 ICT's concepts are taught on index futures, not crypto perps. After the v0.8
