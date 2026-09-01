@@ -3,5 +3,5 @@ venv/
 __pycache__/
 *.pyc
 logs/
-backtest/results/
+backtest/results*/
 backtest/data_cache/local/

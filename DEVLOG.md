@@ -88,8 +88,31 @@ position with a wrong-side stop. Applies to both ICT and VWAP pending limits.
 Lesson: every windfall trade in a backtest must be audited before belief —
 one artifact manufactured a +48.7 % illusion on an otherwise negative system.
 
-**Backtest** — both configs RERUNNING in parallel on the fixed engine
-(RESULTS_SUBDIR isolation). Criteria unchanged.
+**Final verdict (2026-09-01): BOTH CONFIGS FAIL — the ICT mechanization
+family is concluded on its home instrument too.**
+
+Method note: repeated container recycles kept killing the 4-hour clean
+reruns, so the clean RB result was computed ANALYTICALLY — the v0.9.1 gap
+guard applied to the preserved dirty-run trade list (the guard's effect is
+exactly the removal of wrong-side-stop trades, identifiable by their
+impossible profitable-"SL" signature). Exactly one such trade existed
+(2020-03-16, +$5,845).
+
+**Clean RB (NAS100, 2015→2020-05): n=43, 30.2 % win, gross −$876, net −$971,
+PF 0.72, −0.14 R/trade.** Per year: 2015 +$359, 2016 −$141, **2017 zero
+trades**, 2018 −$193, 2019 −$597, 2020 −$398. Criteria: n ≥ 100 FAIL (43);
+gross/trade > 0 FAIL (−$20); ≥ 4/6 years gross-positive FAIL (1/6); year
+floor pass. **FVG:** interrupted at 86 % with 7 trades / −$383 — the n ≥ 100
+floor is arithmetically unreachable; FAIL regardless of completion.
+
+**The full arc, closed:** the mechanized Powell/ICT strategy family is
+gross-negative across regimes on BTCUSDT (v0.8) AND on the Nasdaq-100 it was
+designed for (v0.9), under honest fills and costs, with every variant,
+filter, and entry style the source material prescribes having been tested
+one change at a time. What survives: the audited bot codebase, a
+deterministic multi-market backtest engine with gap-guarded fills, the
+explore/holdout screening harness, 10 versions of documented negative
+results with named mechanisms, and the discipline that produced them.
 
 Living record of every version: what changed, which bugs were found/fixed,
 what the backtest said, and what's open. **Update this file with every code or
