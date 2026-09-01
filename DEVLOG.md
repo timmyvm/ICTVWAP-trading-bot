@@ -17,7 +17,28 @@ AND maxDD < 40 %. Survivors run the holdout ONCE. Holdout-positive with
 Sharpe ≥ 0.3 = first validated strategy of the project; anything less is
 reported as-is. No parameter additions in response to results.
 
-**Results** — pending (dataset build in flight).
+**Results (2026-09-01): NOT VALIDATED — and the failure replicates the
+literature's own timeline.**
+
+All 17 instruments built (no skips), panel 2005-01 → 2020-05, 4,786 days.
+- EXPLORE 2005-12: **L=90 Sharpe 0.43, CAGR 4.7 %, maxDD 17 %** — survivor
+  (notably +9.3 % through 2008, the classic crisis-alpha signature).
+  L=180 Sharpe 0.19, L=252 Sharpe −0.07 — no.
+- HOLDOUT 2013-20: **L=90 Sharpe −0.21, CAGR −2.5 %, maxDD 31 %.** FAIL by
+  the pre-registered bar (holdout Sharpe ≥ 0.3).
+
+Context that matters: our holdout window IS the documented "CTA winter" —
+published trend indices (BTOP50, SocGen CTA) were flat-to-negative through
+2013-2019 as QE-era markets chopped, after a golden 2005-2012. Our
+replication found exactly that: the strategy's edge lived where the
+literature says it lived and died where the literature says it weakened.
+Honest limits of our test: 17 CFD instruments (institutional CTAs run
+50-100+ incl. FX/rates), one sizing scheme, data ends 2020-05 — the 2020-22
+revival documented for CTAs is outside our archive.
+
+**Disposition per pre-registration: not adopted.** No parameter fishing in
+response. Natural extension IF ever pursued: post-2020 multi-asset data and
+wider breadth — logged as a possibility, not a plan.
 
 ## v0.10-exp — 1H 200-EMA distance experiment (2026-08-18)
 
