@@ -1,5 +1,24 @@
 # DEVLOG — Powell Trades Bot
 
+## v0.11 — Diversified daily TSMOM portfolio (2026-09-01)
+
+New strategy family, user-selected from the evidence-ranked menu: classic
+time-series momentum (Moskowitz/Ooi/Pedersen construction) across every
+instrument in the FutureSharks/Oanda archive (~17: equity indices, energy,
+metals, grains, softs, bonds; daily bars resampled from 1m, 2005-2020).
+Long trailing-L-day winners, short losers, equal-vol sizing (20d EWMA vol,
+5 % floor, gross budget 2×, cap 3×), monthly resize + flip trades, 0.007 %
+per side. This is the one family where the published evidence is FOR the
+mechanized version — the edge is diversification across many small trends.
+
+**Pre-registered protocol:** exploration 2005-2012, holdout 2013-2020-05.
+Grid = lookback L ∈ {90, 180, 252} only. Survivor: exploration Sharpe ≥ 0.3
+AND maxDD < 40 %. Survivors run the holdout ONCE. Holdout-positive with
+Sharpe ≥ 0.3 = first validated strategy of the project; anything less is
+reported as-is. No parameter additions in response to results.
+
+**Results** — pending (dataset build in flight).
+
 ## v0.10-exp — 1H 200-EMA distance experiment (2026-08-18)
 
 User-proposed, separate from the ICT family: 200-EMA on 1H, act when price
