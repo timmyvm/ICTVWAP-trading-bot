@@ -27,7 +27,8 @@ from backtest.data import load_cached_1m, resample_ohlcv  # noqa: E402
 def simulate(df1h: pd.DataFrame, mode: str, T: float,
              taker_pct: float, slip_pct: float,
              risk_pct: float = 1.0, max_lev: float = 10.0,
-             start_bal: float = 10_000.0) -> dict:
+             start_bal: float = 10_000.0,
+             return_trades: bool = False) -> dict:
     o = df1h["open"].to_numpy()
     h = df1h["high"].to_numpy()
     l = df1h["low"].to_numpy()
@@ -122,6 +123,8 @@ def simulate(df1h: pd.DataFrame, mode: str, T: float,
     t = pd.DataFrame(trades)
     if t.empty:
         return {"n": 0}
+    if return_trades:
+        return {"n": len(t), "trades": t}
     wins = (t["net"] > 0).sum()
     gw = t.loc[t["net"] > 0, "net"].sum()
     gl = -t.loc[t["net"] <= 0, "net"].sum()
