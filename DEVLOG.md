@@ -20,7 +20,35 @@ PASS = net > 0 AND win % ≥ 52 AND both a bull and a bear year individually
 net-positive. Anything less: reported, not adopted. No geometry variations
 will be tried on the validation era regardless of outcome.
 
-**Results** — pending (2019-2022 cache build in flight).
+**VALIDATION RESULT (2026-09-01): PASS — the project's first validated
+strategy.** BTC 1H, 2019-01 → 2022-12 (untouched era, 35,064 bars):
+**1,508 trades, 58.0 % win, net +$36,925 (CAGR 47.3 %), Sharpe 1.68,
+maxDD 15.6 %**, 64 % positive months (worst −7.6 %). Every calendar year
+net-positive individually — including bear-2022 (+$5,006) — and both sides
+contribute (longs +$21.7k / shorts +$15.3k). All three pre-registered
+criteria pass.
+
+Cross-era win-rate stability is the headline signature: 58.0 % (2019-22,
+unseen) / 57.6 % (2023-24) / 57.3 % (2025-26) across ~3,100 trades at full
+retail costs. Statistically: 58 % vs 50 % null over 1,508 trades ≈ 6σ;
+survives any reasonable multiple-testing correction for this project's
+~10 prior trials.
+
+Interpretation: a 1H momentum-continuation effect — conditional on a 1-ATR
+extension from the 200-EMA, continuation beats reversal ~58/42 at symmetric
+3×ATR payoff, direction-agnostic. Consistent with the state-dependent
+intraday-momentum literature (RESEARCH.md §2).
+
+**Known boundaries / caveats, on record:** BTC-only so far (this exit was
+never tested cross-market on clean data); crypto-era 2019-2026 only; perp
+funding not modeled (execute on spot, or model funding before perp use);
+demo-era results (2023-26) remain in-sample by our standards; live decay
+unknown — the TRUE forward test is paper trading, which this result now
+EARNS by the user's own bar (win rate + every-period profitability).
+
+**Next steps:** wire as a bot strategy module (entries on 1H closes,
+bracket orders) for forward paper trading; optional breadth check on
+untainted markets/eras as data becomes available.
 
 ## v0.10b — EMA-distance rule, cross-market test (2026-09-01)
 
