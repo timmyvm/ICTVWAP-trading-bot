@@ -1,5 +1,32 @@
 # DEVLOG — Powell Trades Bot
 
+## v0.12d — Session filter: "only trade the open" (2026-09-03)
+
+User hypothesis after v0.12c ("how about all trading open market"): the
+missing discretionary filter might be session — trade the setup only
+around the market open. Gold trades ~23 h/day so "the open" is ambiguous;
+three canonical windows pre-registered (NY-local time) BEFORE any run:
+
+- **London killzone 02:00–05:00** (ICT London open KZ)
+- **NY AM killzone 07:00–10:00** (ICT NY open KZ)
+- **US floor session 08:20–13:30** (COMEX gold pit hours — "when the US
+  market is open" in the widest sense)
+
+Grid: {`atr1_03`, `wick03`} × 3 windows = **6 explore cells**, rejection
+trigger, same 2006-2012 / 2013-2020 split, same costs, 1 % risk. The
+`--session` flag gates ENTRY ARMING only (the tap must occur in-window);
+open positions manage to completion around the clock; gap
+inventory/aging unchanged. No other knobs change.
+
+**Pre-registered:** explore n ≥ 100 ∧ net > 0 → holdout; holdout PASS =
+net > 0 ∧ win ≥ 77 % ∧ maxDD < 40 %. All 6 cells reported regardless.
+Multiple-testing on record: 6 cells ⇒ ~1-2 lucky explore survivors
+expected by chance; only holdout counts. Diagnostic of interest even on
+FAIL: does win % move toward the 76.9 % breakeven bar in any window vs
+the 24 h baselines (57.8/59.2 % `atr1_03`; 45.6/43.7 % `wick03`)?
+
+**Results: pending.**
+
 ## v0.12c — The "80 % IRL" reconciliation: flipped-geometry readings (2026-09-03)
 
 User challenged the v0.12/b FAIL: *"irl testing shows an 80 % win rate …

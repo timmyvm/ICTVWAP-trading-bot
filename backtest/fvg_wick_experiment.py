@@ -13,6 +13,7 @@ Mechanized spec (pre-registered in DEVLOG before results):
 
 import argparse
 import sys
+from typing import Optional, Tuple
 
 import numpy as np
 import pandas as pd
@@ -27,9 +28,17 @@ STOP_M, TGT_M = 0.3, 1.0
 MAKER, TAKER, SLIP = 0.00001, 0.00002, 0.00005  # fractions per side
 
 
-def simulate(df: pd.DataFrame, start_bal: float = 10_000.0) -> dict:
+def simulate(df: pd.DataFrame, start_bal: float = 10_000.0,
+             sess: Optional[Tuple[int, int]] = None) -> dict:
     o = df["open"].to_numpy(); h = df["high"].to_numpy()
     l = df["low"].to_numpy(); c = df["close"].to_numpy()
+    # Session gate (NY-local minute-of-day, [start, end)): new entries only
+    # arm when the tap bar is in-window; open positions manage 24h.
+    if sess is None:
+        in_sess = np.ones(len(df), dtype=bool)
+    else:
+        mod = df.index.hour * 60 + df.index.minute
+        in_sess = ((mod >= sess[0]) & (mod < sess[1])).to_numpy()
     close = df["close"]
     tr = pd.concat([df["high"] - df["low"],
                     (df["high"] - close.shift()).abs(),
@@ -121,7 +130,7 @@ def simulate(df: pd.DataFrame, start_bal: float = 10_000.0) -> dict:
             gaps.append({"dir": -1, "top": l[i - 2], "bottom": h[i], "born": i, "used": False})
 
         # --- arm/refresh pending to the most recent live gap ---
-        if pos is None and pending is None:
+        if pos is None and pending is None and in_sess[i]:
             live = [g for g in gaps if not g["used"]]
             if REJECT_MODE:
                 for g in reversed(live):
@@ -164,18 +173,25 @@ def main():
     ap.add_argument("--explore-end", default="2013-01-01")
     ap.add_argument("--reject", action="store_true")
     ap.add_argument("--geom", default="atr03_1", choices=["atr03_1", "atr1_03", "wick03"])
+    ap.add_argument("--session", default=None,
+                    help="NY-local entry window HH:MM-HH:MM (e.g. 07:00-10:00); omit for 24h")
     args = ap.parse_args()
     global REJECT_MODE, GEOM
     REJECT_MODE = args.reject
     GEOM = args.geom
+    sess = None
+    if args.session:
+        a, b = args.session.split("-")
+        sess = tuple(int(h) * 60 + int(m) for h, m in (x.split(":") for x in (a, b)))
 
     df = resample_ohlcv(load_cached_1m(args.cache), "5m")
     cut = pd.Timestamp(args.explore_end, tz="America/New_York")
     for name, seg in [("EXPLORE", df[df.index < cut]), ("HOLDOUT", df[df.index >= cut])]:
-        print(f"{name} {seg.index.min().date()} -> {seg.index.max().date()} ({len(seg)} bars)")
+        print(f"{name} geom={GEOM} session={args.session or '24h'} "
+              f"{seg.index.min().date()} -> {seg.index.max().date()} ({len(seg)} bars)")
         if name == "HOLDOUT":
             print("  (run only if explore passed n>=100 and net>0 — printed regardless, judged per pre-registration)")
-        print(" ", simulate(seg))
+        print(" ", simulate(seg, sess=sess))
 
 
 if __name__ == "__main__":
