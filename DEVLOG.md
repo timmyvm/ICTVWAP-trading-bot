@@ -19,7 +19,29 @@ reported. Trial count on record: 10 session cells now tried on this rule
 family. Diagnostic: does the Asia open beat the US floor session's
 61.7/62.7 % (the best window so far)?
 
-**Results: pending.**
+**Results (2026-09-03): FAIL — and the Asia open is the WORST window yet
+tested for the wide-stop geometry.** Holdout win-rate ranking across all
+five windows (`atr1_03`): US floor 62.7 % > London 60.0 > NY-AM 59.3 >
+24 h baseline 59.2 > **Asia-open 3 h 55.5 % / first-hour 56.8 %** — the
+taught window lands BELOW the unfiltered baseline. Cells:
+
+- `atr1_03` 18-21: exp 54.1 % PF 0.30 −100 %; hold 55.5 % PF 0.29 −99.9 %
+- `atr1_03` 18-19: exp 49.6 % PF 0.24 −95.9 %; hold 56.8 % PF 0.32 −88.8 %
+- `wick03` 18-21: exp 46.4 % PF 0.30, hold 43.3 % PF 0.23; −100 %
+- `wick03` 18-19: exp 46.6 % PF 0.25, hold 44.1 % PF 0.23; −91/−94 %
+
+Reading: FVG continuation is a liquidity/participation effect — strongest
+with US volume in the book (floor session), weakest in the thin Asia
+open. Costs are also UNDERSTATED here: CFD/futures spreads at the 18:00
+reopen run multiples of normal, so reality is worse than these numbers.
+Window-definition note: a fixed 8am-Sydney clock would sit inside the
+17:00 NY halt part of the year; "when the market opens" (18:00 NY
+year-round) is the only tradeable reading and was used.
+
+Verdict for the 80 % claim: the taught session is the setup's WEAKEST
+window — session cannot be where the IRL 80 % comes from, strengthening
+the v0.12c reconciliation (selection / sample size / counting). 10
+session cells tried on this rule family; none explore-positive.
 
 ## v0.12d — Session filter: "only trade the open" (2026-09-03)
 
