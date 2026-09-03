@@ -1,5 +1,20 @@
 # DEVLOG — Powell Trades Bot
 
+## v0.12-exp — FVG-wick 0.3:1 on gold 5m (2026-09-02)
+
+User-supplied rule ("new strat I learnt"): gold, 5m, wait for a wick into a
+fair value gap, trade 0.3:1. Mechanized spec: FVG on closed 5m candles
+(≤20 candles old, unfilled), resting limit at the gap's proximal edge
+(the wick fills it), direction with the gap, stop 0.3×ATR14 / target
+1.0×ATR14 (breakeven ≈ 23.1 % + costs), maker in/target + taker stop,
+futures-style costs, gap-guard on. Split 2006-2012 explore / 2013-2020
+holdout; taint note: gold 2013-20 was used once for the unrelated EMA rule.
+**Pre-registered pass:** explore n ≥ 100 ∧ net > 0 → holdout; holdout pass
+requires net > 0 ∧ win ≥ 26 % ∧ maxDD < 40 %. Reported either way; no
+geometry variations in response to results.
+
+**Results** — pending (XAU 5m cache build in flight).
+
 ## v0.10c — Accidental candidate: 3×ATR symmetric bracket on extension entries (2026-09-01)
 
 Discovered inside a teaching demo answering the user's "can we use 1:9?"
