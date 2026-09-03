@@ -22,6 +22,7 @@ from backtest.data import load_cached_1m, resample_ohlcv  # noqa: E402
 
 MAX_AGE = 20
 REJECT_MODE = False
+GEOM = "atr03_1"  # atr03_1 | atr1_03 | wick03
 STOP_M, TGT_M = 0.3, 1.0
 MAKER, TAKER, SLIP = 0.00001, 0.00002, 0.00005  # fractions per side
 
@@ -64,16 +65,24 @@ def simulate(df: pd.DataFrame, start_bal: float = 10_000.0) -> dict:
             a = atr[i - 1]
             if not np.isnan(a) and a > 0:
                 fill = o[i] * (1 + dr * SLIP)
-                st = fill - dr * STOP_M * a
-                tg = fill + dr * TGT_M * a
-                q = min(bal * 0.01 / (STOP_M * a), bal * 10 / fill)
+                if GEOM == "atr1_03":      # risk 1*ATR to make 0.3*ATR
+                    sdist, tdist = 1.0 * a, 0.3 * a
+                elif GEOM == "wick03":     # stop beyond the tap-wick, target 0.3x risk
+                    wick = l[i - 1] if dr > 0 else h[i - 1]
+                    sdist = max(abs(fill - wick) + 0.05 * a, 0.1 * a)
+                    tdist = 0.3 * sdist
+                else:                       # original: risk 0.3*ATR to make 1*ATR
+                    sdist, tdist = 0.3 * a, 1.0 * a
+                st = fill - dr * sdist
+                tg = fill + dr * tdist
+                q = min(bal * 0.01 / sdist, bal * 10 / fill)
                 if (dr > 0 and l[i] <= st) or (dr < 0 and h[i] >= st):
                     px = st * (1 - SLIP) if dr > 0 else st * (1 + SLIP)
                     net = dr * (px - fill) * q - (fill + px) * q * TAKER
                     bal += net
-                    rows.append({"ts": df.index[i], "net": net, "risk": q * STOP_M * a})
+                    rows.append({"ts": df.index[i], "net": net, "risk": q * sdist})
                 else:
-                    pos = (dr, fill, st, tg, q, q * STOP_M * a)
+                    pos = (dr, fill, st, tg, q, q * sdist)
             pending = None
 
         # --- fill pending limit ---
@@ -154,9 +163,11 @@ def main():
     ap.add_argument("--cache", default="backtest/data_cache/local/xau_5m_2006_2020.csv.gz")
     ap.add_argument("--explore-end", default="2013-01-01")
     ap.add_argument("--reject", action="store_true")
+    ap.add_argument("--geom", default="atr03_1", choices=["atr03_1", "atr1_03", "wick03"])
     args = ap.parse_args()
-    global REJECT_MODE
+    global REJECT_MODE, GEOM
     REJECT_MODE = args.reject
+    GEOM = args.geom
 
     df = resample_ohlcv(load_cached_1m(args.cache), "5m")
     cut = pd.Timestamp(args.explore_end, tz="America/New_York")

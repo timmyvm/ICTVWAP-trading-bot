@@ -1,5 +1,55 @@
 # DEVLOG — Powell Trades Bot
 
+## v0.12c — The "80 % IRL" reconciliation: flipped-geometry readings (2026-09-03)
+
+User challenged the v0.12/b FAIL: *"irl testing shows an 80 % win rate …
+everything stated there is the exact set up."* Diagnosis before running
+anything: 80 % wins is impossible for the tested geometry (stop 0.3×ATR /
+target 1×ATR — breakeven 23.1 %) but is exactly the signature of the
+FLIPPED reading of "0.3:1" — **risk 1 to make 0.3**, breakeven 76.9 %.
+So the notation was treated as ambiguous and both honest completions of
+the flipped reading were run: same rejection-wick trigger as v0.12b (wick
+enters the 5m FVG, body closes outside, enter next open), same
+2006-2012 / 2013-2020 split, no other changes. New `--geom` flag:
+
+- `atr1_03` — stop 1×ATR14, target 0.3×ATR14.
+- `wick03` — stop beyond the tap-candle wick + 0.05×ATR buffer (floored
+  at 0.1×ATR), target 0.3× the risk distance — the structure-anchored
+  version a teacher most plausibly means.
+
+**Results (2026-09-03): FAIL — both geometries, both eras, −100 % in
+year one.**
+
+- `atr1_03`: explore n=31,961, **57.8 % win**, PF 0.36, avg +0.27R/−1.15R,
+  −100 % inside 2006; holdout n=29,905, **59.2 % win**, PF 0.36, −100 %
+  inside 2013. ~11-13 trades/day.
+- `wick03`: explore n=32,402, 45.6 % win, PF 0.30, −100 % inside 2006;
+  holdout n=30,304, 43.7 % win, PF 0.21, −100 % inside 2013.
+
+The wide-stop version is the most "80 %-looking" of any reading — and it
+tops out at **59.2 % against a 76.9 % breakeven bar**. All four readings
+of "0.3:1" (two triggers × two geometries) are now tested and dead on
+~14 years of gold 5m data, ~30k trades per era.
+
+Reconciliation of the IRL 80 % (on record): (a) **small sample** —
+P(≥16/20 wins) ≈ 5 % even when the true rate is 60 %; ≥ 80 % over 20-40
+journal trades is ordinary luck on a 59 % process; (b) **unstated
+selection** — the mechanical rule fires 11-13×/day; a human takes 2-5
+using filters the stated setup doesn't contain (trend, session, news,
+"clean" gaps) — if the 80 % is real it lives there, and is testable once
+stated; (c) **open losers don't count yet** — with a stop ~3× the target,
+winners resolve in minutes while losers hang for hours; counting mid-air
+losers as not-losses inflates live win rate; (d) even a TRUE 80 % yields
++0.04R/trade before costs — a 75 % month is a losing month. Inverted R:R
+has almost no room even when it works.
+
+Fixes in the same commit: reject-branch trade rows recorded risk as
+q×0.3×ATR regardless of geometry — now q×sdist (affects only the R
+columns; win %/net/PF verified identical to the first run). Cost caveat
+on record: exit legs charge the entry fee as maker even for reject-mode
+taker entries (~0.001 % notional understatement — anti-conservative,
+immaterial vs −100 % verdicts).
+
 ## v0.12-exp — FVG-wick 0.3:1 on gold 5m (2026-09-02)
 
 User-supplied rule ("new strat I learnt"): gold, 5m, wait for a wick into a
