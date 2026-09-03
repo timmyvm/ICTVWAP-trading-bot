@@ -25,7 +25,28 @@ expected by chance; only holdout counts. Diagnostic of interest even on
 FAIL: does win % move toward the 76.9 % breakeven bar in any window vs
 the 24 h baselines (57.8/59.2 % `atr1_03`; 45.6/43.7 % `wick03`)?
 
-**Results: pending.**
+**Results (2026-09-03): FAIL — all 6 cells net-negative in explore (no
+survivor), −100 % in both eras everywhere. But the user's instinct is
+directionally REAL:** the US floor session lifts `atr1_03` from the 24 h
+baseline 57.8/59.2 % win to **61.7 % explore / 62.7 % holdout** —
+consistent across both eras — with trade rate down to a human-scale
+2.6-2.8/day. London (55.9/60.0) and NY-AM (57.4/59.3) add little.
+`wick03` is session-insensitive (43.9-45.8 % everywhere): its losses come
+from stop-to-noise distance, not time of day.
+
+The remaining gap: at floor-session realized payoffs (+0.28R / −1.11R
+incl. costs) breakeven is ~79.9 % win; achieved 62.7 %. Session filtering
+recovers ~4 of the ~17 missing points; PF improves 0.36 → 0.43 — still
+losing ~57 c per $1 risked; year-one bleed merely slows (−$8.4-8.6k vs
+−$9.99k). Conclusion: "only trade the open" is a real effect ~4× too
+small. The 80 % IRL claim cannot be reached by session choice alone;
+remaining mechanizable candidates: HTF-trend gating, news-day exclusion.
+Discretionary gap-quality and sample/counting artifacts (v0.12c) remain
+the unfalsifiable residue.
+
+Patch note: first 6-cell run crashed on the session gate
+(`.to_numpy()` called on an ndarray — `df.index.hour` arithmetic already
+yields ndarray); one-line coercion fix, full re-run, no logic change.
 
 ## v0.12c — The "80 % IRL" reconciliation: flipped-geometry readings (2026-09-03)
 

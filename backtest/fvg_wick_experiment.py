@@ -37,8 +37,8 @@ def simulate(df: pd.DataFrame, start_bal: float = 10_000.0,
     if sess is None:
         in_sess = np.ones(len(df), dtype=bool)
     else:
-        mod = df.index.hour * 60 + df.index.minute
-        in_sess = ((mod >= sess[0]) & (mod < sess[1])).to_numpy()
+        mod = np.asarray(df.index.hour) * 60 + np.asarray(df.index.minute)
+        in_sess = (mod >= sess[0]) & (mod < sess[1])
     close = df["close"]
     tr = pd.concat([df["high"] - df["low"],
                     (df["high"] - close.shift()).abs(),
