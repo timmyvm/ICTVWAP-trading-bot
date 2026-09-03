@@ -1,5 +1,26 @@
 # DEVLOG — Powell Trades Bot
 
+## v0.12e — The user's actual open: Asia / Globex daily open, 8am AEST (2026-09-03)
+
+User clarified which "open" the taught setup trades: *"before asia opens,
+when the market opens, 8am aest time"* — i.e. the CME Globex daily open,
+18:00 NY (= 8:00 AEST under matching DST). Verified in-data: the 17:00 NY
+hour carries only 25 % of normal 5m bars (daily halt) and 18:00 resumes
+at ~97 % — the daily open exists in the Oanda XAU feed. None of the
+v0.12d windows covered it. Anchor is fixed at 18:00 NY year-round (the
+market open itself; its Sydney label drifts 8→10am with DST).
+
+**Pre-registered BEFORE running:** windows {18:00–21:00 NY (3 h,
+killzone-width, ≈ 8-11am AEST), 18:00–19:00 NY (literal first hour)} ×
+geometries {`atr1_03`, `wick03`} = 4 cells, rejection trigger, same
+split/costs/risk as v0.12c-d. Same rule: explore n ≥ 100 ∧ net > 0 →
+holdout; holdout PASS = net > 0 ∧ win ≥ 77 % ∧ maxDD < 40 %. All cells
+reported. Trial count on record: 10 session cells now tried on this rule
+family. Diagnostic: does the Asia open beat the US floor session's
+61.7/62.7 % (the best window so far)?
+
+**Results: pending.**
+
 ## v0.12d — Session filter: "only trade the open" (2026-09-03)
 
 User hypothesis after v0.12c ("how about all trading open market"): the
