@@ -13,7 +13,34 @@ holdout; taint note: gold 2013-20 was used once for the unrelated EMA rule.
 requires net > 0 ∧ win ≥ 26 % ∧ maxDD < 40 %. Reported either way; no
 geometry variations in response to results.
 
-**Results** — pending (XAU 5m cache build in flight).
+**Results (2026-09-02): FAIL — account destroyed in year one of BOTH eras.**
+After two mechanization-fairness fixes (ATR-0 hygiene; one-trade-per-gap so
+the sim doesn't machine-gun 46/day): explore 20.8 % win, PF 0.83, −100 %
+within 2006; holdout 21.0 %, PF 0.53, −100 % within 2013. ~16-18 trades/day.
+
+Two independent kill shots, either fatal alone:
+1. **No entry edge:** win rate 20.8-21.0 % sits BELOW the 23.1 % zero-cost
+   breakeven for the 0.3:1 payoff. Gap-taps continue vs reverse at rates
+   that never reach the geometry's own bar, in either era.
+2. **Geometry can't pay costs:** a 0.3×ATR stop on 5m gold is ~0.02 % of
+   price; stop slippage alone (0.005 %) plus fees ≈ 0.3-0.5 R per losing
+   round trip — avg realized loss −1.51 R on a 1 R stop. Expectancy
+   ≈ −0.52 R/trade at 17/day. Structurally unpayable even at futures-grade
+   costs — the VWAP-scalper disease in its most extreme form yet.
+
+**v0.12b (user completed the spec): rejection-wick trigger — wick enters the
+zone, BODY closes outside, enter next bar open.** Result: WORSE. Explore
+18.7 % win / PF 0.72; holdout 15.3 % / PF 0.48; −100 % in year one, both
+eras. Mechanism: the confirmation delays entry one bar past the bounce, so
+the 0.3×ATR stop sits inside ordinary next-bar noise — the v0.5 lesson
+(confirmation = lateness) at 5m scale, plus taker entry costs. Fourth
+confirmed instance of the tight-stop law across both trigger readings.
+
+Boundary note: verdict applies to the rule as stated (mechanical FVG-tap,
+0.3:1). Any "it works when taught" residue would live in discretionary gap
+selection — which is unfalsifiable and untradeable by a bot. Third
+confirmed instance of the tight-stop law: stops far smaller than the
+cost-per-trade floor cannot be rescued by any signal.
 
 ## v0.10c — Accidental candidate: 3×ATR symmetric bracket on extension entries (2026-09-01)
 
