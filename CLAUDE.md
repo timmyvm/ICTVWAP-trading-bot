@@ -106,3 +106,12 @@ config.py        — All tuneable parameters (TESTING_MODE, ENTRY_MODE, etc.)
 - Before claiming a "single-variable" experiment, diff the FULL effective config against the baseline —
   flags are not the only config. The v0.7 run silently carried changed session-window CONSTANTS along with
   the intended trigger change. Make experiment-relevant constants env-controllable.
+
+- The paper-trade CSV is read with `dtype=str` — write STRING values back (`str(round(pnl, 2))`), never
+  floats. A float `.at` assignment raises `Invalid value for dtype 'str'` on pandas 2.x+ and aborts the
+  entire position-resolution pass on every tick, so paper positions never close.
+
+- A strategy validated in a scratchpad script is not validated until that script is COMMITTED. The v0.10c
+  validation script was wiped by a container restart; its semantics had to be recovered from the session
+  transcript because the DEVLOG prose under-specified three execution details (signal bar, exit ordering,
+  fee legs). Reference implementations live in backtest/, never in /tmp.

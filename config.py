@@ -45,6 +45,30 @@ ENTRY_MODE = os.getenv("ENTRY_MODE", "5m")
 # When True, no real orders are placed — trades are logged to CSV instead
 PAPER_TRADE = os.getenv("PAPER_TRADE", "true").lower() == "true"
 
+# --- Strategy Selection ---
+# "ema_bracket": the VALIDATED v0.10c strategy (DEVLOG) — 1H EMA-extension
+#   entries with a symmetric 3xATR bracket. Default: this is the forward
+#   paper test the validation earned. Runs alone (no ICT/VWAP, no daily
+#   caps — the validated rule has none).
+# "ict_vwap": the original ICT + VWAP pipeline.
+STRATEGY = os.getenv("STRATEGY", "ema_bracket")
+
+# --- v0.10c EMA-Bracket Parameters ---
+# VALIDATED values — change only together with a new validation run
+# (backtest/bracket_experiment.py) and a DEVLOG entry.
+EMA_BRACKET_SPAN = int(os.getenv("EMA_BRACKET_SPAN", "200"))          # 1H EMA length
+EMA_BRACKET_ATR_PERIOD = int(os.getenv("EMA_BRACKET_ATR_PERIOD", "14"))
+EMA_BRACKET_ENTRY_T = float(os.getenv("EMA_BRACKET_ENTRY_T", "1.0"))  # |d| >= T ATRs
+EMA_BRACKET_EXIT_MULT = float(os.getenv("EMA_BRACKET_EXIT_MULT", "3.0"))  # bracket +/- N*ATR
+# EMA200 needs deep history: with only N candles the EMA misses (1-a)^N of
+# its weight. 400 candles ~ 1.9% missing; the fetch of 1000 ~ 0.005%.
+EMA_BRACKET_MIN_1H = int(os.getenv("EMA_BRACKET_MIN_1H", "400"))
+EMA_BRACKET_FETCH_1H = int(os.getenv("EMA_BRACKET_FETCH_1H", "1000"))  # Bybit max/request
+
+# Paper equity model: starting balance; realized paper PnL compounds on top
+# (mirrors the validated backtest's 1%-of-current-equity sizing).
+PAPER_START_BALANCE = float(os.getenv("PAPER_START_BALANCE", "10000"))
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # TESTING vs LIVE MODE
 # ═══════════════════════════════════════════════════════════════════════════════

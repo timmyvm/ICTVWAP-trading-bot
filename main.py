@@ -32,6 +32,7 @@ import config
 from data.feed import DataFeed
 from execution.orders import OrderManager
 from execution.risk import RiskManager
+from strategy.ema_bracket import EMABracketStrategy
 from strategy.levels import ATRModeSwitcher
 from strategy.regime import RegimeDetector
 from strategy.signals import SignalEngine
@@ -88,6 +89,9 @@ class TradingBot:
         self.regime_detector = RegimeDetector()
         self.vwap_signal_engine = VWAPSignalEngine()
 
+        # v0.10c validated strategy (STRATEGY="ema_bracket")
+        self.ema_bracket = EMABracketStrategy()
+
         # Track the last processed candle timestamp per timeframe
         # to avoid re-processing the same candle
         self._last_candle_ts: dict[str, object] = {}
@@ -105,6 +109,10 @@ class TradingBot:
 
     def run(self):
         """Main loop — runs until interrupted."""
+        if config.STRATEGY == "ema_bracket":
+            self._run_ema_bracket()
+            return
+
         params = config.active_params()
         logger.info("=" * 60)
         logger.info("Powell Trades Bot starting — ICT + VWAP strategies")
@@ -151,6 +159,90 @@ class TradingBot:
             logger.info("Shutdown requested — cleaning up...")
             self.order_manager.cancel_open_orders()
             logger.info("Bot stopped gracefully.")
+
+    def _run_ema_bracket(self):
+        """
+        Dedicated loop for the VALIDATED v0.10c strategy (DEVLOG): 1H
+        EMA-extension entries, symmetric 3xATR bracket, one position at a
+        time. Deliberately bypasses the ICT machinery — killzones, bias,
+        NWOG, daily/weekly caps and re-entry budgets are NOT part of the
+        validated rule, and adding them would forward-test a different
+        strategy than the one that passed validation.
+        """
+        logger.info("=" * 60)
+        logger.info("Powell Trades Bot starting — v0.10c EMA-BRACKET (validated)")
+        logger.info("Paper trade: %s | Symbol: %s", config.PAPER_TRADE, config.SYMBOL)
+        logger.info(
+            "Rule: 1H |close-EMA%d| >= %.1f*ATR%d -> enter next open, bracket +/-%.1f*ATR",
+            config.EMA_BRACKET_SPAN, config.EMA_BRACKET_ENTRY_T,
+            config.EMA_BRACKET_ATR_PERIOD, config.EMA_BRACKET_EXIT_MULT,
+        )
+        logger.info(
+            "Risk: %.1f%% of paper equity (start $%.0f), %sx notional cap",
+            config.RISK_PER_TRADE_PCT, config.PAPER_START_BALANCE, config.MAX_LEVERAGE,
+        )
+        logger.info("=" * 60)
+
+        if not config.PAPER_TRADE:
+            logger.error(
+                "STRATEGY=ema_bracket is wired for PAPER trading only for now "
+                "(the validation earned a forward paper test, not live money). "
+                "Set PAPER_TRADE=true.",
+            )
+            return
+
+        try:
+            while True:
+                self._tick_ema_bracket()
+                # 60s cadence: brackets are monitored tick-by-tick; entries
+                # only arm when a new 1H candle has closed.
+                self._sleep_with_interrupt(60)
+        except KeyboardInterrupt:
+            logger.info("Shutdown requested — EMA bracket positions stay in CSV.")
+            logger.info("Bot stopped gracefully.")
+
+    def _tick_ema_bracket(self):
+        """One iteration: resolve open bracket against mark, then look for an entry."""
+        try:
+            df_1h = self.feed.get_candles_by_tf("1h", limit=config.EMA_BRACKET_FETCH_1H)
+        except Exception as e:
+            logger.error("EMA: data fetch failed: %s", e)
+            return
+        if df_1h.empty:
+            logger.warning("EMA: no 1H candles — skipping tick")
+            return
+
+        current_price = self.feed.get_mark_price()
+        if current_price is None:
+            logger.warning("EMA: could not fetch mark price — skipping tick")
+            return
+
+        # Resolve any open paper position first — an exit this tick frees the
+        # slot for a same-tick re-entry, mirroring the backtest's semantics.
+        self.order_manager.check_paper_position(current_price)
+
+        if self.order_manager.has_open_position():
+            return  # one position at a time
+
+        signal = self.ema_bracket.evaluate(df_1h, current_price)
+        if signal is None:
+            return
+
+        balance = self.order_manager.get_paper_equity(config.PAPER_START_BALANCE)
+        if balance <= 0:
+            logger.error("EMA: paper equity depleted ($%.2f) — no new trades", balance)
+            return
+
+        qty = self.risk_manager.calculate_position_size(
+            account_balance=balance,
+            entry_price=signal.entry_price,
+            stop_loss=signal.stop_loss,
+        )
+        if qty <= 0:
+            logger.warning("EMA: position size is zero — skipping trade")
+            return
+
+        self.order_manager.execute_signal(signal, qty, strategy="EMA")
 
     def _tick(self):
         """

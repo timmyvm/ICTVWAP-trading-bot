@@ -32,10 +32,11 @@ TRADE_CSV_COLUMNS = [
     "entry",
     "sl",
     "tp",
+    "qty",        # position size — rows with qty get fee-aware $ PnL on close
     "rr",
     "mode",
     "tier",
-    "strategy",   # "ICT" or "VWAP"
+    "strategy",   # "ICT", "VWAP" or "EMA"
     "result",
     "pnl",
     "closed_at",
@@ -128,6 +129,7 @@ class OrderManager:
             strategy=strategy,
             result="PAPER",
             pnl=0.0,
+            qty=qty,
         )
 
         return True
@@ -182,6 +184,7 @@ class OrderManager:
                 strategy=strategy,
                 result="OPEN",
                 pnl=0.0,
+                qty=qty,
             )
 
             return True
@@ -259,34 +262,54 @@ class OrderManager:
                 sl = float(row["sl"])
                 tp = float(row["tp"])
                 direction = row["direction"]
+                try:
+                    qty = float(row.get("qty", "") or 0.0)
+                except (TypeError, ValueError):
+                    qty = 0.0
 
                 result = None
-                pnl = 0.0
+                exit_px = None
 
                 if direction == "LONG":
                     if current_price <= sl:
-                        result = "STOPPED"
-                        pnl = (sl - entry)  # Negative
+                        result, exit_px = "STOPPED", sl
                     elif current_price >= tp:
-                        result = "TP_HIT"
-                        pnl = (tp - entry)  # Positive
+                        result, exit_px = "TP_HIT", tp
                 else:  # SHORT
                     if current_price >= sl:
-                        result = "STOPPED"
-                        pnl = (entry - sl)  # Negative (SL above entry for shorts)
+                        result, exit_px = "STOPPED", sl
                     elif current_price <= tp:
-                        result = "TP_HIT"
-                        pnl = (entry - tp)  # Positive
+                        result, exit_px = "TP_HIT", tp
 
                 if result:
+                    sign = 1.0 if direction == "LONG" else -1.0
+                    if qty > 0:
+                        # Fee-aware $ PnL — the validated cost model
+                        # (backtest/bracket_experiment.py): exit at the raw
+                        # bracket level, taker fee + slippage charged on both
+                        # legs. Points-only PnL hid real losses before.
+                        cost_rate = (config.TAKER_FEE_PCT + config.SLIPPAGE_PCT) / 100.0
+                        gross = sign * (exit_px - entry) * qty
+                        fees = (entry + exit_px) * qty * cost_rate
+                        pnl = gross - fees
+                        unit = "$"
+                    else:
+                        # Legacy rows without qty: points, as before.
+                        pnl = sign * (exit_px - entry)
+                        unit = "pts"
                     now_ny = datetime.now(NY_TZ)
                     trades.at[idx, "result"] = result
-                    trades.at[idx, "pnl"] = round(pnl, 2)
+                    # The frame is read dtype=str — a float assignment raises
+                    # on pandas 2.x+ and aborts the whole resolution pass.
+                    trades.at[idx, "pnl"] = str(round(pnl, 2))
                     trades.at[idx, "closed_at"] = now_ny.isoformat()
                     changed = True
                     any_stopped = any_stopped or result == "STOPPED"
                     any_tp = any_tp or result == "TP_HIT"
-                    logger.info("[PAPER] Position %s: %s | PnL=%.2f pts", direction, result, pnl)
+                    logger.info(
+                        "[PAPER] Position %s: %s | PnL=%.2f %s",
+                        direction, result, pnl, unit,
+                    )
 
             if changed:
                 trades.to_csv(config.TRADE_LOG_PATH, index=False)
@@ -300,6 +323,60 @@ class OrderManager:
         except Exception as e:
             logger.error("Failed to check paper position: %s", e)
             return None
+
+    def has_open_position(self) -> bool:
+        """
+        True while any position is open — paper mode reads the CSV (source of
+        truth), live mode queries Bybit. Used for one-position-at-a-time
+        strategies (EMA bracket).
+        """
+        if config.PAPER_TRADE or config.BYBIT_TESTNET:
+            try:
+                import pandas as _pd
+                trades = _pd.read_csv(
+                    config.TRADE_LOG_PATH, dtype=str, keep_default_na=False,
+                )
+                return bool(trades["result"].isin(["PAPER", "OPEN"]).any())
+            except FileNotFoundError:
+                return False
+            except Exception as e:
+                logger.error("Failed to read open positions from CSV: %s", e)
+                return True  # fail closed — never double-enter on a read error
+
+        try:
+            resp = self.session.get_positions(
+                category=config.CATEGORY, symbol=config.SYMBOL,
+            )
+            positions = resp.get("result", {}).get("list", [])
+            return any(float(p.get("size", 0)) > 0 for p in positions)
+        except Exception as e:
+            logger.error("Failed to check live positions: %s", e)
+            return True  # fail closed
+
+    def get_paper_equity(self, start_balance: float) -> float:
+        """
+        Current paper equity: start balance plus realized fee-aware $ PnL of
+        every closed row that carries a qty. Mirrors the validated backtest's
+        compounding (1% of CURRENT equity per trade). Legacy points-only rows
+        are excluded — they are not dollars.
+        """
+        try:
+            import pandas as _pd
+            trades = _pd.read_csv(
+                config.TRADE_LOG_PATH, dtype=str, keep_default_na=False,
+            )
+            closed = trades[trades["result"].isin(["STOPPED", "TP_HIT"])]
+            if closed.empty:
+                return start_balance
+            qty = _pd.to_numeric(closed["qty"], errors="coerce")
+            pnl = _pd.to_numeric(closed["pnl"], errors="coerce")
+            realized = pnl[(qty > 0) & pnl.notna()].sum()
+            return start_balance + float(realized)
+        except FileNotFoundError:
+            return start_balance
+        except Exception as e:
+            logger.error("Failed to compute paper equity: %s", e)
+            return start_balance
 
     def cancel_open_orders(self) -> bool:
         """Cancel all open orders for the symbol. Used during shutdown."""
@@ -332,6 +409,7 @@ class OrderManager:
         pnl: float,
         strategy: str = "ICT",
         closed_at: str = "",
+        qty: Optional[float] = None,
     ):
         """Append a trade record to the CSV log."""
         row = {
@@ -341,6 +419,7 @@ class OrderManager:
             "entry": round(entry, 2),
             "sl": round(sl, 2),
             "tp": round(tp, 2),
+            "qty": round(qty, 3) if qty is not None else "",
             "rr": round(rr, 2),
             "mode": mode,
             "tier": tier,

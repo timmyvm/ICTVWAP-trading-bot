@@ -1,5 +1,63 @@
 # DEVLOG — Powell Trades Bot
 
+## v0.13 — v0.10c goes live: EMA-bracket paper trading wired into the bot (2026-09-03)
+
+User: *"set up paper trading from validated strategy from before, the ema
+200 trend following"* — the forward test the v0.10c validation earned.
+
+**Reference recovered + committed.** The validation script was
+scratchpad-only and a container restart wiped it. Its semantics were
+recovered VERBATIM from the session transcript and committed as
+`backtest/bracket_experiment.py`; reproduction on BTC 1H 2019-2022 is
+exact to the dollar: 1,508 trades, 58.0 % win, +$36,925, maxDD 15.6 %,
+Sharpe 1.68, per-year +6,101/+19,074/+6,744/+5,006, L/S
++21,669/+15,256. (A first reconstruction from the DEVLOG prose alone got
+1,082 trades / +$3.3k — the prose under-specified three execution
+details: the signal is the PREVIOUS bar's d entering at the current
+bar's open; exits are checked before entries each bar, so no same-bar
+exit and same-bar re-entry after an exit; exits fill at raw bracket
+levels with taker+slip charged per leg. Recovering the code, not
+re-deriving it, was the difference — CLAUDE.md rule added.)
+
+**Live module:** `strategy/ema_bracket.py`, identical math; new config
+`STRATEGY` (default **"ema_bracket"**; `ict_vwap` restores the old
+pipeline) + `EMA_BRACKET_*` validated params. `main.py` runs a dedicated
+loop: 60 s ticks, 1H×1000 fetch (EMA200 weight truncation ~0.005 %),
+evaluate on the last CLOSED candle, one position at a time, RiskManager
+sizing (same 1 %/10× formula), OrderManager paper CSV. ICT risk gates
+(daily/weekly caps, killzones, re-entry budgets) deliberately BYPASSED —
+they are not part of the validated rule; adding them would forward-test
+a different strategy. Paper-only guard: refuses to start live.
+
+**Parity proven:** `backtest/parity_ema_live.py` replays cached data
+through the live module exactly as main.py drives it — 85/85 entries
+identical to the reference, level diffs 0.0000000000. Run it after ANY
+change to either file.
+
+**Paper accounting upgraded (per the standing lesson):** CSV gains a
+`qty` column; closed rows with qty book fee-aware $ PnL under the
+validated cost model (raw-level exits, taker+slip per leg); paper equity
+= start balance (+$10k default) + realized $ PnL, so sizing compounds
+like the backtest. Legacy rows keep points-PnL. Smoke replay through the
+real bot tick path: 26 trades, 60 % win, +$178.83, brackets resolving,
+exclusivity holding.
+
+**Bug found by the smoke test:** `check_paper_position` assigned float
+pnl into the dtype=str frame — raises on pandas 2.x+ and aborted every
+resolution pass (latent in the OLD code too, would have silently frozen
+all paper monitoring). Fixed with string writes; CLAUDE.md lesson added.
+
+**Live-vs-backtest gaps, on record:** (1) live brackets resolve on 60 s
+mark-price ticks vs bar-level modeling without same-bar exits — live is
+finer-grained, divergence expected small and unbiased; (2) windowed
+live EMA vs expanding backtest EMA (~0.005 % weight); (3) perp FUNDING
+still unmodeled — flagged at validation, must be revisited before any
+live-money decision; (4) live qty rounds to 0.001 BTC.
+
+**Run on the VPS:** `git pull`, then `python main.py` (PAPER_TRADE and
+STRATEGY=ema_bracket are the defaults). Expect ~1 trade/day, ~58 % wins,
+weeks of runtime before the sample says anything.
+
 ## v0.12e — The user's actual open: Asia / Globex daily open, 8am AEST (2026-09-03)
 
 User clarified which "open" the taught setup trades: *"before asia opens,
