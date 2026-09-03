@@ -1,5 +1,27 @@
 # DEVLOG — Powell Trades Bot
 
+## v0.10c — Accidental candidate: 3×ATR symmetric bracket on extension entries (2026-09-01)
+
+Discovered inside a teaching demo answering the user's "can we use 1:9?"
+question: same 1-ATR EMA-distance entries as v0.10-exp, but exits via a
+SYMMETRIC 3×ATR bracket instead of EMA-touch. On BTC 1H at full Bybit costs:
+2023-24 +$8,393 (57.6 % win, longs carry) and 2025-26 +$5,340 (57.3 % win,
+SHORTS carry) — win rate stable across the regime flip, profit rotating
+sides. First candidate ever to show that signature.
+
+**Taint acknowledged:** both windows are consumed data (v0.10-exp ran its
+variant on them), so the above is in-sample evidence by our standards.
+
+**Pre-registered validation (written before the run):** BTC 1H, 2019-01 →
+2022-12 — an era never loaded by any EMA experiment (2021 mania, COVID
+crash, 2022 bear). Same rule verbatim: |d| ≥ 1 entry next open, ±3×ATR
+bracket, stop-first, 1 % risk, 10× cap, 0.055 % taker + 0.01 % slip.
+PASS = net > 0 AND win % ≥ 52 AND both a bull and a bear year individually
+net-positive. Anything less: reported, not adopted. No geometry variations
+will be tried on the validation era regardless of outcome.
+
+**Results** — pending (2019-2022 cache build in flight).
+
 ## v0.10b — EMA-distance rule, cross-market test (2026-09-01)
 
 Follow-up to v0.10-exp ("is it the rule or the asset?"). Markets
