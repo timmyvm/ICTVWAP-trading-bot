@@ -12,7 +12,29 @@ Multiple-testing caveat ON RECORD: 18 exploration cells across 3 markets ⇒
 any holdout pass at this trial count requires an additional era check
 before adoption.
 
-**Results** — pending (1H dataset build in flight).
+**Results (2026-09-01): asset-dependent — one genuinely interesting lead,
+parked short of adoption.**
+
+- **SPX500: dead.** No cell exploration-positive (trend PF 0.78-0.92) —
+  matches NAS100/BTC: equity indices punish 1H extension-chasing.
+- **XAU: weak pass, untradeable shape.** Trend cells exploration-positive
+  (gold bull 2006-11), holdout net +$5.8k-10.3k but PF only 1.07-1.13 with
+  **42-48 % drawdowns** — risk-adjusted garbage; not adoptable.
+- **WTICO (oil): the outlier.** Trend cells positive in BOTH eras and ALL
+  three thresholds — holdout PF 1.33/1.39/1.47, net +$45.8k-55.2k, maxDD
+  33-36 %, profitable 6-7 of 8 holdout years (2014-15 collapse, 2018 Q4,
+  2020 COVID all captured short). Grid-wide consistency, not one lucky cell.
+- revert mode: −80-95 % in every market. Five markets, five catastrophes —
+  the fade reading is conclusively dead.
+
+**Why oil is NOT adopted (yet):** (1) pre-registered era-check requirement —
+no third era exists in this archive (2005-2020 fully consumed); (2)
+**commodity roll confound**: Oanda CFD price series don't expose
+roll/financing; price-only PnL on oil misstates carry, materially for
+multi-week holds — the single biggest validity risk; (3) 18-cell trial
+count; (4) 33-36 % drawdowns at PF ~1.4 are survivable but harsh. Status:
+**most promising unvalidated lead in the project** — requires post-2020
+data + roll-aware cost model before belief. Parked on record.
 
 ## v0.11 — Diversified daily TSMOM portfolio (2026-09-01)
 
