@@ -1,5 +1,19 @@
 # DEVLOG — Powell Trades Bot
 
+## v0.10b — EMA-distance rule, cross-market test (2026-09-01)
+
+Follow-up to v0.10-exp ("is it the rule or the asset?"). Markets
+pre-registered for economic diversity BEFORE any results: XAU (metal),
+WTICO (energy), SPX500 (second index), 1H bars 2005-2020, futures-style
+costs (0.002 % taker + 0.005 % slip). Split: explore 2005-2012 / holdout
+2013-2020 (same eras as v0.11). Same grid and survivor rule as v0.10-exp.
+Multiple-testing caveat ON RECORD: 18 exploration cells across 3 markets ⇒
+~1-2 false survivors expected by chance; only holdout results count, and
+any holdout pass at this trial count requires an additional era check
+before adoption.
+
+**Results** — pending (1H dataset build in flight).
+
 ## v0.11 — Diversified daily TSMOM portfolio (2026-09-01)
 
 New strategy family, user-selected from the evidence-ranked menu: classic
