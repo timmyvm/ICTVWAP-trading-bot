@@ -29,6 +29,7 @@ from backtest.data import load_cached_1m  # noqa: E402
 TAKER, SLIP = 0.00002, 0.00005     # fractions per side
 COST = TAKER + SLIP                # charged on both legs
 RISK_PCT, MAX_LEV = 1.0, 10.0
+TARGET_MODE = "rr2"                # rr2 = fixed 1:2 | dol = nearest opposing session level (v0.14b)
 SWEEP_CUTOFF = 12 * 60             # sweeps counted before 12:00 NY
 CTX_EXPIRY = 30                    # bars a sweep context stays alive
 MIN_SESSION_BARS = 10
@@ -86,7 +87,8 @@ def simulate(df1m: pd.DataFrame, start_bal: float = 10_000.0,
                     net = dr * (px - pos["e"]) * pos["q"] - (pos["e"] + px) * pos["q"] * COST
                     bal += net
                     trades.append({"ts": idx[j], "dir": "LONG" if dr > 0 else "SHORT",
-                                   "level": pos["level"], "net": net, "reason": reason})
+                                   "level": pos["level"], "net": net, "reason": reason,
+                                   "rr": pos.get("rr", 2.0)})
                     pos = None
 
             # --- sweep detection (arming gated to < 12:00) ---
@@ -118,10 +120,22 @@ def simulate(df1m: pd.DataFrame, start_bal: float = 10_000.0,
                             stop = ctx["anchor"]
                             dist = dr * (stop - e) * -1.0  # = |e-stop| when stop is adverse
                             if dist > 0:
-                                q = min(bal * RISK_PCT / 100.0 / dist, bal * MAX_LEV / e)
-                                tgt = e + dr * 2.0 * dist
-                                pos = {"dr": dr, "e": e, "stop": stop, "tgt": tgt,
-                                       "q": q, "entry_bar": jj, "level": ctx["level"]}
+                                if TARGET_MODE == "dol":
+                                    # v0.14b: nearest opposing session level
+                                    # beyond entry; no valid DOL -> no trade.
+                                    if dr > 0:
+                                        cands = [levels[k] for k in ("AH", "LH") if levels[k] > e]
+                                        tgt = min(cands) if cands else None
+                                    else:
+                                        cands = [levels[k] for k in ("AL", "LL") if levels[k] < e]
+                                        tgt = max(cands) if cands else None
+                                else:
+                                    tgt = e + dr * 2.0 * dist
+                                if tgt is not None:
+                                    q = min(bal * RISK_PCT / 100.0 / dist, bal * MAX_LEV / e)
+                                    pos = {"dr": dr, "e": e, "stop": stop, "tgt": tgt,
+                                           "q": q, "entry_bar": jj, "level": ctx["level"],
+                                           "rr": dr * (tgt - e) / dist}
                         ctx = None  # one shot per context, filled or not
 
             # --- equity tracking ---
@@ -143,6 +157,7 @@ def simulate(df1m: pd.DataFrame, start_bal: float = 10_000.0,
         "pf": round(gw / gl, 2) if gl > 0 else float("inf"),
         "max_dd_pct": round(100 * max_dd, 1),
         "trades_per_day": round(len(t) / days, 2),
+        "avg_rr": round(t.rr.mean(), 2),
         "reasons": t.reason.value_counts().to_dict(),
         "by_level": t.groupby("level")["net"].sum().round(0).to_dict(),
         "per_year": {y: round(g.net.sum(), 0) for y, g in t.groupby("y")},
@@ -150,10 +165,13 @@ def simulate(df1m: pd.DataFrame, start_bal: float = 10_000.0,
 
 
 def main():
+    global TARGET_MODE
     ap = argparse.ArgumentParser()
     ap.add_argument("--cache", default="backtest/data_cache/local/nas100_1m_2015_2020.csv.gz")
     ap.add_argument("--explore-end", default="2018-01-01")
+    ap.add_argument("--target", default="rr2", choices=["rr2", "dol"])
     args = ap.parse_args()
+    TARGET_MODE = args.target
 
     df = load_cached_1m(args.cache)
     cut = pd.Timestamp(args.explore_end, tz="America/New_York")
