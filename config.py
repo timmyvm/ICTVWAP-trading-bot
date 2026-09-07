@@ -18,7 +18,11 @@ load_dotenv()
 # --- Exchange ---
 BYBIT_API_KEY = os.getenv("BYBIT_API_KEY", "")
 BYBIT_API_SECRET = os.getenv("BYBIT_API_SECRET", "")
-BYBIT_TESTNET = True  # Always testnet for safety
+# Default testnet for safety. For PAPER trading set BYBIT_TESTNET=false so the
+# feed reads REAL mainnet market data (public endpoints, no API keys needed) —
+# testnet candles are thin fake-market data and corrupt the forward test.
+# PAPER_TRADE=true never sends orders regardless of this flag.
+BYBIT_TESTNET = os.getenv("BYBIT_TESTNET", "true").lower() == "true"
 
 # --- Symbol ---
 SYMBOL = os.getenv("SYMBOL", "BTCUSDT")

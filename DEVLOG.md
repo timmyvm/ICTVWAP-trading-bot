@@ -1,5 +1,18 @@
 # DEVLOG — Powell Trades Bot
 
+## v0.13b — VPS deployment prep for the EMA-bracket paper run (2026-09-07)
+
+Patch for the user's Vultr rollout: `BYBIT_TESTNET` is now env-driven
+(default true). For the paper run set `BYBIT_TESTNET=false` so the feed
+reads REAL mainnet market data via public endpoints — testnet candles
+are thin fake-market data and would corrupt the forward test.
+`PAPER_TRADE=true` never sends orders regardless, and with no API keys
+in `.env` the account is untouchable by construction. Also:
+`numpy` added to requirements.txt (imported directly by the strategy),
+and `scripts/paper_stats.py` added — prints equity / win rate / open
+position from logs/trades.csv for checking the forward test against the
+validated ~58 % expectation.
+
 ## v0.15-exp — ComLucro "Three-Candle Liquidity Grab Reversal" (2026-09-07)
 
 Source: YouTube p0rmH1VmNYQ ("Smart Money Liquidity Sweep Reversal
