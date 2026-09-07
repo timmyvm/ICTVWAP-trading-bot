@@ -48,7 +48,32 @@ variable; avg realized RR reported). Caveat pre-stated: a target change
 cannot add information to an entry shown to carry none — this tests
 whether the PAYOFF map alone rescues the trigger.
 
-**Results (both): pending.**
+**Results (2026-09-07): BOTH FAIL — and both land exactly on the
+random-walk null, minus costs.**
+
+v0.14b (DOL targets): explore n=1,397, 28.8 % win, avg NOMINAL RR 4.93,
+PF 0.88, −$6,529, maxDD 68.9 %; holdout n=1,086, 27.1 %, avg RR 4.86,
+PF 0.88, −$5,758. The nearest-opposing-level target sits ~5R away on
+average; under a random walk P(win) ≈ 1/(1+RR) for ANY payoff map, so
+EV stays 0 before costs no matter where the target goes — the win rate
+moved from 32 % to 28 % in exact compensation. PF 0.78→0.88 = a change
+of SHAPE, not of sign. Pre-stated caveat confirmed: a target cannot add
+information to an information-free entry.
+
+v0.15 (ComLucro 2C/3C grab, BTC 1H): explore n=831, 33.7 % win, PF
+0.74, −$7,627, every year negative; holdout n=778, 34.6 %, PF 0.85,
+−$4,949 (2019 flat, rest negative). Both pattern variants negative in
+both eras. The null-match is surgical: TP1 (±1R) hit 49.6 % vs the
+50 % coin-flip null; TP2-given-TP1 hit 68.0 % vs the 66.7 % null;
+full-win rate 33.7/34.6 % vs the 33.3 % null. Across ~1,600 trades and
+8 years, the sweep + candle-confirmation sequence shifts the odds by
+approximately NOTHING; the account bleeds exactly the cost wedge.
+
+Running tally of the sweep-reversal family: v0.14, v0.14b, v0.15 all
+statistically indistinguishable from random entries. The only validated
+strategy (v0.10c) is the opposite trade — extension CONTINUATION.
+Untested boundary reiterated: ComLucro's fib-50 % limit entry and 15m
+CISD/ChoCh execution layers (discretionary, not mechanizable as stated).
 
 ## v0.14-exp — Session-sweep 1m FVG reversal, "wake up at 9am NY" reel (2026-09-07)
 
