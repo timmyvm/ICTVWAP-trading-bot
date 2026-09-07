@@ -36,7 +36,27 @@ reactor's handle: NQ -> NAS100 1m cache (2015-2020).
   results. The reactor's "target DOL instead of 1:2" variant is NOT
   tested unless the primary passes explore (would get its own prereg).
 
-**Results: pending.**
+**Results (2026-09-07): FAIL — explore gate not met; both eras lose every
+single year.**
+- Explore 2015-2017: n=1,320, **32.0 % win**, PF 0.78, −$8,491, maxDD
+  85.6 %, 1.21 trades/day; all four levels (AH/AL/LH/LL) negative.
+- Holdout (printed for the record): n=1,030, **32.6 %**, PF 0.80,
+  −$7,430; all four levels negative again. EOD force-flats rare (18/22)
+  — not a distortion source.
+
+Kill signature — the most instructive yet: for a 1:2 bracket the
+RANDOM-WALK null wins exactly 33.3 % (gambler's ruin: target 2R away,
+stop 1R away). The strategy prints 32.0/32.6 % across 2,350 trades in
+two disjoint eras. The session-sweep + 1m-FVG-reversal trigger therefore
+carries ~ZERO directional information on NQ — the loss is pure cost drag
+(~0.06R/trade) on a coin flip. Unlike the tight-stop deaths (v0.8,
+v0.12), the geometry here is survivable; the ENTRY is simply
+uninformative. The reactor's "target DOL instead of 1:2" variant stays
+untested per pre-registration (primary failed explore).
+
+Capability note: this test ran end-to-end from a user-uploaded video —
+in-house Whisper transcription + frame reads (new pipeline; raw
+transcripts stay out of the repo per policy).
 
 ## v0.13 — v0.10c goes live: EMA-bracket paper trading wired into the bot (2026-09-03)
 
