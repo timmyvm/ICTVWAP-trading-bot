@@ -1,5 +1,43 @@
 # DEVLOG — Powell Trades Bot
 
+## v0.14-exp — Session-sweep 1m FVG reversal, "wake up at 9am NY" reel (2026-09-07)
+
+Source: user-uploaded IG reaction reel (transcribed in-house via Whisper —
+new capability; raw transcript stays out of the repo per policy). Stated
+rule: at 9am NY, mark the Asia and London session highs/lows; when one
+sweeps, drop to 1m and take a fair-value-gap reversal to the other side;
+1:2 RR. Reactor adds: stop at the sweep swing. Home market per the
+reactor's handle: NQ -> NAS100 1m cache (2015-2020).
+
+**Mechanized spec (all decisions fixed BEFORE running):**
+- Sessions (NY): Asia 18:00-02:00, London 02:00-08:00; levels frozen at
+  09:00. Sweeps counted 09:00-11:59 only.
+- Sweep: first 1m bar breaching an unused level (high above H / low
+  below L). Opens a reversal context: direction against the sweep,
+  anchor = running sweep extreme, expiry 30 bars. Same-side levels
+  swept meanwhile are consumed; opposite-side sweeps ignored while a
+  context is live. A bar sweeping BOTH sides voids both levels (skip).
+- Entry: first 1m FVG against the sweep (3 closed candles, first candle
+  no earlier than the sweep bar): bearish h[i] < l[i-2] after a high
+  sweep, bullish l[i] > h[i-2] after a low sweep. Enter next bar open.
+- Stop at the sweep extreme (no buffer, per the reel); target = fixed
+  1:2 on the raw stop distance. Stop-first conservative, no same-bar
+  target, gap-skip if the entry opens beyond the stop. Force-flat at
+  16:00 NY. One position at a time; each level trades once per day.
+- Risk 1% equity, 10x cap; futures-CFD costs (0.002% taker + 0.005%
+  slip per side, both legs) — same as v0.9/v0.10b NQ tests.
+- Split: explore 2015-08 -> 2017-12, holdout 2018-01 -> 2020-05. Taint
+  note ON RECORD: this cache served v0.9 (ICT RB family) — different
+  rule family, same market/era; a holdout pass here would still need a
+  fresh-era check before adoption.
+- **Pre-registered pass:** explore n >= 100 AND net > 0 -> holdout;
+  holdout PASS = net > 0 AND win% >= 36 (1:2 breakeven 33.3% + costs)
+  AND maxDD < 40%. Reported either way; no variations in response to
+  results. The reactor's "target DOL instead of 1:2" variant is NOT
+  tested unless the primary passes explore (would get its own prereg).
+
+**Results: pending.**
+
 ## v0.13 — v0.10c goes live: EMA-bracket paper trading wired into the bot (2026-09-03)
 
 User: *"set up paper trading from validated strategy from before, the ema
