@@ -1,5 +1,55 @@
 # DEVLOG — Powell Trades Bot
 
+## v0.15-exp — ComLucro "Three-Candle Liquidity Grab Reversal" (2026-09-07)
+
+Source: YouTube p0rmH1VmNYQ ("Smart Money Liquidity Sweep Reversal
+Strategy", ComLucro Trader, 16 min) — transcript pulled via the new
+yt-dlp caption route (datacenter bot-check bypassed with a node JS
+runtime + embedded player clients; manual EN subs).
+
+Stated pattern (bullish; bearish mirrored): price sweeps a liquidity
+level, then EITHER (2-candle) the sweep candle C2 takes C1's low and
+closes back above C1's range, confirming immediately, OR (3-candle) C2
+fails that close, and C3 holds above C2's low while closing above the
+top of C2's body. Video demos on BTCUSD; execution shown with partials
+at 1:1 (close half) and runner to 1:2.
+
+**Mechanized primary (fixed BEFORE running):** BTC 1H. External-liquidity
+context: the sweep must take out the prior 24-bar low/high (K=24 1H bars
+ending before C1), not merely C1's wick. 2-candle confirm: l2 < l1,
+l2 < K-bar low, close2 > high1. 3-candle confirm: l2 < l1, l2 < K-bar
+low, NOT close2 > high1, then l3 >= l2 and close3 > max(open2, close2).
+Enter next bar open (taker+slip); stop at the sweep extreme; TP1 = 1R
+on HALF the position, TP2 = 2R on the rest; stop unchanged after TP1
+(no breakeven move stated in the video). Stop-first conservative, no
+same-bar targets on the entry bar, one position at a time, no session
+gating (BTC 24/7). 1 % risk, 10x cap, 0.055 % taker + 0.01 % slip both
+legs. Untested boundary, on record: the video's fib-50 %/premium-
+discount limit entry, 15m CISD/ChoCh execution layer, and
+POI-retracement (order block / FVG) context are NOT mechanized here —
+only the swept-swing external-liquidity scenario the video also states.
+**Split:** explore 2023-01 -> 2026 cache; holdout 2019-2022 (consumed
+once, by the unrelated v0.10c validation — taint note on record).
+**Pass:** explore n >= 100 AND net > 0 -> holdout; holdout PASS = net > 0
+AND PF >= 1.1 AND maxDD < 40 %. Reported either way; no variations in
+response to results.
+
+## v0.14b-exp — Reactor's variant: DOL targets instead of fixed 1:2 (2026-09-07)
+
+User-requested follow-up to v0.14 (its own pre-registration, per
+policy). Identical spec to v0.14 in every respect except the target:
+instead of fixed 1:2, target the NEAREST opposing session level beyond
+entry ("target your next draw on liquidity") — for longs the nearest of
+{Asia high, London high} above entry, for shorts the nearest of {Asia
+low, London low} below; skip the trade if none exists on the profit
+side. Stop stays at the sweep extreme. Same split, costs, risk, and
+**pass bar** as v0.14 (win% bar replaced by PF >= 1.1 since RR is now
+variable; avg realized RR reported). Caveat pre-stated: a target change
+cannot add information to an entry shown to carry none — this tests
+whether the PAYOFF map alone rescues the trigger.
+
+**Results (both): pending.**
+
 ## v0.14-exp — Session-sweep 1m FVG reversal, "wake up at 9am NY" reel (2026-09-07)
 
 Source: user-uploaded IG reaction reel (transcribed in-house via Whisper —
