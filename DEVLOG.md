@@ -25,7 +25,35 @@ bracket: ≥ 53-54 % with positive net in a market = the effect travels;
 ~50 % = coin flip there; the BTC number changes in NEITHER case. No
 parameter changes will be tried in response to results.
 
-**Results: pending.**
+**Results (2026-09-08): THE EFFECT TRAVELS — all four markets clear the
+pre-registered bar (win ≥ 53-54 % + net > 0).**
+
+| market | n | win % | PF | Sharpe | maxDD | CAGR | years + |
+|---|---|---|---|---|---|---|---|
+| NAS100 15-20 (clean) | 2,126 | 54.0 | 1.12 | 0.97 | 25.8 % | 21.7 % | 5/6 |
+| XAU 06-20 | 5,002 | 55.7 | 1.15 | 1.54 | 26.3 % | 37.5 % | 14/15 |
+| WTICO 05-20 | 6,430 | 55.7 | 1.23 | 1.84 | 22.6 % | 50.2 % | 16/16 |
+| SPX500 05-20 | 5,819 | 53.4 | 1.09 | 0.74 | 37.0 % | 14.6 % | 12/16 |
+
+With BTC's ~3,100 trades at 57-58 %, the family now spans ~22,500
+trades across five markets and four asset classes, every one above its
+breakeven. Ordering matches the state-dependent-momentum literature:
+crypto > energy/metal > indices. Notable: with the BRACKET exit even
+SPX500 is weakly positive — v0.10b's EMA-touch exit had it dead
+(PF 0.78-0.92); the exit is as load-bearing as the entry, consistent
+with how v0.10c was discovered. The one negative NAS100 year (2015,
+−17 %) and SPX's 2014-15 show regime dependence is real.
+
+**Honest caveats, on record:** (1) XAU/WTICO/SPX are entry-family-
+tainted cells (pre-noted) — though v0.10b's "SPX dead" verdict would
+have discouraged this run, so the taint points conservative there;
+NAS100 is the clean cell and passes. (2) Raw compounded dollars (oil
++$5.0M over 16y) are 1 %-compounding artifacts — quote PF/Sharpe/CAGR,
+never the dollar figure. (3) CFD financing/roll costs unmodeled (same
+caveat class as BTC perp funding) — matters most for oil. (4) Per
+pre-registration: BTC validation and the live paper run are UNCHANGED;
+no parameters were or will be touched from these results. The bot still
+trades BTC only — cross-market execution would be a separate build.
 
 ## v0.13b — VPS deployment prep for the EMA-bracket paper run (2026-09-07)
 
