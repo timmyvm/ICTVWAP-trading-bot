@@ -147,6 +147,9 @@ def main():
     ap.add_argument("--cache", default="backtest/data_cache/local/btcusd_1m_2019_2022.csv.gz")
     ap.add_argument("--start", default=None, help="ISO date lower bound (optional)")
     ap.add_argument("--end", default=None, help="ISO date upper bound (optional)")
+    ap.add_argument("--taker", type=float, default=0.055, help="taker fee %% per side")
+    ap.add_argument("--slip", type=float, default=0.01, help="slippage %% per side")
+    ap.add_argument("--label", default="", help="printed with the result line")
     args = ap.parse_args()
 
     df1h = resample_ohlcv(load_cached_1m(args.cache), "1h")
@@ -154,8 +157,9 @@ def main():
         df1h = df1h[df1h.index >= pd.Timestamp(args.start, tz="America/New_York")]
     if args.end:
         df1h = df1h[df1h.index < pd.Timestamp(args.end, tz="America/New_York")]
-    print(f"{df1h.index.min()} -> {df1h.index.max()} ({len(df1h)} bars)")
-    print(simulate(df1h))
+    tag = f"[{args.label}] " if args.label else ""
+    print(f"{tag}{df1h.index.min()} -> {df1h.index.max()} ({len(df1h)} bars)")
+    print(tag, simulate(df1h, taker_pct=args.taker, slip_pct=args.slip))
 
 
 if __name__ == "__main__":

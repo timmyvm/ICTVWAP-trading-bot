@@ -1,5 +1,32 @@
 # DEVLOG — Powell Trades Bot
 
+## v0.10d — Cross-market breadth check of the validated bracket (2026-09-08)
+
+User: "can we test it cross market just in case." Rule under test:
+v0.10c VERBATIM — zero free parameters, no grid, no tuning — so this is
+a robustness measurement of a fixed rule, run full-period with per-year
+breakdown (nothing to select ⇒ no explore/holdout machinery needed).
+
+Markets (all 1H, futures-CFD costs 0.002 % taker + 0.005 % slip):
+- **NAS100 2015-2020** — family-clean (no EMA-distance rule ever ran on
+  this market; the cache served unrelated ICT/sweep families).
+- **XAU, WTICO, SPX500 2005-2020** — entry-family-TAINTED: v0.10b ran
+  EMA-distance entries (EMA-touch exit) on them and we know oil trended,
+  gold was weak, SPX was dead. Diagnostics, not clean tests.
+
+**Interpretation pre-stated BEFORE results:** the BTC validation stands
+on its own (~3,100 trades, three windows, 57-58 % stable) REGARDLESS of
+this outcome. Cross-market failure does not invalidate the BTC paper
+run — the literature says intraday momentum is state/asset-dependent,
+and v0.10b already showed 1H extension behavior differs by asset. What
+this measures is whether the edge is BTC-specific or general. The
+diagnostic is win % vs the ~50 % + costs breakeven of the symmetric
+bracket: ≥ 53-54 % with positive net in a market = the effect travels;
+~50 % = coin flip there; the BTC number changes in NEITHER case. No
+parameter changes will be tried in response to results.
+
+**Results: pending.**
+
 ## v0.13b — VPS deployment prep for the EMA-bracket paper run (2026-09-07)
 
 Patch for the user's Vultr rollout: `BYBIT_TESTNET` is now env-driven
