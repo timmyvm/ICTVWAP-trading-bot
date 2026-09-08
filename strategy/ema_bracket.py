@@ -43,16 +43,19 @@ class EMABracketSignal:
     setup_id: str = ""              # signal candle timestamp (ISO)
     d_value: float = field(default=0.0)   # EMA distance in ATRs at signal
     atr: float = field(default=0.0)       # signal candle's ATR14
+    symbol: str = ""                # which market this signal belongs to
 
 
 class EMABracketStrategy:
     """
     Stateful wrapper for the live loop: tracks which closed 1H candle last
     sourced an entry so one candle never fires twice, and stays silent
-    until enough history is loaded for a faithful EMA200.
+    until enough history is loaded for a faithful EMA200. One instance per
+    symbol — state never crosses markets.
     """
 
-    def __init__(self):
+    def __init__(self, symbol: Optional[str] = None):
+        self.symbol = symbol or config.SYMBOL
         self._last_entry_candle: Optional[pd.Timestamp] = None
         self._warned_short_history = False
 
@@ -69,9 +72,10 @@ class EMABracketStrategy:
         if len(df_1h) < config.EMA_BRACKET_MIN_1H:
             if not self._warned_short_history:
                 logger.warning(
-                    "[EMA] only %d 1H candles loaded (< %d) — standing down "
+                    "[EMA %s] only %d 1H candles loaded (< %d) — standing down "
                     "until enough history for a faithful EMA%d",
-                    len(df_1h), config.EMA_BRACKET_MIN_1H, config.EMA_BRACKET_SPAN,
+                    self.symbol, len(df_1h), config.EMA_BRACKET_MIN_1H,
+                    config.EMA_BRACKET_SPAN,
                 )
                 self._warned_short_history = True
             return None
@@ -112,15 +116,16 @@ class EMABracketStrategy:
             setup_id=signal_candle.isoformat(),
             d_value=round(d_last, 3),
             atr=round(atr_last, 2),
+            symbol=self.symbol,
         )
 
         # Consume the candle now: even if execution fails downstream we skip
         # rather than machine-gun retries against the same signal.
         self._last_entry_candle = signal_candle
         logger.info(
-            "[EMA] signal: %s @ %.2f | d=%.2f ATRs | ATR14=%.2f | "
+            "[EMA %s] signal: %s @ %.2f | d=%.2f ATRs | ATR14=%.2f | "
             "bracket +/-%.2f (SL %.2f / TP %.2f) | candle %s",
-            direction, fill, d_last, atr_last, dist,
+            self.symbol, direction, fill, d_last, atr_last, dist,
             signal.stop_loss, signal.take_profit, signal_candle,
         )
         return signal

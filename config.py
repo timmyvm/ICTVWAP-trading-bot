@@ -73,6 +73,17 @@ EMA_BRACKET_FETCH_1H = int(os.getenv("EMA_BRACKET_FETCH_1H", "1000"))  # Bybit m
 # (mirrors the validated backtest's 1%-of-current-equity sizing).
 PAPER_START_BALANCE = float(os.getenv("PAPER_START_BALANCE", "10000"))
 
+# Symbols the EMA-bracket strategy trades, comma-separated. Default: BTC only
+# (the validated instrument). Each symbol runs its own strategy state and
+# position slot against SHARED paper equity (portfolio-style: with N symbols,
+# worst-case open risk is N x RISK_PER_TRADE_PCT). Only add symbols whose
+# market passed a bracket backtest (DEVLOG v0.10c/v0.10d) — e.g. tokenized
+# gold (XAUTUSDT) as a PROXY for the validated XAU cell, with its 24/7
+# weekend sessions on record as a divergence from the validation data.
+EMA_BRACKET_SYMBOLS = [
+    s.strip() for s in os.getenv("EMA_BRACKET_SYMBOLS", SYMBOL).split(",") if s.strip()
+]
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # TESTING vs LIVE MODE
 # ═══════════════════════════════════════════════════════════════════════════════

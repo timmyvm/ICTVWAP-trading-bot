@@ -40,10 +40,16 @@ def main():
               f"({wins}W / {len(closed) - wins}L)  |  validated expectation ~58%")
         first = pd.to_datetime(closed["timestamp"].iloc[0]).date()
         print(f"trading since : {first}")
+    if len(closed) and closed["symbol"].nunique() > 1:
+        print("\nper symbol:")
+        for sym, g in closed.groupby("symbol"):
+            w = (g["pnl_f"] > 0).sum()
+            print(f"  {sym:10s} {len(g):4d} trades  {100 * w / len(g):5.1f}% win  "
+                  f"${g['pnl_f'].sum():+,.2f}")
     if not open_rows.empty:
-        r = open_rows.iloc[-1]
-        print(f"open position : {r['direction']} {r['qty']} @ {r['entry']} "
-              f"(SL {r['sl']} / TP {r['tp']})")
+        for _, r in open_rows.iterrows():
+            print(f"open position : {r['symbol']} {r['direction']} {r['qty']} @ {r['entry']} "
+                  f"(SL {r['sl']} / TP {r['tp']})")
     else:
         print("open position : none")
     if not closed.empty:

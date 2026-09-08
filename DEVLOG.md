@@ -1,5 +1,27 @@
 # DEVLOG — Powell Trades Bot
 
+## v0.13c — Multi-symbol paper trading for the EMA bracket (2026-09-08)
+
+User wants faster forward-test evidence ("im impatient — paper btc, oil
+and gold"). Venue reality: Bybit has no oil in any form (would need an
+OANDA/CFD integration — parked as roadmap); gold exists as tokenized
+perps (XAUTUSDT / PAXGUSDT) tracking spot gold. Built multi-symbol
+support: `EMA_BRACKET_SYMBOLS` (comma-sep, default BTCUSDT only); one
+strategy instance + one position slot PER symbol; SHARED paper equity
+(portfolio compounding; worst-case open risk = N × 1 %); symbol-scoped
+paper resolution in orders.py (`check_paper_position`/`has_open_position`
+take symbol — without this one market's price would resolve another's
+bracket) and symbol-stamped CSV rows; per-symbol paper_stats. Smoke
+replay with stubbed BTC+XAU feeds: independent trading, sane per-symbol
+prices, correct shared equity.
+
+Fidelity note ON RECORD: XAUTUSDT is a PROXY for the validated XAU cell
+— 24/7 weekend sessions (validation data had none), thinner book,
+different venue. Its results count as their own cell, not as the XAU
+backtest's forward test. Doubling symbols ≈ halves calendar time to
+~100 trades (~7-8 weeks); the per-market decay question still needs
+per-market samples.
+
 ## v0.10d — Cross-market breadth check of the validated bracket (2026-09-08)
 
 User: "can we test it cross market just in case." Rule under test:

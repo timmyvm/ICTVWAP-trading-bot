@@ -130,6 +130,7 @@ class OrderManager:
             result="PAPER",
             pnl=0.0,
             qty=qty,
+            symbol=getattr(signal, "symbol", None),
         )
 
         return True
@@ -230,9 +231,16 @@ class OrderManager:
             logger.error("Failed to modify stop loss: %s", e)
             return False
 
-    def check_paper_position(self, current_price: float) -> Optional[str]:
+    def check_paper_position(
+        self, current_price: float, symbol: Optional[str] = None,
+    ) -> Optional[str]:
         """
-        Check ALL open paper trades against current price and resolve any hits.
+        Check open paper trades against current price and resolve any hits.
+
+        `symbol` filters resolution to that symbol's rows — REQUIRED when
+        multiple symbols trade concurrently, otherwise one symbol's price
+        would resolve another symbol's brackets. None keeps the legacy
+        single-symbol behavior (all open rows).
 
         Previously only the LAST CSV row was monitored, so whenever a second
         trade opened (e.g. a VWAP trade after an ICT trade) the earlier one was
@@ -256,7 +264,10 @@ class OrderManager:
             any_tp = False
             changed = False
 
-            for idx in trades.index[trades["result"].isin(["PAPER", "OPEN"])]:
+            open_mask = trades["result"].isin(["PAPER", "OPEN"])
+            if symbol is not None:
+                open_mask &= trades["symbol"] == symbol
+            for idx in trades.index[open_mask]:
                 row = trades.loc[idx]
                 entry = float(row["entry"])
                 sl = float(row["sl"])
@@ -324,11 +335,12 @@ class OrderManager:
             logger.error("Failed to check paper position: %s", e)
             return None
 
-    def has_open_position(self) -> bool:
+    def has_open_position(self, symbol: Optional[str] = None) -> bool:
         """
-        True while any position is open — paper mode reads the CSV (source of
+        True while a position is open — paper mode reads the CSV (source of
         truth), live mode queries Bybit. Used for one-position-at-a-time
-        strategies (EMA bracket).
+        strategies (EMA bracket). `symbol` scopes the check to one symbol;
+        None checks across all (legacy single-symbol behavior).
         """
         if config.PAPER_TRADE or config.BYBIT_TESTNET:
             try:
@@ -336,7 +348,10 @@ class OrderManager:
                 trades = _pd.read_csv(
                     config.TRADE_LOG_PATH, dtype=str, keep_default_na=False,
                 )
-                return bool(trades["result"].isin(["PAPER", "OPEN"]).any())
+                mask = trades["result"].isin(["PAPER", "OPEN"])
+                if symbol is not None:
+                    mask &= trades["symbol"] == symbol
+                return bool(mask.any())
             except FileNotFoundError:
                 return False
             except Exception as e:
@@ -345,7 +360,7 @@ class OrderManager:
 
         try:
             resp = self.session.get_positions(
-                category=config.CATEGORY, symbol=config.SYMBOL,
+                category=config.CATEGORY, symbol=symbol or config.SYMBOL,
             )
             positions = resp.get("result", {}).get("list", [])
             return any(float(p.get("size", 0)) > 0 for p in positions)
@@ -410,11 +425,12 @@ class OrderManager:
         strategy: str = "ICT",
         closed_at: str = "",
         qty: Optional[float] = None,
+        symbol: Optional[str] = None,
     ):
         """Append a trade record to the CSV log."""
         row = {
             "timestamp": timestamp,
-            "symbol": config.SYMBOL,
+            "symbol": symbol or config.SYMBOL,
             "direction": direction,
             "entry": round(entry, 2),
             "sl": round(sl, 2),
