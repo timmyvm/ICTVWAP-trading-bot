@@ -1,5 +1,24 @@
 # DEVLOG — Powell Trades Bot
 
+## v0.13d — Web dashboard for the paper run (2026-09-10)
+
+User wants to watch the forward test from a browser instead of SSH.
+Added `scripts/dashboard.py` — stdlib-only HTTP server on the VPS
+(port `DASHBOARD_PORT`, default 8080) rendering one read-only page:
+equity + realized PnL + win rate vs the ~58 % target, realized equity
+sparkline, per-symbol table, open positions, last 10 closed trades, and
+a bot heartbeat from the bot.log mtime (alive/STALE). Auto-refresh 60 s.
+
+Access control: refuses to start without `DASHBOARD_TOKEN` in .env;
+requests must carry `?token=…` (constant-time compare, 403 otherwise).
+Read-only by construction — renders only the paper CSV and log mtime;
+no actions, no secrets on the page, no file access beyond those two.
+Plain HTTP on record as acceptable for paper-money numbers.
+`deploy/dashboard_setup.sh` generates the token, installs the
+`powelltrades-dash` systemd unit, opens ufw if active, prints the URL.
+Tested: 403 on bad token, 200 with content on good token, render-error
+path never kills the server.
+
 ## v0.13c — Multi-symbol paper trading for the EMA bracket (2026-09-08)
 
 User wants faster forward-test evidence ("im impatient — paper btc, oil
