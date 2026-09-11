@@ -1,5 +1,38 @@
 # DEVLOG — Powell Trades Bot
 
+## v0.10e — Gate 2: real funding costs applied to the validated bracket (2026-09-11)
+
+The go-live gate's biggest open question: perp funding was unmodeled in
+every run. Data: Binance BTCUSDT USDT-M funding archive (Bybit's API is
+unreachable from this environment; venue rates track via arbitrage —
+proxy caveat on record). 7,305 settlements, 2020-01 → 2026-08, perfect
+8h grid (00/08/16 UTC), mean +0.0108 %/8h ≈ +11.8 %/yr on notional,
+86 % positive, 2021 avg +30.6 %/yr — the adverse-correlation risk
+(momentum longs cluster in manias when funding peaks) is real in the
+raw data. Committed: backtest/data_cache/funding_btcusdt_binance.csv.
+
+**Application convention (fixed BEFORE running):** at each UTC-aligned
+1H bar open matching a settlement, positions carried INTO the bar
+accrue −dir × qty × open × rate (longs pay positive rates, shorts
+receive). Accrual folds into that trade's net at close — win/loss
+classification includes funding — and into mark-to-market equity. A
+position entered at the settlement bar's own open pays nothing for that
+settlement. Implemented as an OPTIONAL simulate() param defaulting to
+None so the frozen reference behavior is unchanged (verified by exact
+re-reproduction of the validation numbers).
+
+**Windows:** 2020-01→2022-12 (funded validation window, 3 of 4
+validation years) and 2023-01→2026-08 (demo era), each run funded vs
+unfunded on identical bars. Reported: net/CAGR/PF/win % deltas, total
+funding split by side (the correlation question), per-year.
+
+**Pre-registered Gate-2 PASS: funded 2020-2022 stays net > 0 AND
+PF ≥ 1.10.** No parameter changes in response to results; if it fails,
+the next step is instrument analysis (quarterly futures / spot), not
+tuning.
+
+**Results: pending.**
+
 ## v0.13d — Web dashboard for the paper run (2026-09-10)
 
 User wants to watch the forward test from a browser instead of SSH.
