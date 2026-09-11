@@ -115,3 +115,9 @@ config.py        — All tuneable parameters (TESTING_MODE, ENTRY_MODE, etc.)
   validation script was wiped by a container restart; its semantics had to be recovered from the session
   transcript because the DEVLOG prose under-specified three execution details (signal bar, exit ordering,
   fee legs). Reference implementations live in backtest/, never in /tmp.
+
+- NEVER `.astype("int64")` a pandas datetime to get epoch values — pandas 2.x carries the source unit
+  (ms/s), so `// 10**9` silently yields garbage. Always use the epoch-subtraction idiom
+  (`(idx - pd.Timestamp(0, tz="UTC")) // pd.Timedelta(seconds=1)`, see save_cache_1m). And validate the
+  SAVED artifact by re-loading it through the consumer's own loader — the v0.10e funding CSV passed every
+  in-memory sanity check and was still corrupt on disk.

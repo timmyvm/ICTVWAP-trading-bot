@@ -31,7 +31,34 @@ PF ≥ 1.10.** No parameter changes in response to results; if it fails,
 the next step is instrument analysis (quarterly futures / spot), not
 tuning.
 
-**Results: pending.**
+**Results (2026-09-11): GATE 2 PASS — funding shaves 4-12 % of profits;
+the edge survives intact.**
+
+- 2020-2022, identical bars: unfunded +$16,676 / PF 1.16 / CAGR 39.2 % /
+  Sharpe 1.47 → funded **+$14,679 / PF 1.14 / CAGR 35.6 % / Sharpe
+  1.37**. Win % unchanged (57.2), maxDD unchanged (15.6 %). Funding
+  −$1,376 total: longs paid −$1,989, shorts COLLECTED +$623 — the
+  two-sided book refunds ~⅓ of the long bill. Gate (net > 0 ∧
+  PF ≥ 1.10): **PASS**.
+- 2023-2026: +$18,820 → +$18,083 (−4 % of profit; CAGR 33.6 → 32.7).
+  Funding −$394 (longs −$1,166, shorts +$763).
+- The pre-identified adverse correlation is real but bounded: 2021
+  (avg funding +30.6 %/yr) absorbs most of the drag (+$3,834 → +$2,758)
+  and still ends positive. Win rate untouched in both windows — funding
+  almost never flips a trade's sign; it is a thin shave on net, not a
+  structural cost. The "halves the edge" scenario did not materialize.
+- Go-live consequence: **Bybit perps stand as the venue** — no
+  instrument switch; funding is now a measured, budgeted ~1-4 CAGR
+  points. Reference reproduction re-verified exact (1,508 / 58.0 % /
+  +$36,925) in the same batch before any funded cell ran.
+
+Patch note: the first funded runs crashed — the committed funding CSV
+was corrupt (`.astype(int64)` on ms-unit datetimes → epoch garbage;
+every in-memory sanity check passed because corruption happened in the
+final save line). Rebuilt via the save_cache_1m epoch idiom and
+validated by re-loading the SAVED file through load_funding; CLAUDE.md
+rule added (never astype(int64) datetimes; validate saved artifacts
+through the consumer's loader).
 
 ## v0.13d — Web dashboard for the paper run (2026-09-10)
 
