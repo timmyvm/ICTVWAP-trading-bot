@@ -57,7 +57,8 @@ def simulate(df1h: pd.DataFrame,
              taker_pct: float = 0.055, slip_pct: float = 0.01,
              risk_pct: float = 1.0, max_lev: float = 10.0,
              start_bal: float = 10_000.0,
-             return_trades: bool = False) -> dict:
+             return_trades: bool = False,
+             funding: Optional[pd.Series] = None) -> dict:
     o = df1h["open"].to_numpy()
     h = df1h["high"].to_numpy()
     l = df1h["low"].to_numpy()
@@ -65,16 +66,32 @@ def simulate(df1h: pd.DataFrame,
     idx = df1h.index
     atr, d = indicators(df1h)
 
+    # v0.10e: per-bar funding rate (0 outside settlement bars). Positions
+    # carried INTO a settlement bar accrue -dir*qty*open*rate; the accrual
+    # folds into that trade's net at close. funding=None => rates all zero
+    # and behavior is bit-identical to the frozen reference.
+    rate_arr = np.zeros(len(df1h))
+    if funding is not None:
+        rate_arr = funding.reindex(idx.tz_convert("UTC")).fillna(0.0).to_numpy()
+
     taker = taker_pct / 100.0
     slip = slip_pct / 100.0
 
     bal = start_bal
     pos: Optional[tuple] = None  # (dr, entry, stop, tp, qty, entry_ts)
+    pos_funding = 0.0
+    fund_by_dir = {"LONG": 0.0, "SHORT": 0.0}
     trades = []
     entries = []  # every entry event, incl. one left unresolved at data end
     eq_curve = []
 
     for i in range(WARMUP, len(df1h)):
+        # 0) funding settlement for the position carried into this bar
+        if pos is not None and rate_arr[i] != 0.0:
+            cf = -pos[0] * pos[4] * o[i] * rate_arr[i]
+            pos_funding += cf
+            fund_by_dir["LONG" if pos[0] > 0 else "SHORT"] += cf
+
         # 1) bracket check for positions opened on EARLIER bars (stop-first,
         #    raw-level fills; an exit here frees the slot for step 2's entry)
         if pos is not None:
@@ -83,13 +100,15 @@ def simulate(df1h: pd.DataFrame,
             hit_tg = h[i] >= tg if dr > 0 else l[i] <= tg
             px = st if hit_st else (tg if hit_tg else None)
             if px is not None:
-                net = dr * (px - e) * q - (e + px) * q * (taker + slip)
+                net = dr * (px - e) * q - (e + px) * q * (taker + slip) + pos_funding
                 bal += net
                 trades.append({"ts": idx[i], "i": i, "entry_ts": ets,
                                "dir": "LONG" if dr > 0 else "SHORT",
                                "entry": e, "exit": px, "net": net,
+                               "funding": pos_funding,
                                "reason": "STOP" if hit_st else "TP"})
                 pos = None
+                pos_funding = 0.0
 
         # 2) entry at this bar's open from the PREVIOUS bar's signal
         if pos is None and not np.isnan(d[i - 1]) and abs(d[i - 1]) >= ENTRY_T:
@@ -100,12 +119,13 @@ def simulate(df1h: pd.DataFrame,
             if q > 0:
                 st_, tg_ = e - dr * EXIT_MULT * a, e + dr * EXIT_MULT * a
                 pos = (dr, e, st_, tg_, q, idx[i - 1])
+                pos_funding = 0.0
                 entries.append({"i": i, "signal_ts": idx[i - 1],
                                 "dir": "LONG" if dr > 0 else "SHORT",
                                 "entry": e, "stop": st_, "tp": tg_})
 
-        # 3) mark-to-market equity tracking
-        m2m = bal + (pos[0] * (c[i] - pos[1]) * pos[4] if pos else 0.0)
+        # 3) mark-to-market equity tracking (incl. accrued funding carry)
+        m2m = bal + (pos[0] * (c[i] - pos[1]) * pos[4] + pos_funding if pos else 0.0)
         eq_curve.append((idx[i], m2m))
 
     t = pd.DataFrame(trades)
@@ -130,7 +150,7 @@ def simulate(df1h: pd.DataFrame,
     years = (eq.index[-1] - eq.index[0]).days / 365.25
     cagr = (eq.iloc[-1] / start_bal) ** (1 / years) - 1 if years > 0 else 0.0
 
-    return {
+    out = {
         "n": int(len(t)), "win_pct": round(100 * wins / len(t), 1),
         "net": round(t["net"].sum(), 0), "end_bal": round(bal, 0),
         "pf": round(gw / gl, 2) if gl > 0 else float("inf"),
@@ -140,6 +160,17 @@ def simulate(df1h: pd.DataFrame,
         "worst_month_pct": round(100 * monthly.min(), 1),
         "by_dir": by_dir, "per_year": per_year,
     }
+    if funding is not None:
+        out["funding_total"] = round(t["funding"].sum(), 0)
+        out["funding_by_dir"] = {k: round(v, 0) for k, v in fund_by_dir.items()}
+    return out
+
+
+def load_funding(path: str) -> pd.Series:
+    """timestamp(epoch s),rate -> UTC-indexed rate series for simulate()."""
+    f = pd.read_csv(path)
+    ts = pd.to_datetime(f["timestamp"], unit="s", utc=True)
+    return pd.Series(f["rate"].to_numpy(), index=pd.DatetimeIndex(ts))
 
 
 def main():
@@ -149,6 +180,8 @@ def main():
     ap.add_argument("--end", default=None, help="ISO date upper bound (optional)")
     ap.add_argument("--taker", type=float, default=0.055, help="taker fee %% per side")
     ap.add_argument("--slip", type=float, default=0.01, help="slippage %% per side")
+    ap.add_argument("--funding", default=None,
+                    help="funding CSV (timestamp,rate) to apply; omit for none")
     ap.add_argument("--label", default="", help="printed with the result line")
     args = ap.parse_args()
 
@@ -157,9 +190,10 @@ def main():
         df1h = df1h[df1h.index >= pd.Timestamp(args.start, tz="America/New_York")]
     if args.end:
         df1h = df1h[df1h.index < pd.Timestamp(args.end, tz="America/New_York")]
+    fund = load_funding(args.funding) if args.funding else None
     tag = f"[{args.label}] " if args.label else ""
     print(f"{tag}{df1h.index.min()} -> {df1h.index.max()} ({len(df1h)} bars)")
-    print(tag, simulate(df1h, taker_pct=args.taker, slip_pct=args.slip))
+    print(tag, simulate(df1h, taker_pct=args.taker, slip_pct=args.slip, funding=fund))
 
 
 if __name__ == "__main__":
