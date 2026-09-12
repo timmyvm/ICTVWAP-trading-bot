@@ -1,5 +1,36 @@
 # DEVLOG — Powell Trades Bot
 
+## Paper run — week-1 audit after a 1-of-8 start (2026-09-12)
+
+Dashboard after the first week: 8 closed, 1 win, −$661 (−6.6 %), two
+shorts open. Two checks before drawing any conclusion:
+
+**Calibration against the strategy's own history.** Binomial
+P(≤1 win in 8 | 58 %) = 1.2 % (1 in 86) — but losses CLUSTER in chop,
+so the backtest itself produces ≤1-win 8-trade windows 2.1 % of the
+time (validation era, 31/1,501 windows) and 2.3 % (demo era). Longest
+losing streak in BOTH eras: 7 (live so far: 4). Worst 8-trade stretch
+≈ −8 % of equity (live: −6.6 %). The start is inside the validated
+distribution, not at its edge.
+
+**Mechanical audit.** Replayed Sep 8-11 BTC 1H candles (Binance
+archive, monthly Aug + daily Sep files) through the frozen reference
+engine. Every live trade maps to a rule trade: entries within
+$40-200 (Bybit/Binance basis + sub-minute timing), the open short's
+stop within $6 of the replay's (79,828.61 vs 79,834.54); the two
+divergences (a second Sep-10 win the rule took, a Sep-11 07:00 short
+it took) are explained by one-position-at-a-time given the live fill
+being ~$200 lower on the Sep-10 short. The reference engine ALSO loses
+the week: 9 trades, 2 wins, ≈ −$680. Verdict: regime, not malfunction —
+BTC whipsawed 76.5k-80k with 1H ATR ~$700-1,000, firing extension
+signals at both ends of a 3 % chop; that is this strategy's known
+worst regime, and it is priced into the validation.
+
+Nothing changes (per protocol: no goalpost moves). Pre-set checkpoints
+stand: at 50 trades win % < 45 → deeper investigation; at 100 trades
+win % < 50 or net < 0 → Gate 1 fails. Added
+scripts/audit_paper_vs_rule.py to repeat this replay any week.
+
 ## v0.10f — ETH validation of the bracket rule (2026-09-12)
 
 Purpose: a third GENUINE Bybit symbol for the paper run (XAUT is a
