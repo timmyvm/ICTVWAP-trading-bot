@@ -1,5 +1,46 @@
 # DEVLOG — Powell Trades Bot
 
+## v0.17-exp — Fixed-range volume-profile POC pullback (IG reel, 2026-09-12)
+
+Source: @tradinglabofficial reel (fetched + Whisper-transcribed
+in-house; 78 s). Stated rule: put a fixed-range volume profile over a
+trend (low → high), enable VAH/VAL; wait for price to pull back to the
+POC ("this is where we look to enter", ideally with a demand area
+there); stop below the demand area; partial at VAH; full exit at the
+recent high. Downtrend mirrored. Needs REAL volume → BTC 1H (Bitstamp
+volume); index CFD data only has tick counts.
+
+**Mechanized primary (fixed BEFORE running):**
+- Swings: swing high = highest high of ±K=12 bars (confirmed K bars
+  later — no lookahead); swing low mirrored. A trend = the last
+  confirmed swing low followed by a confirmed swing high with impulse
+  ≥ 3×ATR14 (shorts mirrored). Setup arms when the high confirms.
+- Profile over the impulse bars: 40 price bins across the impulse
+  range; each bar's volume spread uniformly over the bins its high-low
+  range overlaps. POC = max-volume bin center. Value area = 70 % of
+  volume expanded from the POC (larger neighbor first); VAH/VAL = its
+  edges.
+- Entry (long): resting limit at the POC while the setup is live; live
+  = price between POC and the swing high at arming (if already below
+  the POC, skip — the pullback is spent), no new high (a new high
+  cancels; the next confirmed swing re-arms), max 100 bars. Gap-through
+  fills at the bar open.
+- Stop = VAL − 0.1×ATR; skip degenerate setups (fill − stop < 0.2×ATR,
+  VAH not above fill). TP1 = VAH on half the position, TP2 = the swing
+  high on the rest; stop unchanged after TP1 (nothing else stated).
+  Stop-first conservative, no same-bar targets on the fill bar, one
+  position at a time, no session gating (24/7).
+- Costs: limit entry and TP legs at maker 0.02 %, stop at taker
+  0.055 % + 0.01 % slip (the house limit-fill model). 1 % risk, 10× cap.
+- Split: explore 2023-01→2026-08, holdout 2019-2022 (same consumed-era
+  caveat as v0.15). **Pass:** explore n ≥ 100 ∧ net > 0 → holdout;
+  holdout PASS = net > 0 ∧ PF ≥ 1.10 ∧ maxDD < 40 %. Reported either
+  way; no variations in response to results. Untested boundaries:
+  "demand area" as drawn (discretionary), other K/bin/value-area
+  settings, HTF trend filters.
+
+**Results: pending.**
+
 ## v0.16c — Cost stress test of the ORB ATR-stop cell (2026-09-12)
 
 Next gate for the v0.16b Cell B candidate: its cost/R of 0.20-0.27 is
