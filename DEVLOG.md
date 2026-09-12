@@ -17,7 +17,30 @@ PF ≥ 1.10 ∧ maxDD < 40 %). k=3 and k=4 are reported as the CFD
 scenario; the break-even multiplier is reported. A fail at k=2 retires
 the candidate as an execution-quality artifact — no parameter rescue.
 
-**Results: pending.**
+**Results (2026-09-12): FAIL at k=2 — candidate RETIRED as an
+execution-quality artifact, exactly the replication's finding.**
+
+| k | explore net / PF | holdout net / PF | cost/R (hold) |
+|---|---|---|---|
+| 1 (v0.16b) | +$2,149 / 1.10 | +$14,100 / 1.44 | 0.20 |
+| 2 (≈ NQ all-in) | **−$2,352 / 0.88** | +$3,560 / 1.14 | 0.41 |
+| 3 (≈ CFD) | −$5,600 / 0.69 | −$2,287 / 0.90 | 0.61 |
+| 4 | −$7,430 / 0.56 | −$5,177 / 0.75 | 0.81 |
+
+Decision rule required explore net > 0 AND holdout pass at k=2;
+explore fails → retired, no parameter rescue (per pre-registration).
+Break-even cost multiplier ≈ 1.5× (explore) / ≈ 2.6× (holdout): the
+edge lives inside a band narrower than the uncertainty in the cost
+model itself. Mechanism: a 0.06-0.09 %-of-price stop with a 10-12 %
+win rate means the year is ~600 near-1R losses offset by a few dozen
+trend days — every extra 0.007 % of per-side cost is charged on all
+~600 losers and recovered on none. This is the paper's zero-slippage
+assumption failing in the same way the independent replication showed
+for the base cell (break-even inside QQQ's spread). Seventh instance of
+the tight-stop law, and the cleanest: a genuine, literature-backed
+signal that costs erase. Family status: ORB retired at retail costs;
+only a venue with sub-0.005 %/side all-in execution could revisit it,
+and that is not a retail venue.
 
 ## v0.16b-exp — The published ORB: Zarattini & Aziz (2023), both configurations (2026-09-12)
 
