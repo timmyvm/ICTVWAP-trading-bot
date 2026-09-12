@@ -39,7 +39,30 @@ volume); index CFD data only has tick counts.
   "demand area" as drawn (discretionary), other K/bin/value-area
   settings, HTF trend filters.
 
-**Results: pending.**
+**Results (2026-09-12): FAIL — explore gate not met; holdout negative
+too. First failure in the project NOT attributable to costs.**
+- Explore 2023-2026: n=337, 35.6 % win, PF 0.78, −$4,071, maxDD
+  44.5 %, 1.8 trades/week; 3 of 4 years negative; longs −$1,737,
+  shorts −$2,335. Exit mix 191 STOP / 108 full win / 38 partial-then-
+  stop. 752 confirmed setups skipped as "spent" (price already past the
+  POC when the swing confirmed), 34 degenerate.
+- Holdout 2019-2022 (for the record): n=455, 38.9 %, PF 0.86, −$3,132,
+  maxDD 44.3 %; 2021 +$242 / 2022 −$32 flat, 2019-20 negative; longs
+  −$2,753, shorts −$379.
+
+Diagnosis: the stop is HEALTHY (1.1-1.7 % of price) and costs are
+cheap (0.12-0.15 R) — the tight-stop law does not apply. The entry
+itself loses: a pullback all the way to the POC is a pullback to the
+BASE of the impulse (the POC sits in the pre-move consolidation), i.e.
+a full retrace — which the data says is more often the start of a
+reversal than a bounce. The reel equates "high-volume node" with
+"support"; 792 trades across 8 years say it isn't, on BTC 1H. Also
+structural: the picture in the reel (clean return to the POC after the
+high) is the minority path — 752 of ~1,100 confirmed swings had
+already blown through the POC by the time the swing was confirmable.
+Untested boundaries as pre-registered (discretionary "demand area",
+other K/bin settings, HTF filters) — none can repair a negative-
+expectancy entry by construction.
 
 ## v0.16c — Cost stress test of the ORB ATR-stop cell (2026-09-12)
 
