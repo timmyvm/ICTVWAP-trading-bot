@@ -2,6 +2,11 @@
 
 ## v0.16d-exp — ORB ATR cell: fresh-era validation + ONE cost/R refinement, pre-registered (2026-09-12)
 
+**STATUS: FAIL on the untouched 2020-06 → 2026-08 era (Cell B PF 0.90,
+−$4,830, 1 of 5 full years positive); R1 not adopted (PF 1.03, negative
+at 2× costs). ORB family CLOSED at retail costs. Results at the end of
+this entry.**
+
 User: "remember that ATR one that had a 10-15 % win rate but still
 profited? I think it's a hidden gem waiting to be refined." That is
 v0.16b Cell B — Zarattini & Aziz's ATR-stop ORB on NAS100 (direction =
@@ -128,6 +133,81 @@ tick 0.25 = $0.50. Results and the all-in figure follow below.
    but so does the edge: widening the stop from 5 % to 10 % of ATR
    converts near-1R losers into bigger losers faster than it saves
    winners. The 5 % cell's advantage was never about costs alone.
+
+**Results (2026-09-12): FAIL — the edge did not persist past 2020.
+Family closed at retail costs; R1 not adopted.**
+
+Fresh era = HistData/Dukascopy NSXUSD, EU-clock corrected, 2023
+gap-filled from Dukascopy day files (137 deficient weekdays replaced;
+every year now has 246-251 complete sessions of ~258 weekdays, the rest
+holidays and early closes). 2020-06-01 → 2026-08-31, 1,537 trading
+days, one trade per day, nothing explored on it, every number below
+from the committed engine with the pre-registered flags.
+
+| cell | costs | n | win % | PF | net on $10k | maxDD | longs / shorts | full years 2021-25 > 0 |
+|---|---|---|---|---|---|---|---|---|
+| B (5 % ATR stop) | 1× | 1,537 | 9.1 | **0.90** | **−$4,830** | 60.9 % | +$1,860 / −$6,690 | 1 of 5 |
+| B | 2× | 1,537 | 8.4 | 0.77 | −$8,313 | 85.3 % | −$1,195 / −$7,118 | 0 of 5 |
+| R1 (10 % ATR stop) | 1× | 1,537 | 18.1 | 1.03 | +$4,464 | 36.0 % | +$8,478 / −$4,014 | 4 of 5 |
+| R1 | 2× | 1,537 | 17.4 | 0.95 | −$4,876 | 59.1 % | +$1,082 / −$5,958 | 2 of 5 |
+
+Per year, Cell B at 1×: 2020 H2 −$1,184 · 2021 +$1,194 · 2022 −$730 ·
+2023 −$1,796 · 2024 −$1,425 · 2025 −$382 · 2026 Jan-Aug −$507.
+Per year, R1 at 1×: 2020 H2 −$53 · 2021 +$3,202 · 2022 +$3,191 · 2023
+−$2,182 · 2024 +$2,126 · 2025 +$2,516 · 2026 Jan-Aug −$4,337.
+
+Verdicts against the bars fixed above:
+- **Cell 1 (B): FAIL at base costs** (net < 0) → by the status rule,
+  "the edge did not persist past 2020; family closed". Negative at 2×
+  as well. Even at HALF the modeled costs — a generous futures all-in —
+  the average trade goes from −0.086 R to about 0.00 R: breakeven, not
+  an edge. Cost was never going to rescue this era.
+- **Cell 2 (R1): not adopted.** Net > 0, maxDD 36 % and 4 of 5 years
+  pass, but PF 1.03 < 1.10 fails and the 2× stress is negative (PF 0.95,
+  −$4,876), so both legs of R1's adoption rule fail. +0.085 R per trade
+  with a −$4,337 drawdown in the last eight months is noise-level.
+- The vendor gate had already failed, so a PASS could not have been
+  claimed either way; the FAILs stand on their own — they are on the
+  same quote stream that gave PF 1.23 on the 2019-20 overlap, and the
+  same stream shows Cell B turning negative from 2020 H2 onward.
+
+Reading. The opening-drive continuation on NAS100 that paid in 2016
+and 2018-2020 (on the Oanda cache) is negative in five of the six years
+since mid-2020 in its published form. Shorts lost in every
+configuration (−$4k to −$7k); the little that remained was long-only
+and 2021-2022. This was the last open gate for the family: the reel-era
+curves (2024-26) belong to trailing-stop constructions, whose cousin
+here (R1) makes +$2.1k/+$2.5k in 2024/2025 and then loses $4.3k in
+2026. The "hidden gem" was a real but small, regime-bound edge on
+2015-2020 data that (a) two vendors' quotes already disagreed about at
+the ±45 % level, (b) costs erased at 1.5-2×, and (c) the market has not
+paid since 2020 — which is exactly what the reel-era back-loading
+should have flagged. Refinement cannot fix an edge that is not there in
+the current era; both refinements tried (v0.19 trail, R1 wider stop)
+looked acceptable on 2015-2020 and fail on 2020-2026, so the era, not
+the geometry, was the variable.
+
+Trial ledger, ORB family, final: A, B, v0.16 retest, v0.19 trail, R1
+(five rule cells) + one fresh-era confirmation. CLOSED. Anything that
+re-opens it is a NEW information source (e.g. relative volume, which
+this feed does not carry) with its own pre-registration — not a
+re-parameterization of these cells.
+
+Venue cost, for the record: broker commission $0.39/side per micro
+contract (NinjaTrader free plan, public page); CME exchange/clearing/NFA
+fees could not be confirmed from a public page in this session (IBKR,
+CME, AMP, Tradovate pages blocked or moved). If the exchange side is in
+its usual $0.35-0.40 range (UNVERIFIED here), MNQ all-in is ≈ $0.80 per
+side ≈ 0.002 % of a $40k contract plus one tick (0.00125 %) ≈ 0.003 %
+per side, about half the model's 0.007 % — the "half costs" line above
+already covers that case. Moot for this rule; useful for the next.
+
+Data-layer deliverables kept: `backtest/fetch_histdata.py` (HistData M1
+→ cache, EU-clock), `backtest/fetch_dukascopy.py` (polite bi5 fetch and
+gap-fill), `backtest/duka_overlap_check.py` (two-vendor consistency
+gate), and the local caches `nas100_histdata_1m_2019_2026_filled.csv.gz`
+(the fresh era; gitignored) and `histdata_raw/` + `duka_raw/` (raw
+sources, gitignored).
 
 ## v0.10i-a — "$10k for one year" per-calendar-year table for the EMA bracket (2026-09-12)
 

@@ -148,6 +148,12 @@ config.py        — All tuneable parameters (TESTING_MODE, ENTRY_MODE, etc.)
   backtest can validate it, and a live venue is a third quote stream. The v0.16b ORB ATR cell gave
   PF 1.42 on Oanda and PF 1.23 on Dukascopy for the same 320 trades.
 
+- Test a candidate on the FRESHEST untouched era BEFORE spending trials on refinements. Both ORB
+  refinements (v0.19 EMA trail, v0.16d wider stop) looked acceptable on the 2015-2020 cache and both
+  fail on 2020-2026; the published cell itself is negative in five of six post-2020 years. Regime
+  concentration in-sample ("2016 alone", "2019 alone") and a reel curve back-loaded to the last two
+  years are the same warning: the era is the variable, not the geometry.
+
 - Every new backtest engine must assert bracket invariants at position creation:
   `dr * (entry - stop) > 0` and `dr * (target - entry) > 0`. The v0.16 engine shipped with
   `tgt = e - dr * RR * dist` (sign flipped), which fills every "TP" as a -3R loss and produces a
