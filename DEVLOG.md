@@ -1,5 +1,43 @@
 # DEVLOG — Powell Trades Bot
 
+## v0.16b-exp — The published ORB: Zarattini & Aziz (2023), both configurations (2026-09-12)
+
+User: "try ATR-scaled stops and all the other things that make it
+work." Rules verified from the paper's summaries (CXO Advisory,
+therobusttrader) and an independent replication (giovannibrusco/
+zarattini-2023-orb-qqq) rather than memory:
+- Direction = body of the first 5-min bar (9:30-9:35): up → LONG,
+  down → SHORT, doji → no trade. Entry at the 9:35 open.
+- **Cell A (base QQQ case):** stop at the opening bar's opposite
+  extreme (low for longs / high for shorts); target 10R; flat at 16:00.
+  Paper: +675 % 2016-23, Sharpe ~1.06-1.12; ~75 % of trades stop out,
+  ~22 % close flat, ~2-3 % reach 10R.
+- **Cell B (TQQQ variant):** stop = 5 % of the 14-day ATR; no target;
+  flat at 16:00.
+- Sizing (both): min(1 % equity / R, 4× equity / entry) — the paper's
+  Reg-T cap, not the house 10×. One trade per day. No re-entry.
+- Paper costs: $0.0005/share commission, ZERO slippage. Replication:
+  net PnL crosses zero at ~2.2¢/share slippage (≈ 0.007 % of a $300
+  ETF — i.e. inside the quoted spread); 2022 alone = 38 % of PnL;
+  portfolio-level edge over buy-and-hold "not established" (bootstrap
+  CIs overlap). PRIOR ON RECORD: at our costs the base case is expected
+  near break-even; Cell B's stop (~0.06 % of price) sits below the cost
+  floor and is expected to fail the tight-stop law.
+
+**Mechanization, NAS100 1m 2015-2020 (QQQ's underlying index):** first
+bar = the five 1m bars 9:30-9:34 (open of 9:30, close of 9:34); doji =
+|close−open| < 0.01 % of price. Entry = 9:35 bar open (taker + slip).
+Session-daily ATR14 from 9:30-16:00 OHLC, shifted one day. Stop-first
+conservative intrabar, no same-bar target on the entry bar, EOD flat at
+the 16:00 close. House costs 0.002 % taker + 0.005 % slip per side, both
+legs (harsher than the paper). Explore 2015-2017 / holdout 2018-2020-05.
+**Pre-registered pass:** explore n ≥ 100 ∧ net > 0 → holdout; holdout
+PASS = net > 0 ∧ PF ≥ 1.10 ∧ maxDD < 40 %. Reported either way; exit
+mix and cost/R reported for comparison with the paper. Two cells = the
+paper's two published configurations, not a grid.
+
+**Results: pending.**
+
 ## v0.16-exp — FCR breakout + retest, 1:3 (IG reel, 2026-09-12)
 
 Source: user screenshots of an IG reel (diagram only, no transcript
