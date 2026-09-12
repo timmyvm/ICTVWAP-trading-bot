@@ -58,10 +58,13 @@ def epoch_seconds(ts: pd.DatetimeIndex) -> pd.Index:
     return (ts - pd.Timestamp(0, tz="UTC")) // pd.Timedelta(seconds=1)
 
 
-def fetch_klines(symbol: str, start: str, end: str, out: str):
+def fetch_klines(symbol: str, start: str, end: str, out: str,
+                 interval: str = "1m", market: str = "spot"):
+    """market: 'spot' or 'um' (USDT-M perps); interval: any archive interval."""
+    prefix = "spot" if market == "spot" else "futures/um"
     frames = []
     for m in months(start, end):
-        url = f"{BASE}/spot/monthly/klines/{symbol}/1m/{symbol}-1m-{m}.zip"
+        url = f"{BASE}/{prefix}/monthly/klines/{symbol}/{interval}/{symbol}-{interval}-{m}.zip"
         d = fetch_zip_csv(url)
         if d is None:
             print(f"  {m}: missing")
@@ -87,9 +90,10 @@ def fetch_klines(symbol: str, start: str, end: str, out: str):
 
     from backtest.data import load_cached_1m
     chk = load_cached_1m(out)
-    gaps = (chk.index.to_series().diff() > pd.Timedelta(minutes=5)).sum()
+    step = pd.Timedelta(interval.replace("m", "min") if interval.endswith("m") else interval)
+    gaps = (chk.index.to_series().diff() > 5 * step).sum()
     print(f"saved+reloaded {out}: {len(chk)} rows, {chk.index.min()} -> {chk.index.max()}, "
-          f"unique={chk.index.is_unique}, gaps>5min={gaps}")
+          f"unique={chk.index.is_unique}, gaps>5steps={gaps}")
 
 
 def fetch_funding(symbol: str, start: str, end: str, out: str):
@@ -124,9 +128,12 @@ def main():
     ap.add_argument("--start", required=True, help="YYYY-MM")
     ap.add_argument("--end", required=True, help="YYYY-MM")
     ap.add_argument("--out", required=True)
+    ap.add_argument("--interval", default="1m", help="klines only: archive interval (1m, 1h, 1d)")
+    ap.add_argument("--market", default="spot", choices=["spot", "um"], help="klines only")
     args = ap.parse_args()
     if args.kind == "klines":
-        fetch_klines(args.symbol, args.start, args.end, args.out)
+        fetch_klines(args.symbol, args.start, args.end, args.out,
+                     interval=args.interval, market=args.market)
     else:
         fetch_funding(args.symbol, args.start, args.end, args.out)
 

@@ -1,5 +1,45 @@
 # DEVLOG — Powell Trades Bot
 
+## v0.18-exp — Funding carry: plain, timed, leveraged, rotated (2026-09-12)
+
+New family, the first here where the income is MECHANICAL: hold spot,
+short the perp of the same coin, collect funding every 8 h; price risk
+is hedged, so the P&L is funding received minus basis drift minus
+costs. Data: Binance archive — funding (all cells), monthly 1d spot and
+USDT-M perp klines for the basis at rebalance points. Universe for the
+rotation cell: 12 large caps with continuous history from 2021 (BTC,
+ETH, BNB, XRP, ADA, DOGE, SOL, DOT, LINK, LTC, AVAX, ATOM). SURVIVORSHIP
+NOTE on record: chosen by today's caps ⇒ biased toward coins that
+survived; carry is delta-neutral so this affects which coins were held,
+not price P&L, but delisted coins could have had basis collapses —
+treated as an upward bias on the rotation cell.
+
+**Cells (pre-registered, no grid):**
+1. Plain: BTC and ETH carry, always on, 1× notional — the boring
+   baseline.
+2. Timed: in only while the trailing 24 h mean funding > 0, else flat.
+3. Leveraged: cell 2 at 2× and 3× notional/capital (funding scales,
+   basis and cost drag scale; margin/liquidation modeled as a cap, not
+   simulated — stated).
+4. Rotated: weekly (Monday 00:00 UTC) rebalance into the top-3 coins by
+   trailing 7-day mean funding, requiring > 0; equal weight; positions
+   held while the coin stays top-5 (hysteresis); basis P&L from 1d
+   closes at entry/exit.
+
+**P&L model:** daily funding = Σ settlements × rate × notional (shorts
+RECEIVE positive funding); basis P&L = −Δ(perp/spot − 1) × notional
+over the holding period; costs per replaced slot = spot 0.1 % + perp
+0.055 % per leg, entry and exit (0.31 % round trip). **Reported:**
+annualized return on notional, per-year, maxDD, worst month, share of
+days flat, turnover. **Pre-stated expectation:** cell 1 ≈ +8-12 %/yr
+BTC, +10-14 % ETH; cell 4 higher but with real basis and turnover drag.
+**Pass bar for taking any cell further:** every year ≥ 0 on the
+funding-covered window AND maxDD < 10 % at 1× (carry that draws down
+like a directional trade is not carry). Exchange/counterparty risk is
+outside the model and on record.
+
+**Results: pending.**
+
 ## v0.10i — Re-entry semantics audit of the reference engine (2026-09-12)
 
 Triggered by v0.10h's implausible result (Rule A: Sharpe 3-4 across
