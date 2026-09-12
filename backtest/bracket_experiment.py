@@ -58,7 +58,13 @@ def simulate(df1h: pd.DataFrame,
              risk_pct: float = 1.0, max_lev: float = 10.0,
              start_bal: float = 10_000.0,
              return_trades: bool = False,
-             funding: Optional[pd.Series] = None) -> dict:
+             funding: Optional[pd.Series] = None,
+             reverse: bool = False,
+             skip_after_loss: bool = False) -> dict:
+    # reverse=True fades the extension instead of following it (diagnostic
+    # only — the mirror image of the validated rule; never the default).
+    side = -1 if reverse else 1
+    cooldown = False  # v0.10h Rule A state
     o = df1h["open"].to_numpy()
     h = df1h["high"].to_numpy()
     l = df1h["low"].to_numpy()
@@ -109,20 +115,25 @@ def simulate(df1h: pd.DataFrame,
                                "reason": "STOP" if hit_st else "TP"})
                 pos = None
                 pos_funding = 0.0
+                if skip_after_loss and net <= 0:
+                    cooldown = True
 
         # 2) entry at this bar's open from the PREVIOUS bar's signal
         if pos is None and not np.isnan(d[i - 1]) and abs(d[i - 1]) >= ENTRY_T:
-            dr = 1 if d[i - 1] >= ENTRY_T else -1
-            e = o[i] * (1 + dr * slip)
-            a = atr[i - 1]
-            q = min(bal * (risk_pct / 100.0) / (EXIT_MULT * a), bal * max_lev / e)
-            if q > 0:
-                st_, tg_ = e - dr * EXIT_MULT * a, e + dr * EXIT_MULT * a
-                pos = (dr, e, st_, tg_, q, idx[i - 1])
-                pos_funding = 0.0
-                entries.append({"i": i, "signal_ts": idx[i - 1],
-                                "dir": "LONG" if dr > 0 else "SHORT",
-                                "entry": e, "stop": st_, "tp": tg_})
+            if cooldown:
+                cooldown = False  # v0.10h Rule A: skip one signal after a loss
+            else:
+                dr = side * (1 if d[i - 1] >= ENTRY_T else -1)
+                e = o[i] * (1 + dr * slip)
+                a = atr[i - 1]
+                q = min(bal * (risk_pct / 100.0) / (EXIT_MULT * a), bal * max_lev / e)
+                if q > 0:
+                    st_, tg_ = e - dr * EXIT_MULT * a, e + dr * EXIT_MULT * a
+                    pos = (dr, e, st_, tg_, q, idx[i - 1])
+                    pos_funding = 0.0
+                    entries.append({"i": i, "signal_ts": idx[i - 1],
+                                    "dir": "LONG" if dr > 0 else "SHORT",
+                                    "entry": e, "stop": st_, "tp": tg_})
 
         # 3) mark-to-market equity tracking (incl. accrued funding carry)
         m2m = bal + (pos[0] * (c[i] - pos[1]) * pos[4] + pos_funding if pos else 0.0)
@@ -183,6 +194,9 @@ def main():
     ap.add_argument("--funding", default=None,
                     help="funding CSV (timestamp,rate) to apply; omit for none")
     ap.add_argument("--label", default="", help="printed with the result line")
+    ap.add_argument("--reverse", action="store_true", help="diagnostic: fade the extension")
+    ap.add_argument("--skip-after-loss", action="store_true",
+                    help="v0.10h Rule A: skip the next signal after a losing trade")
     args = ap.parse_args()
 
     df1h = resample_ohlcv(load_cached_1m(args.cache), "1h")
@@ -193,7 +207,8 @@ def main():
     fund = load_funding(args.funding) if args.funding else None
     tag = f"[{args.label}] " if args.label else ""
     print(f"{tag}{df1h.index.min()} -> {df1h.index.max()} ({len(df1h)} bars)")
-    print(tag, simulate(df1h, taker_pct=args.taker, slip_pct=args.slip, funding=fund))
+    print(tag, simulate(df1h, taker_pct=args.taker, slip_pct=args.slip, funding=fund,
+                        reverse=args.reverse, skip_after_loss=args.skip_after_loss))
 
 
 if __name__ == "__main__":

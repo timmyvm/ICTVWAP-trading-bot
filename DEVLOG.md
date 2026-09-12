@@ -1,5 +1,73 @@
 # DEVLOG — Powell Trades Bot
 
+## v0.10g — Diagnostics: the reversed rule, and streak conditioning (2026-09-12)
+
+User, after the 1-of-8 week: "can't we do the opposite on the same
+signal?" Two fixed-rule diagnostics, pre-stated:
+1. **Reverse cell** (`--reverse`): identical entries and symmetric
+   3×ATR bracket, opposite side. Expected BEFORE running: with a
+   symmetric bracket the reverse is the mirror image — win % ≈ 100 −
+   ours − ambiguous-bar share, same costs — i.e. ≈ 40-42 % and deeply
+   negative. Run on BTC 2019-22, BTC 2023-26, ETH 2018-26. If it were
+   positive anywhere, the validated rule would be wrong there.
+2. **Streak conditioning** on the validated trade sequences: win rate
+   of the NEXT trade after 1, 2, 3, 4+ consecutive losses, and lag-1
+   autocorrelation of outcomes. ≈ unconditional 58 % everywhere ⇒
+   streaks carry no information ⇒ neither "flip after losses" nor
+   "pause after losses" can help; a lower conditional rate ⇒ streaky
+   (pausing could help); a higher one ⇒ mean-reverting (flipping is
+   exactly wrong). No parameter changes; diagnostics only.
+
+**Results (2026-09-12).**
+
+1. **Reverse cell — catastrophic, exactly as computed.** BTC 2019-22:
+41.4 % win, PF 0.58, −97 %, every year negative. BTC 2023-26: 42.0 %,
+PF 0.60, −98 %. ETH 2018-26: 41.8 %, PF 0.63, −100 %. Win rates are
+100 − 58 − ~0.5 % ambiguous bars: the mirror image. This is the
+strongest possible confirmation that the signal carries real
+information — an information-free signal would give ~50 % BOTH ways;
+instead both directions are strongly asymmetric. Reference reproduction
+re-verified exact before the cells ran.
+
+2. **Streak conditioning — a real, triple-replicated effect.**
+Win rate of the next trade, by consecutive losses immediately before it:
+
+| dataset | base | after ≥1 L | after ≥2 L | after ≥3 L | after ≥4 L | lag-1 autocorr |
+|---|---|---|---|---|---|---|
+| BTC 2019-22 | 58.0 | 42.1 (n=632) | 49.2 | 53.2 | 60.9 (n=87) | +0.275 |
+| BTC 2023-26 | 57.5 | 41.9 (n=689) | 49.8 | 52.7 | 60.0 (n=95) | +0.270 |
+| ETH 2018-26 | 57.5 | 40.6 (n=1504) | 46.0 | 48.4 | 50.6 (n=247) | +0.294 |
+
+Derived: the trade immediately after EXACTLY one loss wins ~32 % (BTC
+2019-22: 86/266); trades after a win (or first) win ~69 %. The effect
+is concentrated on the immediate re-entry after a fresh stop-out and
+fades with streak length — mechanism: the rule re-enters at once in the
+same whipsaw that just stopped it (this is exactly what the paper run
+did on Sep 11: four stops in three hours). Outcomes are streaky
+(autocorr ≈ +0.28) because regimes persist. Implications: "flip after
+a loss" is exactly wrong (the reverse cell); "skip the immediate
+re-entry after a loss" is the natural, PARAMETER-FREE candidate.
+
+## v0.10h-exp — Pre-registered: one-signal cooldown after a loss (2026-09-12)
+
+Candidate rule change to v0.10c, discovered post hoc in v0.10g and
+therefore IN-SAMPLE on BTC and ETH. **Rule A:** after a losing trade,
+the next qualifying entry signal is skipped (one signal), then normal.
+No parameters. Everything else verbatim.
+
+**Validation data — untouched by the streak analysis:** the four
+v0.10d cross-market cells (NAS100 2015-20, XAU/WTICO/SPX500 2005-20,
+futures-CFD costs). BTC/ETH filtered runs are reported as in-sample
+magnitude only. **Pre-registered PASS:** in ≥ 3 of the 4 untouched
+markets, filtered PF > unfiltered PF AND filtered maxDD ≤ unfiltered
+maxDD AND filtered net > 0, with filtered trade count ≥ 50 % of the
+original. PASS ⇒ Rule A becomes a candidate for the LIVE rule with its
+own pre-registration for the switch (paper run continues unchanged
+until then). FAIL ⇒ the streak effect is crypto-specific or a
+same-bar-re-entry artifact; reported, not adopted.
+
+**Results: pending.**
+
 ## Paper run — week-1 audit after a 1-of-8 start (2026-09-12)
 
 Dashboard after the first week: 8 closed, 1 win, −$661 (−6.6 %), two
