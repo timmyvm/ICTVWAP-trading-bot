@@ -26,7 +26,39 @@ the VPS (3 genuine symbols ⇒ ~3 trades/day). FAIL → reported; the edge
 is then BTC-specific within crypto and the paper run stays as is. No
 parameter changes in response to results.
 
-**Results: pending.**
+**Results (2026-09-12): PASS on every pre-registered criterion — ETHUSDT
+joins the paper run.**
+
+| window | n | win % | PF | Sharpe | CAGR | maxDD | years + |
+|---|---|---|---|---|---|---|---|
+| 2018-01→2026-08 unfunded | 3,545 | **57.5** | 1.15 | 1.66 | 50.5 % | 35.5 % | 8/9 |
+| 2020-01→2026-08 unfunded | 2,735 | 57.0 | 1.14 | 1.46 | 42.2 % | 35.5 % | 6/7 |
+| 2020-01→2026-08 **funded** | 2,735 | 57.0 | **1.14** | 1.39 | 39.4 % | 35.4 % | 6/7 |
+
+Bar: net > 0 ✓; win ≥ 52 % ✓ (57.5); bull year positive ✓ (2021
++$54.1k); bear year positive ✓ (2018 +$8.5k, 2022 +$46.6k); funded
+window net > 0 ∧ PF ≥ 1.10 ✓ (PF 1.14). Both sides carry (longs
++$182k / shorts +$148k full window). The one negative year is 2023
+(−$21.0k, ≈ −16 % of equity at the time). Funding costs 14 % of profit
+over 2020-26 (longs −$5,443, shorts +$1,928; ETH funding averages
++13.9 %/yr vs BTC's +11.8 %) — CAGR 42.2 → 39.4, win rate untouched,
+same shape as the BTC funding gate.
+
+This is the first fully CLEAN crypto cell beyond BTC (data never
+touched by any experiment) and the sixth market to print the family's
+signature: win rates 53-58 % everywhere (BTC 58, ETH 57.5, XAU 55.7,
+WTI 55.7, NAS 54, SPX 53.4) with the 3×ATR bracket.
+
+Caveats on record: (1) ETH's ride is rougher than BTC's — maxDD 35.5 %
+vs 15.6-22 %, worst month −12.6 % vs −7.6 %; (2) BTC and ETH are highly
+correlated (~0.8), so BTC+ETH concurrent positions diversify less than
+the headline "two symbols" suggests — worst-case open risk with three
+symbols is 3 × 1 %, and two of those legs tend to move together;
+(3) spot price series stands in for the perp (basis negligible),
+Binance funding stands in for Bybit funding (venues arbitraged);
+(4) raw compounded dollars are 1 %-compounding artifacts — quote
+PF/Sharpe/CAGR. Action: `EMA_BRACKET_SYMBOLS=BTCUSDT,XAUTUSDT,ETHUSDT`
+on the VPS → ~3 trades/day; Gate 1 clock roughly 5 weeks to 100 trades.
 
 ## docs — The failure path (2026-09-12)
 
