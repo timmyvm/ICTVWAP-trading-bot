@@ -121,3 +121,10 @@ config.py        — All tuneable parameters (TESTING_MODE, ENTRY_MODE, etc.)
   (`(idx - pd.Timestamp(0, tz="UTC")) // pd.Timedelta(seconds=1)`, see save_cache_1m). And validate the
   SAVED artifact by re-loading it through the consumer's own loader — the v0.10e funding CSV passed every
   in-memory sanity check and was still corrupt on disk.
+
+- Every new backtest engine must assert bracket invariants at position creation:
+  `dr * (entry - stop) > 0` and `dr * (target - entry) > 0`. The v0.16 engine shipped with
+  `tgt = e - dr * RR * dist` (sign flipped), which fills every "TP" as a -3R loss and produces a
+  plausible-looking -100% that could have passed as a strategy verdict. Read the first run's output for
+  impossibilities (TP exits with 0% wins) before believing it — and read the sign of every
+  `entry ± dr * …` line against the four engines that already have it right.

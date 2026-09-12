@@ -37,7 +37,31 @@ support. The reel's retest entry + fixed 1:3 is a variant of that.
   midpoint/opposite side, EOD-only exits — each would need its own
   pre-registration.
 
-**Results: pending.**
+**Results (2026-09-12): FAIL — explore gate not met; both eras lose
+every year.**
+- Explore 2015-2017: n=341, **23.2 % win**, PF 0.67, −$3,929, maxDD
+  42.4 %; longs and shorts both negative. Avg structure stop **0.051 %
+  of price**; avg round-trip cost **0.72 R**.
+- Holdout (for the record): n=274, 22.6 %, PF 0.75, −$3,253; every year
+  negative. Avg stop 0.073 %; cost 0.35 R.
+
+Two independent kill shots, either fatal alone: (1) **no entry
+information** — the 1:3 bracket's random-walk null wins 25 %; the
+retest entry prints 23.2/22.6 % across 615 trades and two eras (the
+same "null minus costs" signature as v0.14/v0.14b/v0.15); (2) **the
+drawn stop sits below the cost floor** — the "1" box is the retest
+wick, ~5-7 index points, so fees+slip consume a third to three-quarters
+of each R. Sixth confirmed instance of the tight-stop law. Note the
+published ORB evidence (Zarattini & Aziz) uses ATR-scaled stops and
+EOD exits — the reel's variant differs in exactly the dimension that
+kills it. Classic ORB with ATR stops remains an untested, separately
+pre-registerable boundary.
+
+Patch note: first run of this engine shipped an inverted target
+(`e - dr*RR*dist`) — every "TP" filled as −3R, 0 % wins. Caught from
+the output's impossibility (TP exits with zero wins), fixed to
+`e + dr*RR*dist`, bracket invariants now asserted at position creation,
+CLAUDE.md rule added. The numbers above are from the corrected engine.
 
 ## v0.10e — Gate 2: real funding costs applied to the validated bracket (2026-09-11)
 
