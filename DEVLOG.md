@@ -1,5 +1,33 @@
 # DEVLOG — Powell Trades Bot
 
+## v0.10f — ETH validation of the bracket rule (2026-09-12)
+
+Purpose: a third GENUINE Bybit symbol for the paper run (XAUT is a
+proxy), and the first fully clean crypto cell beyond BTC. Rule under
+test: v0.10c VERBATIM — zero free parameters. Data: Binance public
+archive (reachable; the funding source), spot ETHUSDT 1m monthly klines
+2017-08 → 2026-08 (spot price series, matching the BTC methodology which
+used Bitstamp spot), fetched + converted by backtest/fetch_binance_
+archive.py; um-perp ETHUSDT funding 2019-11 → 2026-08 for the funding
+gate. Caches: local/ethusd_1m_2017_2026.csv.gz (gitignored, regenerable
+by script) and funding_ethusdt_binance.csv (committed). Saved artifacts
+validated by re-loading through the consumers' own loaders (CLAUDE.md
+rule). Known archive gotcha handled explicitly: spot kline timestamps
+switched from ms to µs in 2025 files.
+
+**Pre-registered BEFORE any run.** Windows: full 2018-01 → 2026-08
+unfunded (2017 partial dropped), per-year breakdown; 2020-01 → 2026-08
+unfunded vs funded on identical bars (Gate-2 style). Bybit retail costs
+0.055 % + 0.01 %, 1 % risk, 10× cap. **PASS = the v0.10c validation bar
+applied to ETH:** net > 0 ∧ win % ≥ 52 ∧ at least one bull year AND one
+bear year individually net-positive, AND the funded 2020-2026 window
+keeps net > 0 ∧ PF ≥ 1.10. PASS → ETHUSDT joins EMA_BRACKET_SYMBOLS on
+the VPS (3 genuine symbols ⇒ ~3 trades/day). FAIL → reported; the edge
+is then BTC-specific within crypto and the paper run stays as is. No
+parameter changes in response to results.
+
+**Results: pending.**
+
 ## docs — The failure path (2026-09-12)
 
 User: "all the fails follow one exact path — identify it and eliminate
