@@ -1,5 +1,68 @@
 # DEVLOG — Powell Trades Bot
 
+## v0.16d-exp — ORB ATR cell: fresh-era validation + ONE cost/R refinement, pre-registered (2026-09-12)
+
+User: "remember that ATR one that had a 10-15 % win rate but still
+profited? I think it's a hidden gem waiting to be refined." That is
+v0.16b Cell B — Zarattini & Aziz's ATR-stop ORB on NAS100 (direction =
+first 5-min bar body, entry 9:35, stop 5 % of daily ATR14, no target,
+flat 16:00, 4× cap): explore 10.2 % / PF 1.10 / +$2,149, holdout 12.3 %
+/ PF 1.44 / +$14,100 with every holdout year positive — then retired by
+the v0.16c cost stress (explore negative at 2× costs; break-even ≈ 1.5×
+explore / 2.6× holdout of the modeled 0.007 %/side). The "10:1" in the
+user's memory is Cell A's 10R target; the profitable low-win-rate cell
+had no target at all.
+
+**Position on record BEFORE running.** The signal is real — the paper,
+an independent replication and three constructions here (Z&A base, Z&A
+ATR, v0.19 EMA-trail) all land at PF 1.1-1.4 at paper-like costs — and
+its failure is structural: a 0.06-0.09 %-of-price stop puts cost/R at
+0.20-0.27, so every 0.007 %/side is paid on ~600 losers a year and
+recovered on none. "Refinement" therefore has to change cost/R or the
+venue, not add filters: any filter tuned on the 2015-2020 cache (now
+used by five families) would be in-sample. v0.16b already owed two
+gates — fresh-era validation and a measured cost — and both are taken
+here. Nothing else is varied.
+
+**Data.** Dukascopy USATECHIDXUSD 1m, BID/ASK mid, 2019-01 → 2026-08
+(`backtest/fetch_dukascopy.py`, public datafeed, bi5 decoded and the
+saved file re-loaded through the standard loader). Source-consistency
+gate on the 2019-01-01 → 2020-05-14 overlap with the FutureSharks/Oanda
+cache (consumed data, so no new information is used): Cell B run on
+both sources over the overlap must agree in the sign of net and within
+±25 % on trade count and on net, and 1H closes on common bars must
+agree within 0.05 % RMS. If this gate fails, the fresh-era numbers are
+reported as a DATA MISMATCH, not as a strategy verdict.
+
+**Cell 1 — Cell B verbatim on the untouched era 2020-06-01 →
+2026-08-31**, treated ENTIRELY as holdout (nothing is explored on it),
+at base costs (0.002 % + 0.005 %/side) and at k=2. PASS at base = net >
+0 ∧ PF ≥ 1.10 ∧ maxDD < 40 % ∧ at least 3 of the 5 full calendar years
+2021-2025 net-positive (the family's recorded weakness is regime
+concentration). Status rules: PASS at base AND net > 0 at k=2 →
+candidate RE-OPENED, pending a measured venue cost; PASS at base but
+negative at k=2 → the v0.16c verdict stands (real signal, execution-
+bound, retired at retail costs); FAIL at base → the edge did not persist
+past 2020; family closed.
+
+**Cell 2 — R1, the single refinement: stop = 10 % of daily ATR14**
+(twice Cell B's; cost/R roughly halves), everything else verbatim
+(`--atr-frac 0.10`). Run on (a) the 2015-2020 cache with the v0.16b
+split — consumed data, in-sample magnitude only — and (b) the fresh
+era, base and k=2. R1 replaces Cell B as the candidate only if it meets
+Cell 1's bar on the fresh era AND is net > 0 at k=2 on the fresh era
+AND net > 0 at k=2 on the 2015-2020 holdout. One cell; no further
+widening, no grid, no filters in response to results. Trial ledger, ORB
+family: A, B, v0.16 retest, v0.19 trail, R1 = five rule cells; Cell 1
+is a confirmation of an existing cell, not a trial.
+
+**Venue cost — measured, not assumed** (v0.16c's "k=2 ≈ NQ all-in" was
+an assumption). Broker commission per side, NinjaTrader public pricing
+(2026-09-12): $0.39 per micro contract on the free plan ($0.29 monthly,
+$0.09 lifetime), $1.29 per standard contract; exchange, clearing and
+NFA fees extra. MNQ is $2 × index (≈ $40k notional at NAS100 ≈ 20,000),
+tick 0.25 = $0.50. Results and the all-in figure follow below.
+
 ## v0.10i-a — "$10k for one year" per-calendar-year table for the EMA bracket (2026-09-12)
 
 User question: "If I put in 10000 in the EMA, what was the return for

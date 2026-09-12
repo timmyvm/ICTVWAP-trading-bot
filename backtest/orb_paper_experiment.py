@@ -45,7 +45,9 @@ def session_atr14(df1m: pd.DataFrame) -> pd.Series:
 
 
 def simulate(df1m: pd.DataFrame, cell: str, start_bal: float = 10_000.0,
-             cost_mult: float = 1.0) -> dict:
+             cost_mult: float = 1.0, atr_frac: float = ATR_STOP_FRAC) -> dict:
+    # atr_frac: Cell B stop as a fraction of daily ATR14. 0.05 = the published
+    # cell (v0.16b); 0.10 = the single pre-registered v0.16d refinement (R1).
     idx = df1m.index
     mod = (idx.hour * 60 + idx.minute).to_numpy()
     day = idx.normalize()
@@ -82,7 +84,7 @@ def simulate(df1m: pd.DataFrame, cell: str, start_bal: float = 10_000.0,
         if cell == "base":
             stop = l[first].min() if dr > 0 else h[first].max()
         else:
-            stop = e - dr * ATR_STOP_FRAC * a
+            stop = e - dr * atr_frac * a
         dist = dr * (e - stop)
         if dist <= 0:
             continue
@@ -142,16 +144,31 @@ def main():
     ap.add_argument("--cost-mult", type=float, default=1.0,
                     help="v0.16c stress: multiply every per-side cost by this")
     ap.add_argument("--cells", default="base,atr")
+    ap.add_argument("--atr-frac", type=float, default=ATR_STOP_FRAC,
+                    help="Cell B stop as a fraction of daily ATR14 (0.05 published, 0.10 = v0.16d R1)")
+    ap.add_argument("--start", default=None, help="ISO date lower bound (NY time), optional")
+    ap.add_argument("--end", default=None, help="ISO date upper bound (NY time, exclusive), optional")
+    ap.add_argument("--single", default=None, metavar="LABEL",
+                    help="run the whole (sliced) frame as ONE window with this label instead of the explore/holdout split")
     args = ap.parse_args()
 
     df = load_cached_1m(args.cache)
+    if args.start:
+        df = df[df.index >= pd.Timestamp(args.start, tz="America/New_York")]
+    if args.end:
+        df = df[df.index < pd.Timestamp(args.end, tz="America/New_York")]
     cut = pd.Timestamp(args.explore_end, tz="America/New_York")
+    if args.single:
+        windows = [(args.single, df)]
+    else:
+        windows = [("EXPLORE", df[df.index < cut]), ("HOLDOUT", df[df.index >= cut])]
     for cell in args.cells.split(","):
-        for name, seg in [("EXPLORE", df[df.index < cut]), ("HOLDOUT", df[df.index >= cut])]:
-            print(f"[{cell} x{args.cost_mult:g} costs] {name} {seg.index.min().date()} -> {seg.index.max().date()}")
+        tag = f"{cell}" + (f" atr_frac={args.atr_frac:g}" if cell == "atr" else "")
+        for name, seg in windows:
+            print(f"[{tag} x{args.cost_mult:g} costs] {name} {seg.index.min().date()} -> {seg.index.max().date()}")
             if name == "HOLDOUT":
                 print("  (judged per pre-registration: explore n>=100 & net>0 gates adoption, printed regardless)")
-            print(" ", simulate(seg, cell, cost_mult=args.cost_mult))
+            print(" ", simulate(seg, cell, cost_mult=args.cost_mult, atr_frac=args.atr_frac))
         print()
 
 
