@@ -36,7 +36,47 @@ PASS = net > 0 ∧ PF ≥ 1.10 ∧ maxDD < 40 %. Reported either way; exit
 mix and cost/R reported for comparison with the paper. Two cells = the
 paper's two published configurations, not a grid.
 
-**Results: pending.**
+**Results (2026-09-12): Cell A FAILS the explore gate; Cell B PASSES
+the pre-registered holdout criteria — the first pass from any
+reel-adjacent family. Status: candidate, NOT validated.**
+
+| cell | window | n | win % | PF | net | maxDD | exit mix | cost/R |
+|---|---|---|---|---|---|---|---|---|
+| A base | explore 15-17 | 722 | 21.5 | 0.97 | −$875 | 38.5 % | 77/20/2.5 | 0.11 |
+| A base | holdout 18-20 | 579 | 24.4 | 1.20 | +$10,467 | 24.8 % | 73/24/3 | 0.08 |
+| B atr | explore 15-17 | 708 | 10.2 | 1.10 | +$2,149 | 28.1 % | 90/10/– | 0.27 |
+| B atr | holdout 18-20 | 567 | 12.3 | **1.44** | **+$14,100** | 26.7 % | 88/12/– | 0.20 |
+
+Cell A: explore net < 0 → gate not met; the positive holdout does not
+count for adoption. Its per-year pattern (2015 −, 2016 +, 2017 −,
+2018-20 +) is exactly the replication's "single-regime phenomenon".
+Cell B: explore n=708 ∧ net > 0 → holdout unlocked; holdout net > 0 ∧
+PF 1.44 ≥ 1.10 ∧ maxDD 26.7 % < 40 % → **PASS**. Every holdout year
+positive (2018 +$5,354 / 2019 +$4,484 / 2020 +$4,262) across three
+distinct regimes; shorts carry (+$10,993 vs longs +$3,107).
+
+Mechanics on record: win rate 10-12 % — ~9 days in 10 stop out for
+~−1R and the year is made by rare EOD trend days (winners average
+~+8-13R). The 4× cap binds (stop ≈ 0.06-0.09 % of price ⇒ 1 % risk
+would need ~11× notional), so realized risk is ~0.35 % of equity per
+trade. Explore PF 1.10 is thin and 2016 alone carries it (2015/2017
+negative) — regime concentration is real, but the holdout's three
+positive years in three different regimes is the encouraging part.
+
+**Why this is NOT validated yet (each is a required next gate):**
+(1) **Slippage sensitivity** — cost/R 0.20-0.27 is the highest of any
+positive result in this project; the replication found the base cell's
+edge dies inside QQQ's own spread. Index-CFD spreads at 9:35 (~1-2
+points ≈ 0.015-0.03 %) are 2-4× our modeled 0.007 %/side; futures (NQ)
+costs are closer to the model. A pre-registered 2×/3× cost stress is
+the immediate next step. (2) **Fresh-era validation** — this cache
+(2015-2020-05) has been looked at by four families; the rules came from
+the paper, not from this data, so the protocol is clean, but adoption
+requires an untouched era (post-2020 NAS100 1m) exactly as v0.10c
+required. (3) Trial count: 2 published cells + the v0.16 retest = 3
+ORB-family cells; modest, on record. (4) Venue: the bot trades Bybit
+(crypto); an index strategy needs a futures/CFD execution path — a
+separate build.
 
 ## v0.16-exp — FCR breakout + retest, 1:3 (IG reel, 2026-09-12)
 
