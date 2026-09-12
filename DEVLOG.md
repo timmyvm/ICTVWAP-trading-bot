@@ -1,5 +1,35 @@
 # DEVLOG — Powell Trades Bot
 
+## v0.10i-a — "$10k for one year" per-calendar-year table for the EMA bracket (2026-09-12)
+
+User question: "If I put in 10000 in the EMA, what was the return for
+1 year?" Answered with `backtest/ema_bracket_yearly.py`: every calendar
+year simulated independently from a fresh $10,000 on Jan 1 (210-bar
+warmup from the bars before it), Bybit retail costs + funding (2020+),
+in the three re-entry modes of v0.10i. "open" is the retracted
+reference and is shown for scale only.
+
+| year | BTC open (retracted) | BTC exit (≈ live bot) | BTC next | ETH open (retracted) | ETH exit | ETH next |
+|---|---|---|---|---|---|---|
+| 2018 | — | — | — | +10,402 | +4,801 | +3,755 |
+| 2019 | +6,101 | +1,686 | +3,411 | +8,181 | +3,066 | +1,378 |
+| 2020 | +10,914 | +2,524 | +2,658 | +7,613 | +1,319 | +791 |
+| 2021 | +1,324 | −1,319 | −1,505 | +7,982 | +1,366 | +1,825 |
+| 2022 | +1,378 | −3,288 | −2,312 | +4,037 | +77 | −380 |
+| 2023 | +1,041 | −2,533 | −1,273 | −1,198 | −4,590 | −3,318 |
+| 2024 | +5,258 | −612 | −1,265 | +8,624 | +546 | +338 |
+| 2025 | +2,783 | −2,288 | −1,725 | +2,410 | −1,235 | −1,869 |
+| 2026 (to Aug) | +2,418 | −1,377 | −891 | +1,577 | −642 | −1,774 |
+
+Full-calendar-year averages, "exit" mode: BTC −$833/yr (median −$1,319,
+2 of 7 years positive), ETH +$669/yr over 2018-25 (median +$932, 6 of 8
+positive). Maker execution (0.02 %) lifts these to BTC +$455/yr
+(median −$632) and ETH +$1,634/yr. Since 2021 every BTC
+year is negative in both realistic modes; the positive years are
+2019-20 (BTC) and 2018-21 (ETH). Reading unchanged from v0.10i: ~52 %
+win, PF ~1.0, breakeven-to-negative at retail costs; the retracted
+reference overstated one year's result by $3,000-9,000 on $10k.
+
 ## v0.19-exp — "First 5-min candle vs 12-EMA, trailing stop" (QuantLab reel, 2026-09-12)
 
 Source: IG reel (fetched + Whisper-transcribed; frames read). Stated
