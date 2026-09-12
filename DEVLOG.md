@@ -35,7 +35,38 @@ Family: ORB cousin (v0.16b) with an EMA direction filter and a trail.
   activation only after +1R, chandelier (ATR) trail instead of the EMA,
   holding through the trail overnight.
 
-**Results: pending.**
+**Results (2026-09-12): passes the holdout bar at base costs — the
+first reel to do so — then FAILS the pre-registered 2× cost stress.
+Retired at retail costs, same signature as the published ORB.**
+
+| costs | window | n | win % | PF | net | maxDD | exit mix (trail/stop) | cost/R |
+|---|---|---|---|---|---|---|---|---|
+| 1× | explore 15-17 | 772 | 29.5 | 1.12 | +$2,730 | 18.7 % | 70 / 30 | 0.15 |
+| 1× | holdout 18-20 | 607 | 30.0 | **1.19** | **+$3,959** | 18.1 % | 76 / 24 | 0.10 |
+| 2× | explore 15-17 | 773 | 26.5 | 0.87 | −$2,759 | 36.2 % | 70 / 30 | 0.31 |
+| 2× | holdout 18-20 | 607 | 27.7 | 0.96 | −$741 | 25.2 % | 76 / 24 | 0.18 |
+
+Explore gate met (n=772, net > 0); holdout PASS on every criterion
+(net > 0, PF 1.19 ≥ 1.10, maxDD 18.1 % < 40 %). Then the stress:
+negative at 2× on both windows; break-even ≈ 1.5× (explore) / 1.8×
+(holdout) of base costs — inside the cost model's own uncertainty, the
+v0.16c pattern exactly.
+
+Against the reel's claims: our maxDD (18 %) matches its "just under
+20 %"; our PF 1.12-1.19 sits below its 1.29; our win rate (30 %) is
+nowhere near its 57 % — the EMA-ratchet trail takes many small trail
+exits and lets the few trend days pay, so the win rate depends entirely
+on the unstated trail mechanics. Regime concentration is severe:
+holdout profit is 2019 alone (+$4,697 of +$3,959; 2018 flat, 2020
+negative), explore profit is 2016 alone. The reel's own curve is
+back-loaded to 2024-26 and its two headline numbers (982 % spoken,
++553 % on screen) disagree.
+
+Reading: the ORB family on NASDAQ keeps producing the same object — a
+small, real, regime-concentrated edge (PF ~1.1-1.2 at optimistic costs)
+that disappears inside realistic execution. Three independent
+constructions now (Z&A base, Z&A ATR, this EMA-trail) land in the same
+place. That is the family's honest ceiling at retail costs.
 
 ## v0.18-exp — Funding carry: plain, timed, leveraged, rotated (2026-09-12)
 
