@@ -45,9 +45,11 @@ def session_atr14(df1m: pd.DataFrame) -> pd.Series:
 
 
 def simulate(df1m: pd.DataFrame, cell: str, start_bal: float = 10_000.0,
-             cost_mult: float = 1.0, atr_frac: float = ATR_STOP_FRAC) -> dict:
+             cost_mult: float = 1.0, atr_frac: float = ATR_STOP_FRAC,
+             return_trades: bool = False) -> dict:
     # atr_frac: Cell B stop as a fraction of daily ATR14. 0.05 = the published
     # cell (v0.16b); 0.10 = the single pre-registered v0.16d refinement (R1).
+    # return_trades: return {"n", "trades"} (the per-trade frame) instead of stats.
     idx = df1m.index
     mod = (idx.hour * 60 + idx.minute).to_numpy()
     day = idx.normalize()
@@ -120,6 +122,8 @@ def simulate(df1m: pd.DataFrame, cell: str, start_bal: float = 10_000.0,
     t = pd.DataFrame(trades)
     if t.empty:
         return {"n": 0}
+    if return_trades:
+        return {"n": len(t), "trades": t}
     wins = t[t.net > 0]; losses = t[t.net <= 0]
     gw = wins.net.sum(); gl = -losses.net.sum()
     t["y"] = t.ts.dt.year

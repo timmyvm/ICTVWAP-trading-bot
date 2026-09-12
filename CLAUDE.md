@@ -135,6 +135,19 @@ config.py        — All tuneable parameters (TESTING_MODE, ENTRY_MODE, etc.)
   (3) any filter that improves Sharpe several-fold from a one-line change is removing an artifact, not
   adding an edge — audit the engine before celebrating.
 
+- NEVER trust a data vendor's stated timezone for session-based strategies — verify it with a per-month
+  lag scan against a known-good source (shift the new series by ±60/±30/0 min, take the lag that minimizes
+  the RMS close difference, month by month). HistData's "EST without DST" was in fact UTC−5/UTC−4
+  switching on the EUROPEAN DST dates: a one-hour error in March and late October only, invisible in an
+  annual check, fatal for an opening-range rule. `--tz-mode eu` in fetch_histdata.py; the scan is in the
+  v0.16d DEVLOG entry.
+
+- Before believing a tight-stop strategy's backtest, run it on TWO vendors' quotes of the same instrument
+  over the same window (backtest/duka_overlap_check.py). If the trade list agrees but the net differs by
+  more than the pass margin, the P&L belongs to the quote stream, not the market: no single-vendor
+  backtest can validate it, and a live venue is a third quote stream. The v0.16b ORB ATR cell gave
+  PF 1.42 on Oanda and PF 1.23 on Dukascopy for the same 320 trades.
+
 - Every new backtest engine must assert bracket invariants at position creation:
   `dr * (entry - stop) > 0` and `dr * (target - entry) > 0`. The v0.16 engine shipped with
   `tgt = e - dr * RR * dist` (sign flipped), which fills every "TP" as a -3R loss and produces a

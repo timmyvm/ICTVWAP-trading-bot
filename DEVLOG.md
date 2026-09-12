@@ -103,14 +103,22 @@ tick 0.25 = $0.50. Results and the all-in figure follow below.
    0.086 % RMS (p99 0.27 %, mean +0.024 %), 1H closes 0.096 % RMS. Cell B
    over the same 2019-01 → 2020-05 window: Oanda n=323 / 12.7 % / PF 1.42
    / +$5,489 vs HistData-Dukascopy n=321 / 12.1 % / PF 1.23 / +$2,993.
-   Same trades, same direction, 45 % less money. The stop (0.06-0.09 %
-   of price) is the same size as the disagreement between two vendors'
-   quotes of the same index, so which minute "touches" the stop is
-   vendor-specific. Consequence, per the pre-registration: the fresh-era
-   run cannot deliver a PASS (its ±45 % vendor band is wider than the
-   distance from the pass bar); a FAIL still counts, because a rule whose
-   backtest cannot be reproduced across quote streams is not tradeable
-   on any single one of them. Reported below as pre-registered.
+   Same trades, same direction, 45 % less money. Trade-by-trade (engine
+   `return_trades`): 314 days traded by both, direction identical on all
+   314, exit reason identical on 312; on the two remaining days
+   (2020-04-07 short, 2019-10-15 long) Dukascopy's quotes grazed the
+   0.086 %-of-price stop and Oanda's did not, and those two EOD runners
+   were worth +$1,602 on Oanda vs −$158 on Dukascopy — $1,760 of the
+   $2,496 gap from 2 of 314 trades (the rest: identical trades at
+   slightly different fill sizes, R-correlation 1.000, and 9 vs 7 days
+   traded by one vendor only). So the year is made by a handful of trend
+   days, and whether the position is still alive on those days hinges on
+   a stop the width of the vendors' quote disagreement. Consequence, per
+   the pre-registration: the fresh-era run cannot deliver a PASS (its
+   ±45 % vendor band is wider than the distance from the pass bar); a
+   FAIL still counts, because a rule whose backtest cannot be reproduced
+   across quote streams is not tradeable on any single one of them.
+   Reported below as pre-registered.
 4. *R1 (10 % ATR stop) on the consumed 2015-2020 cache:* base costs —
    explore n=708, 17.1 %, PF 0.96, −$1,138 (explore gate NOT met);
    holdout 17.3 %, PF 1.17, +$8,377, maxDD 27.6 %, 2020 −$75. At 2×
