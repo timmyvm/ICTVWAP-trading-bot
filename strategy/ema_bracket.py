@@ -1,7 +1,10 @@
 """
 v0.10c live strategy — 1H EMA-extension entries, symmetric 3xATR bracket.
 
-The project's first VALIDATED strategy (DEVLOG v0.10c): on BTC 1H over the
+STATUS (DEVLOG v0.10i): the v0.10c validation was an ENGINE ARTIFACT
+(stale-price same-bar re-entry); the artifact-free expectation is ~52 %
+win, PF ~1.0 — paper measurement only, no live money. Original claim,
+kept for the record — the project's first "validated" strategy (v0.10c): on BTC 1H over the
 unseen 2019-2022 era it scored 1,508 trades, 58.0% win, +369%, Sharpe 1.68,
 maxDD 15.6%, every year positive — win rate stable at 57-58% across three
 independent multi-year windows at full retail costs.

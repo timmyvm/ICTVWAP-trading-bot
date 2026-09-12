@@ -37,7 +37,7 @@ def main():
     if not closed.empty:
         wins = (closed["pnl_f"] > 0).sum()
         print(f"win rate      : {100 * wins / len(closed):.1f}%  "
-              f"({wins}W / {len(closed) - wins}L)  |  validated expectation ~58%")
+              f"({wins}W / {len(closed) - wins}L)  |  artifact-free expectation ~52% (DEVLOG v0.10i)")
         first = pd.to_datetime(closed["timestamp"].iloc[0]).date()
         print(f"trading since : {first}")
     if len(closed) and closed["symbol"].nunique() > 1:

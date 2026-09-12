@@ -28,7 +28,58 @@ improves PF/maxDD under BOTH realistic modes on the untouched markets.
 The live bot is unaffected (it already re-enters at post-move prices);
 only the backtest yardstick is.
 
-**Results: pending.**
+**Results (2026-09-12): THE VALIDATED EDGE WAS THE ARTIFACT. v0.10c is
+NOT validated; the v0.10d/e/f/g/h evidence is retracted.**
+
+| dataset | reference "open" win/PF/Sharpe | "exit" (≈ live bot) | "next" |
+|---|---|---|---|
+| BTC 2019-22 | 58.0 / 1.18 / 1.68 | 52.7 / 0.99 / 0.01 | 53.5 / 1.03 / 0.35 |
+| BTC 2023-26 | 57.5 / 1.14 / 1.22 | 51.9 / 0.92 / −0.77 | 51.5 / 0.92 / −0.70 |
+| ETH 2018-26 | 57.5 / 1.15 / 1.66 | 52.8 / 1.00 / 0.16 | 52.2 / 0.99 / 0.01 |
+| NAS100 15-20 | 54.0 / 1.12 / 0.97 | 51.2 / 0.99 / −0.01 | 51.1 / 0.99 / 0.03 |
+| XAU 06-20 | 55.7 / 1.15 / 1.54 | 51.5 / 1.01 / 0.21 | 51.7 / 1.02 / 0.25 |
+| WTICO 05-20 | 55.7 / 1.23 / 1.84 | 51.8 / 1.04 / 0.49 | 51.6 / 1.03 / 0.40 |
+| SPX500 05-20 | 53.4 / 1.09 / 0.74 | 49.7 / 0.92 / −0.68 | 48.9 / 0.88 / −0.86 |
+
+Rule A under realistic re-entry: PF 0.89-1.05, Sharpe −0.77 to +0.48 —
+no improvement anywhere. The v0.10g streak effect was the artifact.
+
+Mechanism, now certain: exit-then-entry in the same iteration filled
+every same-bar re-entry at o[i] after an exit that happened LATER inside
+bar i. After a target hit the re-entry was priced before a favorable
+move the market had already made (a free head start — 69 % wins on
+those trades); after a stop, before an adverse move (32 %). The
+favorable side dominated: the aggregate "58 %" was ~52 % of real
+continuation plus ~6 points of lookahead. The "family signature" across
+six markets was the ENGINE's signature — a mechanical effect replicates
+everywhere at the same magnitude, and that uniformity should have been
+the tell (CLAUDE.md rule added).
+
+Artifact-free read of the rule: 1H extension continuation with a
+symmetric 3×ATR bracket wins ~51-53 % — a small, real continuation
+tendency, consistent with the intraday-momentum literature — at
+PF 0.92-1.04: roughly breakeven at retail costs, negative after
+funding. NOT tradeable.
+
+Scope of the retraction: only the bracket family (v0.10c reference,
+v0.10d cross-market, v0.10e funding, v0.10f ETH, v0.10g/h streak) used
+the same-bar re-entry ordering. Every reel/ICT engine fills entries at
+the NEXT bar's open (or at a touched level) after signals from closed
+bars and has no such path — the v0.12-v0.17 failure verdicts stand. The
+live module never had the artifact (it re-enters at the current mark):
+the paper bot's true expectation is the "exit" column — ~52 %, PF ~1.0
+— and its 1-of-8 first week is consistent with exactly that.
+
+Consequences: (1) v0.10c status → NOT VALIDATED, candidate retired;
+(2) the go-live gates are VOID — no live money on this rule; (3) the
+paper run may continue as a free live measurement with the target reset
+(dashboard/stats text corrected); (4) docs/failure_path.md corrected —
+the "survivor" section is withdrawn, the failure analysis of the reels
+stands; (5) the project's validated-strategy count returns to ZERO.
+Owned in full: the engine was reproduced faithfully to a flawed
+original, exact reproduction was mistaken for validation, and
+cross-market uniformity was read as robustness instead of as a
+mechanical tell.
 
 ## v0.10g — Diagnostics: the reversed rule, and streak conditioning (2026-09-12)
 
@@ -96,7 +147,14 @@ own pre-registration for the switch (paper run continues unchanged
 until then). FAIL ⇒ the streak effect is crypto-specific or a
 same-bar-re-entry artifact; reported, not adopted.
 
-**Results: pending.**
+**Results (2026-09-12): superficially PASS 4/4 under the reference
+engine (NAS100 PF 1.12→1.50, XAU 1.15→1.44, WTICO 1.23→1.67, SPX500
+1.09→1.51; Sharpe 2.7-3.9; maxDD roughly halved; BTC/ETH in-sample
+similar) — a result so uniform it triggered the v0.10i engine audit,
+which RETRACTS it: under realistic re-entry semantics Rule A improves
+nothing (PF 0.89-1.05). The "improvement" was the removal of the
+engine's stale-price after-loss re-entries while keeping its stale-price
+after-win ones. Not adopted.**
 
 ## Paper run — week-1 audit after a 1-of-8 start (2026-09-12)
 

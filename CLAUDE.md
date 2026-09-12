@@ -122,6 +122,19 @@ config.py        — All tuneable parameters (TESTING_MODE, ENTRY_MODE, etc.)
   SAVED artifact by re-loading it through the consumer's own loader — the v0.10e funding CSV passed every
   in-memory sanity check and was still corrupt on disk.
 
+- NEVER fill a re-entry at a bar's OPEN after an exit that happened later inside the same bar — the open
+  is a price the market has already left, and the exit event was not knowable at the open. The v0.10c
+  reference engine (reproduced verbatim from the original validation script) did exactly this; after-win
+  re-entries got a stale favorable price and after-loss re-entries a stale adverse one, and the ENTIRE
+  validated edge (58% win, PF 1.18, "robust across six markets") collapsed to ~52% / PF ~1.0 under
+  realistic re-entry (fill at the exit price, or wait for the next bar). Three rules follow:
+  (1) exact reproduction of a reference is not validation — the reference's semantics must themselves be
+  audited for lookahead (every fill priced at a time before the information that triggered it);
+  (2) a result that is uniformly strong across unrelated markets with the same magnitude is a signature
+  of an ENGINE mechanism, not an economic one — treat it as a trigger for an execution-semantics audit;
+  (3) any filter that improves Sharpe several-fold from a one-line change is removing an artifact, not
+  adding an edge — audit the engine before celebrating.
+
 - Every new backtest engine must assert bracket invariants at position creation:
   `dr * (entry - stop) > 0` and `dr * (target - entry) > 0`. The v0.16 engine shipped with
   `tgt = e - dr * RR * dist` (sign flipped), which fills every "TP" as a -3R loss and produces a

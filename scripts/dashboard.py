@@ -106,7 +106,7 @@ def render() -> str:
         stat("equity", f"${d['equity']:,.2f}", f"start ${config.PAPER_START_BALANCE:,.0f}")
         + stat("realized pnl", f"${d['realized']:+,.2f}", f"{n} closed trades")
         + stat("win rate", f"{win_pct:.1f}%" if n else "—",
-               f"{wins}W / {n - wins}L · target ~58%")
+               f"{wins}W / {n - wins}L · artifact-free expectation ~52% (v0.10i)")
         + stat("bot", f"<span style='color:{hb_color}'>{e(hb_text)}</span>",
                ",".join(config.EMA_BRACKET_SYMBOLS))
     )

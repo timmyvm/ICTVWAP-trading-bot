@@ -1,7 +1,10 @@
 """
 v0.10c — 3xATR symmetric bracket on 1H EMA-distance extension entries.
 
-THE VALIDATED RULE (DEVLOG v0.10c, validation PASS on unseen BTC 2019-2022):
+THE RULE (DEVLOG v0.10c). WARNING — DEVLOG v0.10i: the reference re-entry
+semantics (reentry="open") contain a stale-price lookahead; the reproduced
+"validation" numbers below are NOT evidence of an edge. Use reentry="exit"
+or "next" for honest numbers (~52 % win, PF ~1.0). Original description:
   d = (close - EMA200) / ATR14 on closed 1H candles
   |d[i-1]| >= 1 -> enter at bar i's open, direction of the extension
   Exit: symmetric bracket at entry +/- 3*ATR14 (signal candle's ATR),

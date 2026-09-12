@@ -1,5 +1,14 @@
 # The failure path — why every reel strategy died, and what the survivor does instead
 
+> **CORRECTION (2026-09-12, DEVLOG v0.10i).** The "survivor" in this document
+> is withdrawn. The v0.10c bracket's validated edge was an engine artifact
+> (same-bar re-entries filled at the bar open, a stale price from before the
+> exit move); artifact-free it wins ~52 % at PF ~1.0 — breakeven. Property A
+> and Property B, and the failure analysis of the reel strategies (whose
+> engines have no such path), stand. The inverted-path design principles are
+> now UNSUPPORTED by any positive result; treat the screen as a filter for
+> what fails, not a recipe for what works.
+
 Compiled 2026-09-12 from the DEVLOG after twelve mechanized reel/ICT strategies
 across BTC, NAS100, gold and oil. Every one of them is built the same way:
 

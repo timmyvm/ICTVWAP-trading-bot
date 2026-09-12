@@ -173,7 +173,7 @@ class TradingBot:
         strategy than the one that passed validation.
         """
         logger.info("=" * 60)
-        logger.info("Powell Trades Bot starting — v0.10c EMA-BRACKET (validated)")
+        logger.info("Powell Trades Bot starting — v0.10c EMA-BRACKET (validation RETRACTED, DEVLOG v0.10i — paper measurement only)")
         logger.info(
             "Paper trade: %s | Symbols: %s",
             config.PAPER_TRADE, ",".join(config.EMA_BRACKET_SYMBOLS),

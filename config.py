@@ -50,7 +50,8 @@ ENTRY_MODE = os.getenv("ENTRY_MODE", "5m")
 PAPER_TRADE = os.getenv("PAPER_TRADE", "true").lower() == "true"
 
 # --- Strategy Selection ---
-# "ema_bracket": the VALIDATED v0.10c strategy (DEVLOG) — 1H EMA-extension
+# "ema_bracket": the v0.10c strategy (validation RETRACTED — DEVLOG v0.10i;
+#   paper measurement only) — 1H EMA-extension
 #   entries with a symmetric 3xATR bracket. Default: this is the forward
 #   paper test the validation earned. Runs alone (no ICT/VWAP, no daily
 #   caps — the validated rule has none).
@@ -58,7 +59,7 @@ PAPER_TRADE = os.getenv("PAPER_TRADE", "true").lower() == "true"
 STRATEGY = os.getenv("STRATEGY", "ema_bracket")
 
 # --- v0.10c EMA-Bracket Parameters ---
-# VALIDATED values — change only together with a new validation run
+# Values of the original (retracted, v0.10i) validation — change only with a new run
 # (backtest/bracket_experiment.py) and a DEVLOG entry.
 EMA_BRACKET_SPAN = int(os.getenv("EMA_BRACKET_SPAN", "200"))          # 1H EMA length
 EMA_BRACKET_ATR_PERIOD = int(os.getenv("EMA_BRACKET_ATR_PERIOD", "14"))
