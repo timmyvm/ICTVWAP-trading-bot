@@ -1,5 +1,21 @@
 # DEVLOG — Powell Trades Bot
 
+## docs — The failure path (2026-09-12)
+
+User: "all the fails follow one exact path — identify it and eliminate
+it." Compiled `docs/failure_path.md` from the ledger: every failed reel
+/ ICT strategy (12 mechanizations, 4 markets) shares one construction —
+draw a level, wait for a touch, enter at it, stop beyond the wick,
+target a multiple — which yields two independent fatal properties:
+(A) location ≠ information (observed win rates sit on each bracket's
+random-walk null; v0.17 is below it), and (B) stops below the cost
+floor (cost/R 0.2-1.0 vs 0.05 for the survivor). v0.10c is the
+step-for-step inverse (state not level, enter with the move, 3×ATR
+stop, symmetric bracket, no session gate) and is the only pass. The
+doc ends with a five-question screen to apply BEFORE mechanizing
+anything new. Eliminating the path = never building on it again; the
+screen is the mechanism.
+
 ## v0.17-exp — Fixed-range volume-profile POC pullback (IG reel, 2026-09-12)
 
 Source: @tradinglabofficial reel (fetched + Whisper-transcribed
