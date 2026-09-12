@@ -1,5 +1,42 @@
 # DEVLOG — Powell Trades Bot
 
+## v0.19-exp — "First 5-min candle vs 12-EMA, trailing stop" (QuantLab reel, 2026-09-12)
+
+Source: IG reel (fetched + Whisper-transcribed; frames read). Stated
+rule: at the NY open, if the first 5-minute candle closes above the
+12-EMA go long, below go short; the algo "trails the stop as momentum
+develops and stays in the move as long as the momentum continues".
+Claimed: NAS100 5m 2019-2026, 1,448 trades, 57 % win, PF 1.29, maxDD
+just under 20 %, total return "982 %" (voiceover) / "+553 %" (on-screen
+card — the reel contradicts itself); equity curve on screen is almost
+entirely 2024-2026. Frames: 12-EMA on the M5 close; initial stop below
+the signal candle's low; trailing stop steps up with the 12-EMA.
+Family: ORB cousin (v0.16b) with an EMA direction filter and a trail.
+
+**Mechanized primary (fixed BEFORE running), NAS100 1m→5m 2015-2020:**
+- EMA12 on the continuous 5m close series (24 h CFD chart, as shown).
+- Signal candle = the 5m bar starting 09:30 NY; close > EMA12 → LONG,
+  close < EMA12 → SHORT, equal → skip. Entry at the 09:35 bar open
+  (taker + slip).
+- Initial stop = signal candle's opposite extreme (no buffer stated).
+  From the next bar on, stop ratchets to the last CLOSED bar's EMA12
+  when that is tighter (never loosens); intrabar stop-first; no target;
+  flat at the 16:00 close. One trade per day, no re-entry.
+- 1 % risk on the initial stop distance, 4× cap (as v0.16b); house
+  futures-CFD costs (0.002 % + 0.005 % per side, both legs). Explore
+  2015-2017 / holdout 2018-2020-05. Era caveat on record: the reel's
+  window (2019-2026) overlaps ours only in 2019-2020-05, and its curve
+  is back-loaded to 2024-26 — this test can falsify the rule's
+  robustness, not its 2024-26 claim.
+- **Pass:** explore n ≥ 100 ∧ net > 0 → holdout; holdout PASS = net > 0
+  ∧ PF ≥ 1.10 ∧ maxDD < 40 %; a pass then faces the 2× cost stress
+  (the v0.16c lesson). Reported either way against the reel's claimed
+  57 % / PF 1.29 / DD < 20 %. Untested boundaries: a stop buffer, trail
+  activation only after +1R, chandelier (ATR) trail instead of the EMA,
+  holding through the trail overnight.
+
+**Results: pending.**
+
 ## v0.18-exp — Funding carry: plain, timed, leveraged, rotated (2026-09-12)
 
 New family, the first here where the income is MECHANICAL: hold spot,
