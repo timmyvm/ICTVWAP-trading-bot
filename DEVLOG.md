@@ -1,5 +1,44 @@
 # DEVLOG — Powell Trades Bot
 
+## v0.16-exp — FCR breakout + retest, 1:3 (IG reel, 2026-09-12)
+
+Source: user screenshots of an IG reel (diagram only, no transcript
+needed). Rule as drawn: mark the High/Low of the first 5-minute candle
+of the NY session (9:30-9:35 = "First Candle Range"); when price breaks
+out of the range, wait for the 1m retest of the broken level; enter on
+the retest with the stop just beyond the retest wick ("1" box) and the
+target at 3× that distance ("3" box). Family context ON RECORD: opening-
+range breakouts have real published evidence (Zarattini & Aziz 2023,
+5-min ORB on QQQ) — the first reel family tested here with academic
+support. The reel's retest entry + fixed 1:3 is a variant of that.
+
+**Mechanized primary (fixed BEFORE running), NAS100 1m 2015-2020:**
+- FCR = max high / min low of the five 1m bars 9:30-9:34 NY (all five
+  required, else skip the day).
+- Breakout: first 1m CLOSE outside the range, 9:35-10:29. Close above
+  High → long bias; below Low → short bias. One attempt per day.
+- Retest (short case; long mirrored): within 30 bars of the breakout,
+  the first bar whose HIGH touches the Low (high ≥ Low) while its CLOSE
+  stays below the Low. If any bar first CLOSES back inside the range,
+  the breakout failed — no trade that day.
+- Entry: next bar open after the retest bar (taker+slip). Stop = the
+  retest bar's high (structure stop, no buffer — as drawn). Target =
+  entry − 3 × (stop − entry). Skip if the fill is already beyond the
+  stop. Stop-first conservative, no same-bar target on the entry bar,
+  force-flat 16:00, max one trade per day.
+- 1 % equity risk, 10× cap; futures-CFD costs (0.002 % taker + 0.005 %
+  slip per side, both legs). Explore 2015-2017 / holdout 2018-2020-05
+  (cache consumed by other families — taint note as before).
+- **Pre-registered pass:** explore n ≥ 100 ∧ net > 0 → holdout;
+  holdout PASS = net > 0 ∧ win % ≥ 27 (1:3 breakeven 25 % + costs) ∧
+  maxDD < 40 %. Reported either way. Cost-to-risk ratio reported (the
+  tight-stop law check). Untested boundaries: classic ORB entry on the
+  breakout itself (the published version), 15m ranges, stops at range
+  midpoint/opposite side, EOD-only exits — each would need its own
+  pre-registration.
+
+**Results: pending.**
+
 ## v0.10e — Gate 2: real funding costs applied to the validated bracket (2026-09-11)
 
 The go-live gate's biggest open question: perp funding was unmodeled in
