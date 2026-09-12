@@ -34,6 +34,19 @@ both sources over the overlap must agree in the sign of net and within
 agree within 0.05 % RMS. If this gate fails, the fresh-era numbers are
 reported as a DATA MISMATCH, not as a strategy verdict.
 
+*Data amendment, BEFORE any fresh-era run (same day):* Dukascopy's free
+bi5 endpoint is throttled for bulk use (429 on non-browser agents, then
+HAProxy 503s and resets at 15-20 s per file; their wiki now points to a
+paid requester-pays S3 bucket). Source switched to HistData.com NSXUSD
+M1 (`backtest/fetch_histdata.py`), which is the SAME Dukascopy feed
+repackaged — the 2021-06-01 13:30 UTC bar is identical to the bi5 BID
+candle to the third decimal — BID side only (a constant half-spread
+offset of ~0.005 %, symmetric for the engine, which trades bar opens and
+levels). HistData's naive "US Eastern" timestamps: fixed-EST vs
+Eastern-with-DST is decided empirically by the overlap check (the
+variant whose 1H closes match the Oanda cache), never by assumption.
+The consistency gate above applies unchanged.
+
 **Cell 1 — Cell B verbatim on the untouched era 2020-06-01 →
 2026-08-31**, treated ENTIRELY as holdout (nothing is explored on it),
 at base costs (0.002 % + 0.005 %/side) and at k=2. PASS at base = net >
@@ -62,6 +75,51 @@ an assumption). Broker commission per side, NinjaTrader public pricing
 $0.09 lifetime), $1.29 per standard contract; exchange, clearing and
 NFA fees extra. MNQ is $2 × index (≈ $40k notional at NAS100 ≈ 20,000),
 tick 0.25 = $0.50. Results and the all-in figure follow below.
+
+**Interim results, data layer (2026-09-12, before the fresh-era run):**
+
+1. *HistData's clock is neither of the two documented options.* Against
+   the Oanda cache, the America/New_York reading is exactly one hour off
+   in March (between the US and EU DST switch dates) and for a week in
+   late October; the fixed-EST reading is one hour off all summer (Cell B
+   on it goes to PF 0.81 — the 9:30 bar is not the open). The reading
+   that aligns EVERY month at lag 0 is "UTC−5 in winter, UTC−4 in summer,
+   switching on the EUROPEAN dates", i.e. Europe/London minus five hours
+   (`--tz-mode eu`). Confirmed by Dukascopy's own UTC day file for
+   2020-03-13: HistData's "14:59" bar is the 19:59 UTC candle. A
+   vendor-clock error of one hour would have silently destroyed an
+   opening-range strategy; the per-month lag scan is now the standard
+   check for any new session-based source.
+2. *HistData's 2023 file is defective:* 55 weekdays have no 09:30 bar
+   (Mar 12, Apr 10, May 10, Jun 8, Jul 10) and Mar-Jul average ~300
+   session bars instead of ~380. Being filled day-by-day from Dukascopy's
+   own feed (`fetch_dukascopy.py --fill-from`, 204 deficient weekdays
+   including holidays, ~30 s per file under the throttle) BEFORE the
+   fresh-era run; every other year is complete (226-236 of ~258
+   weekdays with a full session, the rest holidays/early closes).
+3. *Source-consistency gate: FAIL — and the failure is the finding.*
+   With the clock fixed, timing agrees at lag 0 in all 17 overlap
+   months; the residual is vendor noise: session 1m closes differ by
+   0.086 % RMS (p99 0.27 %, mean +0.024 %), 1H closes 0.096 % RMS. Cell B
+   over the same 2019-01 → 2020-05 window: Oanda n=323 / 12.7 % / PF 1.42
+   / +$5,489 vs HistData-Dukascopy n=321 / 12.1 % / PF 1.23 / +$2,993.
+   Same trades, same direction, 45 % less money. The stop (0.06-0.09 %
+   of price) is the same size as the disagreement between two vendors'
+   quotes of the same index, so which minute "touches" the stop is
+   vendor-specific. Consequence, per the pre-registration: the fresh-era
+   run cannot deliver a PASS (its ±45 % vendor band is wider than the
+   distance from the pass bar); a FAIL still counts, because a rule whose
+   backtest cannot be reproduced across quote streams is not tradeable
+   on any single one of them. Reported below as pre-registered.
+4. *R1 (10 % ATR stop) on the consumed 2015-2020 cache:* base costs —
+   explore n=708, 17.1 %, PF 0.96, −$1,138 (explore gate NOT met);
+   holdout 17.3 %, PF 1.17, +$8,377, maxDD 27.6 %, 2020 −$75. At 2×
+   costs: explore PF 0.80 / −$4,689; holdout PF 1.08 / +$3,303 (the
+   holdout-at-k=2 leg of R1's adoption rule is met, the base-cost
+   explore is not). Cost/R halves as designed (0.10-0.14 vs 0.20-0.27)
+   but so does the edge: widening the stop from 5 % to 10 % of ATR
+   converts near-1R losers into bigger losers faster than it saves
+   winners. The 5 % cell's advantage was never about costs alone.
 
 ## v0.10i-a — "$10k for one year" per-calendar-year table for the EMA bracket (2026-09-12)
 

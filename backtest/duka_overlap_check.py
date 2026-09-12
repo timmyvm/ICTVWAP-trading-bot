@@ -49,10 +49,16 @@ def main() -> None:
     print(f"common 1H bars {len(common)} (ref-only {len(r1h.index.difference(n1h.index))}, "
           f"new-only {len(n1h.index.difference(r1h.index))}); close diff mean {100 * rel.mean():+.4f} %, "
           f"RMS {100 * rms:.4f} %, max |diff| {100 * rel.abs().max():.3f} %")
-    # session coverage: 09:30 NY bars per source
+    # session coverage: 09:30 NY bars per source, and 1m-level agreement inside the session
     for name, d in (("ref", ref), ("new", new)):
         mod = d.index.hour * 60 + d.index.minute
         print(f"  {name}: 09:30 bars {(mod == 570).sum()}, session 1m bars {((mod >= 570) & (mod < 960)).sum()}")
+    c1 = ref.index.intersection(new.index)
+    m1 = c1.hour * 60 + c1.minute
+    c1 = c1[(m1 >= 570) & (m1 < 960)]
+    rel1 = new.loc[c1, "close"] / ref.loc[c1, "close"] - 1.0
+    print(f"  session 1m closes on {len(c1)} common bars: mean {100 * rel1.mean():+.4f} %, "
+          f"RMS {100 * float(np.sqrt((rel1 ** 2).mean())):.4f} %, p99 {100 * rel1.abs().quantile(0.99):.4f} %")
 
     # 2) Cell B on each source over the overlap
     res = {}
