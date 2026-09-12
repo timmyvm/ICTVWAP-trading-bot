@@ -38,7 +38,50 @@ funding-covered window AND maxDD < 10 % at 1× (carry that draws down
 like a directional trade is not carry). Exchange/counterparty risk is
 outside the model and on record.
 
-**Results: pending.**
+**Results (2026-09-12): the BORING cell passes; the not-boring cells
+don't beat it.**
+
+| cell | ann % on notional | CAGR | Sharpe | maxDD | worst month | years ≥ 0 | bar |
+|---|---|---|---|---|---|---|---|
+| 1 plain BTC | +11.6 | 12.3 | 8.54 | 2.3 % | −0.8 % | 7/7 | **PASS** |
+| 1 plain ETH | +13.6 | 14.6 | 7.54 | 1.8 % | −1.5 % | 7/7 | **PASS** |
+| 2 timed BTC | +5.6 | 5.8 | 3.26 | 7.7 % | −2.3 % | 5/7 | FAIL |
+| 2 timed ETH | +7.8 | 8.1 | 3.71 | 12.7 % | −2.2 % | 4/7 | FAIL |
+| 3 timed ETH 3× | +23.3 | 26.0 | 3.71 | 33.4 % | −6.5 % | 4/7 | FAIL |
+| 4 rotated top-3 | +12.4 | 13.2 | 4.95 | 2.5 % | −0.6 % | 6/7 (2026 −1.2 % partial) | marginal |
+
+Per-coin plain: LTC +14.6 % (DD 1.2 %), XRP +14.2, LINK +13.6, ADA
++13.3, DOGE +12.4, ATOM +9.4, DOT +7.5, AVAX +6.4 — and BNB −0.2 %
+(DD 27 %), **SOL −2.8 % with a −25 % hedged DAY on 2022-11-10** (FTX
+collapse: SOL perp had traded 17 % below spot; the basis snapped back
+while funding charged shorts ~0.5 %/day). Verified as real data, not a
+glitch. BTC's worst hedged day in 6.7 years: −0.7 % (2020-03-13).
+
+Findings: (1) **timing hurts** — a sign-based funding timer whipsaws
+around zero and pays 0.31 % per flip; plain carry beats it in every
+coin. (2) **Rotation ≈ plain** — 12.4 % vs 11.6-14.6 % for the good
+single coins, with 82 slot changes/yr and a survivorship-biased
+universe; it did sidestep SOL/BNB, which is its one real merit.
+(3) **Leverage scales the drawdown linearly** — 3× on the timed cell
+turns a 12.7 % DD into 33 %; on the plain series 3× would be ~35 %/yr
+at ~7 % DD ARITHMETICALLY, but in practice leverage on carry means
+either borrowed spot (interest ≈ funding, no free lunch) or an
+under-collateralized short leg that liquidates in a +30 % day — the
+cap, not a knob. (4) Sharpe 7-8 is the daily-mark Sharpe of a nearly
+deterministic income stream; it does not see intraday liquidation risk
+on the short leg, exchange/counterparty risk (FTX), or basis
+dislocations like SOL's — all outside the model and on record.
+
+Verdict: BTC/ETH (and LTC/ADA/XRP/LINK/DOGE) plain cash-and-carry is
+the first strategy in this project to pass a pre-registered bar with
+no artifact suspected (audited: real basis from prices, costs charged,
+worst days traced to real events). Honest expectation: **~10-14 %/yr on
+capital at ~1× (spot notional + perp margin), Sharpe high, tail risks
+exchange and liquidation**. It is the crypto version of the risk-free
+rate — exactly what "boring" means, and exactly what the reels never
+mention. Not adopted into the bot (needs spot + perp legs and margin
+management — a different execution build); documented as the project's
+first genuine, if modest, positive result.
 
 ## v0.10i — Re-entry semantics audit of the reference engine (2026-09-12)
 
