@@ -60,11 +60,19 @@ def simulate(df1h: pd.DataFrame,
              return_trades: bool = False,
              funding: Optional[pd.Series] = None,
              reverse: bool = False,
-             skip_after_loss: bool = False) -> dict:
+             skip_after_loss: bool = False,
+             reentry: str = "open") -> dict:
+    # reentry: how a same-bar re-entry after an exit on bar i is priced.
+    #   "open" = frozen reference: fill at o[i] (a price from BEFORE the exit
+    #            move — a stale-price artifact, kept as the reference default)
+    #   "exit" = fill at the exit price (post-move; closest to the live bot)
+    #   "next" = no same-bar re-entry; earliest entry is bar i+1's open
+    assert reentry in ("open", "exit", "next")
     # reverse=True fades the extension instead of following it (diagnostic
     # only — the mirror image of the validated rule; never the default).
     side = -1 if reverse else 1
     cooldown = False  # v0.10h Rule A state
+    exited_px: Optional[float] = None  # exit price if a position closed on this bar
     o = df1h["open"].to_numpy()
     h = df1h["high"].to_numpy()
     l = df1h["low"].to_numpy()
@@ -92,6 +100,7 @@ def simulate(df1h: pd.DataFrame,
     eq_curve = []
 
     for i in range(WARMUP, len(df1h)):
+        exited_px = None
         # 0) funding settlement for the position carried into this bar
         if pos is not None and rate_arr[i] != 0.0:
             cf = -pos[0] * pos[4] * o[i] * rate_arr[i]
@@ -115,6 +124,7 @@ def simulate(df1h: pd.DataFrame,
                                "reason": "STOP" if hit_st else "TP"})
                 pos = None
                 pos_funding = 0.0
+                exited_px = px
                 if skip_after_loss and net <= 0:
                     cooldown = True
 
@@ -122,9 +132,12 @@ def simulate(df1h: pd.DataFrame,
         if pos is None and not np.isnan(d[i - 1]) and abs(d[i - 1]) >= ENTRY_T:
             if cooldown:
                 cooldown = False  # v0.10h Rule A: skip one signal after a loss
+            elif exited_px is not None and reentry == "next":
+                pass  # no same-bar re-entry
             else:
                 dr = side * (1 if d[i - 1] >= ENTRY_T else -1)
-                e = o[i] * (1 + dr * slip)
+                base_px = exited_px if (exited_px is not None and reentry == "exit") else o[i]
+                e = base_px * (1 + dr * slip)
                 a = atr[i - 1]
                 q = min(bal * (risk_pct / 100.0) / (EXIT_MULT * a), bal * max_lev / e)
                 if q > 0:

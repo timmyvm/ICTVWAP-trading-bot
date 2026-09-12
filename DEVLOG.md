@@ -1,5 +1,35 @@
 # DEVLOG — Powell Trades Bot
 
+## v0.10i — Re-entry semantics audit of the reference engine (2026-09-12)
+
+Triggered by v0.10h's implausible result (Rule A: Sharpe 3-4 across
+seven markets from a parameter-free filter). Suspected mechanism: the
+frozen reference (recovered verbatim from the original validation
+script) re-enters after an exit INSIDE bar i at bar i's OPEN — a price
+from before the exit move. After-loss re-entries are therefore priced
+pre-adverse-move (unrealistically bad), after-win re-entries
+pre-favorable-move (unrealistically good). That is the exact shape of
+the v0.10g streak numbers (32 % after one loss / 69 % after a win), and
+Rule A would "work" by deleting the artifact's losers while keeping its
+winners. The two biases partially cancel in the aggregate, so the
+validated 58 % could be too high, too low, or about right — unknown
+until measured.
+
+Engine change: `simulate(..., reentry="open"|"exit"|"next")`. "open" =
+the frozen reference (default, unchanged, still reproduces the
+validation exactly). "exit" = same-bar re-entry filled at the exit
+price (post-move; closest to the live bot, which re-enters at the
+current mark after a stop). "next" = no same-bar re-entry (earliest
+entry the next bar's open; fully realizable, conservative). Driver
+`backtest/reentry_audit.py` loads each of the seven datasets once and
+runs {open, exit, next} × {Rule A off, on}. Pre-stated reading: the
+truth lies between "exit" and "next"; Rule A is real only if it still
+improves PF/maxDD under BOTH realistic modes on the untouched markets.
+The live bot is unaffected (it already re-enters at post-move prices);
+only the backtest yardstick is.
+
+**Results: pending.**
+
 ## v0.10g — Diagnostics: the reversed rule, and streak conditioning (2026-09-12)
 
 User, after the 1-of-8 week: "can't we do the opposite on the same
