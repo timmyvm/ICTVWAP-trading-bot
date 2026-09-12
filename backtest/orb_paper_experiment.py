@@ -44,13 +44,18 @@ def session_atr14(df1m: pd.DataFrame) -> pd.Series:
     return tr.rolling(14).mean().shift(1)
 
 
-def simulate(df1m: pd.DataFrame, cell: str, start_bal: float = 10_000.0) -> dict:
+def simulate(df1m: pd.DataFrame, cell: str, start_bal: float = 10_000.0,
+             cost_mult: float = 1.0) -> dict:
     idx = df1m.index
     mod = (idx.hour * 60 + idx.minute).to_numpy()
     day = idx.normalize()
     o = df1m["open"].to_numpy(); h = df1m["high"].to_numpy()
     l = df1m["low"].to_numpy(); c = df1m["close"].to_numpy()
     atr = session_atr14(df1m)
+    # v0.16c cost stress: every per-side cost (fee, slippage, and the
+    # slipped entry price) scales together by cost_mult.
+    slip = SLIP * cost_mult
+    cost = COST * cost_mult
 
     bal = start_bal
     trades = []
@@ -73,7 +78,7 @@ def simulate(df1m: pd.DataFrame, cell: str, start_bal: float = 10_000.0) -> dict
             continue
         dr = 1 if f_close > f_open else -1
         jj = entry_bars[0]
-        e = o[jj] * (1 + dr * SLIP)
+        e = o[jj] * (1 + dr * slip)
         if cell == "base":
             stop = l[first].min() if dr > 0 else h[first].max()
         else:
@@ -103,12 +108,12 @@ def simulate(df1m: pd.DataFrame, cell: str, start_bal: float = 10_000.0) -> dict
 
         if px is None:
             continue
-        net = dr * (px - e) * q - (e + px) * q * COST
+        net = dr * (px - e) * q - (e + px) * q * cost
         bal += net
         peak = max(peak, bal); max_dd = max(max_dd, (peak - bal) / peak)
         trades.append({"ts": idx[jj], "dir": "LONG" if dr > 0 else "SHORT", "net": net,
                        "reason": reason, "r": net / (dist * q),
-                       "stop_pct": 100 * dist / e, "cost_r": 2 * e * COST / dist})
+                       "stop_pct": 100 * dist / e, "cost_r": 2 * e * cost / dist})
 
     t = pd.DataFrame(trades)
     if t.empty:
@@ -134,16 +139,19 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--cache", default="backtest/data_cache/local/nas100_1m_2015_2020.csv.gz")
     ap.add_argument("--explore-end", default="2018-01-01")
+    ap.add_argument("--cost-mult", type=float, default=1.0,
+                    help="v0.16c stress: multiply every per-side cost by this")
+    ap.add_argument("--cells", default="base,atr")
     args = ap.parse_args()
 
     df = load_cached_1m(args.cache)
     cut = pd.Timestamp(args.explore_end, tz="America/New_York")
-    for cell in ("base", "atr"):
+    for cell in args.cells.split(","):
         for name, seg in [("EXPLORE", df[df.index < cut]), ("HOLDOUT", df[df.index >= cut])]:
-            print(f"[{cell}] {name} {seg.index.min().date()} -> {seg.index.max().date()}")
+            print(f"[{cell} x{args.cost_mult:g} costs] {name} {seg.index.min().date()} -> {seg.index.max().date()}")
             if name == "HOLDOUT":
                 print("  (judged per pre-registration: explore n>=100 & net>0 gates adoption, printed regardless)")
-            print(" ", simulate(seg, cell))
+            print(" ", simulate(seg, cell, cost_mult=args.cost_mult))
         print()
 
 

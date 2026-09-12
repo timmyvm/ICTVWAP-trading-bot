@@ -1,5 +1,24 @@
 # DEVLOG — Powell Trades Bot
 
+## v0.16c — Cost stress test of the ORB ATR-stop cell (2026-09-12)
+
+Next gate for the v0.16b Cell B candidate: its cost/R of 0.20-0.27 is
+the highest of any positive result here, and the replication showed the
+ORB family dies inside a normal spread. Pre-registered BEFORE running:
+Cell B (5 % daily-ATR stop, EOD exit) re-run with ALL per-side costs
+(taker 0.002 % + slip 0.005 %, entry-price slip included) multiplied by
+**k ∈ {2, 3, 4}** — k=2 ≈ realistic NQ futures all-in (~1 index point
+per side), k=3-4 ≈ index-CFD spreads at 9:35. Same data, same split,
+zero strategy changes.
+
+**Decision rule:** the candidate SURVIVES if at k=2 the explore window
+stays net > 0 AND the holdout still meets its pass bar (net > 0 ∧
+PF ≥ 1.10 ∧ maxDD < 40 %). k=3 and k=4 are reported as the CFD
+scenario; the break-even multiplier is reported. A fail at k=2 retires
+the candidate as an execution-quality artifact — no parameter rescue.
+
+**Results: pending.**
+
 ## v0.16b-exp — The published ORB: Zarattini & Aziz (2023), both configurations (2026-09-12)
 
 User: "try ATR-scaled stops and all the other things that make it
