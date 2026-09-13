@@ -154,16 +154,17 @@ config.py        — All tuneable parameters (TESTING_MODE, ENTRY_MODE, etc.)
   concentration in-sample ("2016 alone", "2019 alone") and a reel curve back-loaded to the last two
   years are the same warning: the era is the variable, not the geometry.
 
-- The live bot's exit check is a 60-SECOND POINT SAMPLE of the mark price, not ticks and not candles;
-  the backtest checks each bar's HIGH and LOW. Never assume the two agree. Measured (v0.20-diag,
-  backtest/exit_detector_audit.py): polling misses 6-10 % of stop touches, which HELPS (fewer trades,
-  lower drawdown), while filling the stop at the polled price instead of the level HURTS about twice as
-  much. Net drag ~0.03 R per trade — decisive for any rule whose edge is near 0.00 R. Whenever the live
-  exit path and the backtest exit path differ, measure both directions before assuming which way it cuts.
+- A paper simulator must resolve brackets on the price PATH (1m high/low since the row opened), never on
+  one mark sample per tick. A 60-second point check misses 6-10 % of stop touches — wicks that pierce and
+  recover inside the minute — which silently lets paper positions survive stops a live account would
+  take, flattering net by $486-$2,188 per $10k and understating maxDD by 4-8 points (v0.20-diag,
+  backtest/exit_detector_audit.py; fixed in v0.21). Exclude bars older than the row's own entry, and
+  check the stop BEFORE the target when a window touches both.
 
-- Paper-trade accounting must fill a STOP at the price the poll actually saw, not at the stop level.
-  Booking the level flatters the live record by $1,400-$4,900 per $10k over a few years. A target is the
-  opposite case: a resting limit never fills better than the level, so book the level there.
+- Read the ORDER PATH before modelling fills. v0.20-diag prescribed filling stops at the polled price,
+  which would have modelled a bot-managed stop; `_live_trade` actually sends stopLoss/takeProfit WITH the
+  order, so the exchange holds the bracket, fills on any touch, and slippage is milliseconds not minutes.
+  Whether your stop is exchange-side or bot-side changes which fill model is honest — check, don't assume.
 
 - Every new backtest engine must assert bracket invariants at position creation:
   `dr * (entry - stop) > 0` and `dr * (target - entry) > 0`. The v0.16 engine shipped with

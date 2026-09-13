@@ -231,16 +231,57 @@ class OrderManager:
             logger.error("Failed to modify stop loss: %s", e)
             return False
 
+    @staticmethod
+    def _path_extremes(row_ts: str, path, current_price: float) -> tuple:
+        """
+        (high, low) of the price path a resting exchange bracket would have seen
+        for this row, unioned with the current mark.
+
+        `_live_trade` sends stopLoss/takeProfit WITH the order, so on a real
+        account the EXCHANGE holds the bracket and fills on any touch. Comparing
+        a once-a-minute mark to the levels misses every wick that pierces and
+        recovers inside the minute — measured at 6-10 % of all stop touches
+        (DEVLOG v0.20-diag), which silently let paper positions survive stops
+        that a live account would have taken. So paper must resolve on the
+        PATH, not on a point. Bars older than the row's own entry are excluded,
+        otherwise price action from before the trade existed could close it.
+        """
+        hi = lo = current_price
+        if path is None or len(path) == 0:
+            return hi, lo
+        try:
+            import pandas as _pd
+            window = path
+            ts = _pd.to_datetime(row_ts, errors="coerce")
+            if not _pd.isna(ts):
+                if ts.tzinfo is None:
+                    ts = ts.tz_localize(NY_TZ)
+                window = path[path.index >= ts]
+            if len(window) > 0:
+                hi = max(hi, float(window["high"].max()))
+                lo = min(lo, float(window["low"].min()))
+        except (KeyError, ValueError, TypeError) as e:
+            logger.warning("Path extremes unavailable (%s) — resolving on the mark only", e)
+        return hi, lo
+
     def check_paper_position(
         self, current_price: float, symbol: Optional[str] = None,
+        path=None,
     ) -> Optional[str]:
         """
-        Check open paper trades against current price and resolve any hits.
+        Check open paper trades against the price path and resolve any hits.
 
         `symbol` filters resolution to that symbol's rows — REQUIRED when
         multiple symbols trade concurrently, otherwise one symbol's price
         would resolve another symbol's brackets. None keeps the legacy
         single-symbol behavior (all open rows).
+
+        `path` is a recent 1m OHLC frame (NY-tz indexed) covering the interval
+        since the last check. Its high/low resolve brackets the way an
+        exchange-side stop/target would; `current_price` alone (the default)
+        only sees one instant per tick and misses wicks. Stop is checked
+        BEFORE target, the same conservative convention as the backtest, for
+        windows where both were touched.
 
         Previously only the LAST CSV row was monitored, so whenever a second
         trade opened (e.g. a VWAP trade after an ICT trade) the earlier one was
@@ -281,15 +322,17 @@ class OrderManager:
                 result = None
                 exit_px = None
 
+                hi, lo = self._path_extremes(row.get("timestamp", ""), path, current_price)
+
                 if direction == "LONG":
-                    if current_price <= sl:
+                    if lo <= sl:
                         result, exit_px = "STOPPED", sl
-                    elif current_price >= tp:
+                    elif hi >= tp:
                         result, exit_px = "TP_HIT", tp
                 else:  # SHORT
-                    if current_price >= sl:
+                    if hi >= sl:
                         result, exit_px = "STOPPED", sl
-                    elif current_price <= tp:
+                    elif lo <= tp:
                         result, exit_px = "TP_HIT", tp
 
                 if result:

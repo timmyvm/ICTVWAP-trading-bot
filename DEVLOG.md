@@ -1,5 +1,62 @@
 # DEVLOG — Powell Trades Bot
 
+## v0.21 — Paper brackets now resolve on the price PATH, not on one mark per tick (2026-09-13)
+
+User: "fix it all please", after v0.20-diag measured the divergence
+between the live exit detector and the backtest's.
+
+**v0.20-diag's recommendation C was WRONG and is withdrawn.** It
+proposed booking stop exits at the polled price, on the reading that the
+bot manages its own stops. It does not. `_live_trade`
+(execution/orders.py:150-161) sends `stopLoss=` and `takeProfit=` WITH
+the order, so on a real account the EXCHANGE holds the bracket, watches
+every tick, and fills on any touch. The 60-second poll is an artifact of
+the paper simulator alone, and enshrining its fill price would have
+modelled a bot-managed stop the bot never uses. Caught by reading the
+order path before applying the fix; the v0.20-diag measurements stand,
+only the prescription changes.
+
+**What was fixed.** Paper resolution now reads the 1m price path instead
+of a single mark sample:
+- `OrderManager._path_extremes()` (new) returns the high/low a resting
+  exchange bracket would have seen for a row, unioned with the current
+  mark, with bars older than the row's own entry excluded so price
+  action from before a trade existed can never close it.
+- `check_paper_position(..., path=None)` resolves LONG on
+  `low <= sl` / `high >= tp` and SHORT on the mirror, stop checked
+  BEFORE target — the backtest's conservative convention for windows
+  that touch both. `path=None` keeps the old point behaviour, so no
+  call site breaks.
+- `main.py` fetches 1m bars per symbol each EMA tick
+  (`EMA_BRACKET_PATH_BARS`, default 200 ≈ 3.3 h so a restart or stalled
+  tick still sees every touch it was away for) and passes them; the
+  ICT/VWAP path passes the `df_1m` it already fetches. A failed 1m
+  fetch logs a warning and degrades to the mark.
+
+**Expected effect on the live record: results get WORSE, correctly.**
+Wick blindness was flattering the paper run by letting positions survive
+stops a live account would have taken (v0.20-diag: 6-10 % of all stop
+touches, worth +$486 to +$2,188 per $10k across the audited spans, with
+maxDD understated by 4-8 points). Paper and the backtest now use the
+same detector, so the run measures what it was supposed to measure.
+Slippage stays modelled as a rate on both legs (0.055 % + 0.01 %),
+matching `bracket_experiment` exactly: with an exchange-side bracket the
+fill is milliseconds after the touch, not a minute after it.
+
+**Verification.** `scripts/verify_exit_resolution.py` (no pytest
+dependency, 10 checks, all passing): a recovered wick stops out; no path
+falls back to the point check; pre-entry bars cannot close a row;
+stop-first when both are touched; a wick-only target is taken; shorts
+mirror longs; PnL stays fee-aware and is written back as a string.
+`backtest/parity_ema_live.py` still PASSES (85/85 entries, 0.0 diffs) —
+signal generation is untouched.
+
+**Accounting-change boundary:** paper rows closed BEFORE 2026-09-13
+were resolved by the old point check and are not restated (the polled
+path they missed is not recoverable from the CSV). Any statistic that
+spans the boundary mixes two exit models; the pre-set checkpoints (50
+trades, 100 trades) should be read from rows closed after this date.
+
 ## v0.20-diag — The live exit detector vs the backtest exit detector (2026-09-13)
 
 User: "do exit checks use ticks and not candles? for the EMA, that feels
@@ -59,15 +116,17 @@ R per trade, which is the whole point: on a rule whose edge is ~0.00
 R/trade, 0.03 R of execution drag decides the sign. The tight-stop law
 in a new guise — what matters is slippage measured in R, not in %.
 
-**C. The paper CSV is optimistic and should be corrected.** It books
-every stop at the stop level (orders.py:286/291), i.e. the `poll`
-column, the best of the three. Real money gets `poll_asym`. On these
-spans the paper recorder would overstate results by $1,400-$4,900 per
-$10k. NOT changed here — reported for the user's decision, since it
-alters the meaning of the live record mid-run. The fix is one line at
-each of the two exit branches (use `current_price` as `exit_px` for
-STOPPED, keep the level for TP_HIT), plus a DEVLOG note marking the
-date the accounting changed.
+**C. The paper CSV is optimistic and should be corrected.** ~~It books
+every stop at the stop level, i.e. the `poll` column, the best of the
+three; real money gets `poll_asym`.~~ **WITHDRAWN 2026-09-13 (v0.21):
+this prescription was wrong.** It assumed the bot manages its own stops.
+It does not — `_live_trade` sends `stopLoss`/`takeProfit` with the
+order, so the exchange holds the bracket and fills on any touch. The
+real defect is therefore DETECTION, not the fill price: `poll` is
+optimistic relative to `bar` because it misses wicks, and the fix is to
+resolve on the price path (shipped in v0.21). `poll_asym` remains the
+right model only for a bot-managed stop, which this bot does not use.
+The measurements in A and B stand as measurements.
 
 Caveats on record: the audit samples 1m CLOSES as a proxy for a 60 s
 poll; the real loop is coarser (API latency, three symbols per tick),

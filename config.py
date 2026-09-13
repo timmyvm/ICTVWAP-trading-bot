@@ -69,6 +69,10 @@ EMA_BRACKET_EXIT_MULT = float(os.getenv("EMA_BRACKET_EXIT_MULT", "3.0"))  # brac
 # its weight. 400 candles ~ 1.9% missing; the fetch of 1000 ~ 0.005%.
 EMA_BRACKET_MIN_1H = int(os.getenv("EMA_BRACKET_MIN_1H", "400"))
 EMA_BRACKET_FETCH_1H = int(os.getenv("EMA_BRACKET_FETCH_1H", "1000"))  # Bybit max/request
+# 1m bars fetched each tick to resolve open brackets on the price PATH rather
+# than on a single mark sample (DEVLOG v0.20/v0.21). 200 bars ≈ 3.3 h, so a
+# restart or a stalled tick still sees every touch it was away for.
+EMA_BRACKET_PATH_BARS = int(os.getenv("EMA_BRACKET_PATH_BARS", "200"))
 
 # Paper equity model: starting balance; realized paper PnL compounds on top
 # (mirrors the validated backtest's 1%-of-current-equity sizing).

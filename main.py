@@ -226,11 +226,24 @@ class TradingBot:
                 logger.warning("EMA %s: could not fetch mark price — skipping", sym)
                 continue
 
+            # The 1m path since the position opened, so brackets resolve on any
+            # TOUCH the way an exchange-side stop/target would. The mark alone is
+            # one sample per 60 s and misses 6-10 % of stop touches (v0.20-diag).
+            try:
+                df_1m = self.feed.get_candles_by_tf(
+                    "1m", limit=config.EMA_BRACKET_PATH_BARS, symbol=sym,
+                )
+            except Exception as e:
+                logger.warning(
+                    "EMA %s: 1m path fetch failed (%s) — resolving on the mark only", sym, e,
+                )
+                df_1m = None
+
             # Resolve this symbol's open paper position first — an exit this
             # tick frees the slot for a same-tick re-entry, mirroring the
             # backtest's semantics. Symbol-scoped so one market's price can
             # never resolve another market's bracket.
-            self.order_manager.check_paper_position(current_price, symbol=sym)
+            self.order_manager.check_paper_position(current_price, symbol=sym, path=df_1m)
 
             if self.order_manager.has_open_position(symbol=sym):
                 continue  # one position at a time per symbol
@@ -324,7 +337,9 @@ class TradingBot:
             return
 
         # --- Check open positions for stop-out / TP hit ---
-        self._check_position_status(current_price)
+        # df_1m is the price path since the last tick: brackets resolve on any
+        # touch, as an exchange-side stop/target would (v0.20-diag).
+        self._check_position_status(current_price, path=df_1m)
 
         # --- Check if we can trade ---
         can_trade, reason = self.risk_manager.can_trade()
@@ -468,12 +483,13 @@ class TradingBot:
             self._vwap_trade_direction = vwap_signal.direction
             self._vwap_entry_price = vwap_signal.entry_price
 
-    def _check_position_status(self, current_price: float):
+    def _check_position_status(self, current_price: float, path=None):
         """
         Check if any open position has hit its SL or TP.
 
         For live trading, this queries Bybit's position API.
-        For paper trading, it checks the last trade in CSV against current price.
+        For paper trading, it resolves CSV rows against the 1m price `path`
+        (falling back to the mark alone when unavailable).
         This enables:
         - Updating CSV result/PnL columns
         - Triggering re-entry logic after a stop-out
@@ -482,7 +498,7 @@ class TradingBot:
         if config.PAPER_TRADE or config.BYBIT_TESTNET:
             # In paper mode OR testnet: track positions via CSV, not the API.
             # Testnet API keys often have auth issues; CSV is the source of truth.
-            result = self.order_manager.check_paper_position(current_price)
+            result = self.order_manager.check_paper_position(current_price, path=path)
             if result == "STOPPED":
                 self._was_stopped_out = True
                 # Clear VWAP position tracking on any stop-out
