@@ -1,5 +1,85 @@
 # DEVLOG — Powell Trades Bot
 
+## v0.20-diag — The live exit detector vs the backtest exit detector (2026-09-13)
+
+User: "do exit checks use ticks and not candles? for the EMA, that feels
+a little sussy." Correct instinct, and the answer is neither. The live
+bot sleeps 60 s (`main.py:205`), fetches ONE mark price, and compares it
+to the open row's stop and target (`check_paper_position`,
+execution/orders.py:284-293). It never sees a tick and never sees a
+candle's high or low. The backtest checks each 1H bar's HIGH and LOW,
+stop-first, and forbids a same-bar exit. Three divergences follow, none
+previously measured:
+1. a wick that pierces the stop and recovers inside the minute is an
+   exit in the backtest and INVISIBLE to the live bot;
+2. the live bot can exit inside the entry hour; the backtest cannot;
+3. both book the fill AT the bracket level, but when the poll fires the
+   mark is already PAST it — a real stop-market fills at the polled
+   price, and a resting limit at the target never fills better than the
+   target.
+
+`backtest/exit_detector_audit.py` isolates this: identical entries,
+sizing, costs and re-entry rule (no same-bar re-entry in any mode);
+only the exit detector changes. `bar` = backtest semantics. `poll` =
+live semantics, fill at the level (what the paper CSV records today).
+`poll_asym` = live detection with honest fills (stop at the polled
+price, target at the level). `poll_real` (both legs at the polled
+price) is a diagnostic only — it grants a favourable overshoot on
+targets that a limit order cannot collect.
+
+| dataset | mode | n | win % | PF | net on $10k | maxDD |
+|---|---|---|---|---|---|---|
+| BTC 2019-22 | bar | 1,064 | 53.5 | 1.03 | +$1,940 | 38.5 % |
+| BTC 2019-22 | poll | 966 | 54.1 | 1.05 | +$3,475 | 30.1 % |
+| BTC 2019-22 | poll_asym | 966 | 54.1 | 1.00 | +$65 | 38.8 % |
+| BTC 2023-26 | bar | 1,097 | 51.5 | 0.92 | −$3,955 | 46.6 % |
+| BTC 2023-26 | poll | 1,031 | 51.7 | 0.92 | −$3,469 | 42.3 % |
+| BTC 2023-26 | poll_asym | 1,031 | 51.7 | 0.88 | −$4,883 | 54.7 % |
+| ETH 2018-26 | bar | 2,547 | 52.2 | 0.99 | −$1,007 | 62.0 % |
+| ETH 2018-26 | poll | 2,286 | 52.6 | 1.01 | +$1,181 | 55.0 % |
+| ETH 2018-26 | poll_asym | 2,286 | 52.6 | 0.98 | −$3,676 | 66.6 % |
+
+Findings, in order of size:
+
+**A. Wick blindness HELPS the live bot, it does not hurt it.** Polling
+once a minute misses 6-10 % of the stop touches a candle's low would
+catch (trade counts 1,064→966, 1,097→1,031, 2,547→2,286), those
+positions keep running, and win rate rises 0.2-0.6 points while maxDD
+FALLS 4-8 points. Worth +$486 to +$2,188 across these spans. The
+backtest is the CONSERVATIVE side of this axis — the opposite of the
+suspicion, and it means execution granularity is not why the paper run
+started 1-of-8. Same-hour exits (item 2) are only 3.0-3.6 % of trades.
+
+**B. Stop slippage HURTS more than wick blindness helps.** Filling the
+stop at the polled price instead of the level costs $1,414-$4,857 over
+the same spans, more than reversing A. Net effect of true live
+semantics vs the backtest: −$928 to −$2,669 per $10k over 4-8 years,
+PF 1.03→1.00, 0.92→0.88, 0.99→0.98. Average slippage is only 0.023-0.030
+R per trade, which is the whole point: on a rule whose edge is ~0.00
+R/trade, 0.03 R of execution drag decides the sign. The tight-stop law
+in a new guise — what matters is slippage measured in R, not in %.
+
+**C. The paper CSV is optimistic and should be corrected.** It books
+every stop at the stop level (orders.py:286/291), i.e. the `poll`
+column, the best of the three. Real money gets `poll_asym`. On these
+spans the paper recorder would overstate results by $1,400-$4,900 per
+$10k. NOT changed here — reported for the user's decision, since it
+alters the meaning of the live record mid-run. The fix is one line at
+each of the two exit branches (use `current_price` as `exit_px` for
+STOPPED, keep the level for TP_HIT), plus a DEVLOG note marking the
+date the accounting changed.
+
+Caveats on record: the audit samples 1m CLOSES as a proxy for a 60 s
+poll; the real loop is coarser (API latency, three symbols per tick),
+so both A and B are lower bounds. Costs unchanged at 0.055 % + 0.01 %.
+Entry-side fills are unaffected — those already use the mark.
+
+Bearing on "why doesn't the backtest match the paper run": execution
+semantics account for roughly $230-$340 per $10k per year of drag, not
+the 1-of-8 start. The EMA bracket's backtest-to-paper gap was
+dominated by v0.10i (the stale-price lookahead, 58 % → 52 %), with
+regime and an 8-trade sample doing the rest.
+
 ## v0.16d-exp — ORB ATR cell: fresh-era validation + ONE cost/R refinement, pre-registered (2026-09-12)
 
 **STATUS: FAIL on the untouched 2020-06 → 2026-08 era (Cell B PF 0.90,
