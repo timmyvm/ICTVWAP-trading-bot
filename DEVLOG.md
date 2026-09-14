@@ -1,5 +1,84 @@
 # DEVLOG — Powell Trades Bot
 
+## v0.22-exp — HTF bias / LTF pullback / supply-demand / 5m shift → VWAP (2026-09-14)
+
+User's rule, verbatim: "4 hour time frame, find an accurate bias, 4 hour
+up, we go up, then we go 30m and inverse it, 30m down 4 hour up, then
+wait for supply and demand, supply and demand is everything. wait for
+supply to get hit or demand to get hit, 5 minute structure shift, watch
+the tape or the exhaustion, or absorption. target vwap."
+
+New family: continuation-after-pullback into a zone, mean-reversion
+target. Nothing in it overlaps the bracket family (v0.10) or the ORB
+family (v0.16), both closed.
+
+**Mechanized primary, fixed BEFORE any run.** All frames resampled from
+1m in UTC, indexed NY, closed bars only.
+- **Structure**, identical algorithm on 4H, 30m and 5m: fractal swing
+  with k=2 (`high[j]` is the max of j−2…j+2), CONFIRMABLE only at j+2.
+  Bias is a state machine: close above the most recent confirmed swing
+  high → BULLISH, close below the most recent confirmed swing low →
+  BEARISH, held until the opposite break. Starts NEUTRAL. k=2 per the
+  CLAUDE.md 4H lesson.
+- **Armed**: 4H BULLISH and 30m BEARISH → hunting LONGS (the user's
+  "inverse it"). Mirror for shorts. Both read at the close of the bar.
+- **Zones on the 30m.** Demand base = a bearish 30m candle (close <
+  open) from which price departs: `max(high[b+1..b+3]) >= high[b] +
+  1.5 × ATR30[b]`. Zone = the base candle's full range [low, high].
+  Knowable only at b+3. A zone dies when price closes below its low
+  (invalidated), when it has been tested once (consumed — the S/D
+  convention), or after 100 30m bars (~2 days). Supply mirrors.
+- **Touch**: 5m low enters the demand zone (`low <= zone_high`).
+- **Trigger**: within 24 5m bars (2 h) of the touch, a 5m close above
+  the most recent 5m confirmed swing high that formed AFTER the touch.
+  Entry at the NEXT 5m open, slipped.
+- **Stop** (NOT specified by the user — my choice, on record): the
+  lowest low between touch and trigger, minus 0.1 × ATR5m. Per the
+  CLAUDE.md rule the buffer is ATR-relative, never a point constant.
+- **Target**: session VWAP, matching `strategy/vwap.py` exactly —
+  typical price (H+L+C)/3, cumulative, reset 00:00 NY. The target is
+  DYNAMIC: a long exits when 5m high >= that bar's VWAP. Flat at the
+  session reset if neither level is hit, since the target resets there.
+- Stop-first conservative, no same-bar exit on the entry bar, one
+  position at a time, no same-bar re-entry. Bracket invariants asserted
+  at creation (`dr*(entry−stop) > 0` and `dr*(target−entry) > 0`); a
+  setup whose VWAP is already the wrong side of entry is SKIPPED, not
+  re-priced. 1 % risk on the stop distance, 10× notional cap, $10k
+  start, Bybit retail costs 0.055 % taker + 0.01 % slip on both legs.
+
+**What CANNOT be tested, on record.** "Watch the tape, the exhaustion,
+or absorption" is order flow. Our data is OHLCV klines — no tape, no
+bid/ask, no delta. That component is therefore ABSENT from this test.
+It is also the component experienced traders credit most, so: a FAIL
+here does not falsify the discretionary version, it falsifies the
+mechanical skeleton; a PASS would be strong, because it would mean the
+skeleton pays before the hard part is added. Same for discretionary
+zone selection — a human picks zones by eye and that is not
+reproducible.
+
+**Prior on record, before running.** (1) The zone definition carries 7
+fixed specification constants (k, impulse window, impulse multiple,
+zone geometry, freshness, expiry, trigger window). That is the
+overfitting surface, and they are FIXED at conventional values and will
+NOT be tuned — a grid search here would manufacture a result.
+(2) A VWAP target makes R:R variable per trade and sometimes tiny; the
+R distribution and the average R:R are reported as first-class outputs,
+because a high win rate at 0.4 R:R still loses. (3) Trades will be
+rare: three states must align before a zone is even consulted.
+
+**Pass bar, pre-registered.** Explore = BTC 2019-2022. Gate: n ≥ 100
+AND net > 0 → holdout unlocked. Holdout = BTC 2023-2026 AND ETH
+2018-2026, judged independently: PASS requires, on BOTH, net > 0 AND
+PF ≥ 1.10 AND maxDD < 40 % AND a majority of calendar years net
+positive (the regime-concentration lesson from v0.16d). Reported either
+way, with no variations in response to results. Data caveat: these
+caches were consumed by the bracket family, but this rule came from the
+user and not from the data, so the protocol is clean in the v0.16b
+sense; it still gets an explore/holdout split to catch overfitting in
+MY mechanization choices. Trial ledger, this family: 1 cell.
+
+Engine: `backtest/sd_vwap_experiment.py`.
+
 ## v0.21 — Paper brackets now resolve on the price PATH, not on one mark per tick (2026-09-13)
 
 User: "fix it all please", after v0.20-diag measured the divergence
