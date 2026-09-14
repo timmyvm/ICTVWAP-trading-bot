@@ -2,6 +2,12 @@
 
 ## v0.22-exp — HTF bias / LTF pullback / supply-demand / 5m shift → VWAP (2026-09-14)
 
+**STATUS: FAIL. Explore gate not met (PF 0.59), both holdouts negative
+(PF 0.31 / 0.62), 0 of 17 calendar years positive. Diagnostic D1 shows
+the fault is the ENTRY, not the VWAP target: the same setups with a
+fixed 2R target also lose on all three datasets. Not adopted. Results
+at the end of this entry.**
+
 User's rule, verbatim: "4 hour time frame, find an accurate bias, 4 hour
 up, we go up, then we go 30m and inverse it, 30m down 4 hour up, then
 wait for supply and demand, supply and demand is everything. wait for
@@ -77,7 +83,90 @@ user and not from the data, so the protocol is clean in the v0.16b
 sense; it still gets an explore/holdout split to catch overfitting in
 MY mechanization choices. Trial ledger, this family: 1 cell.
 
+**Diagnostic D1, pre-stated BEFORE the judged results were read** (the
+runs were already in flight; this is written to stop a post-hoc fishing
+trip). Identical bias, zones, trigger, entry and stop — only the target
+changes, from dynamic VWAP to a fixed 2R bracket (`--target rr2`).
+Purpose: locate the fault if the primary fails. If D1 is ALSO negative,
+the entry itself carries no directional edge and the target is
+irrelevant. If D1 is positive while the primary is negative, the entry
+is sound and "target VWAP" is the flaw. D1 is NOT adoptable in either
+case — it changes the user's stated rule — and it does not count as a
+candidate cell, only as a fault-location diagnostic (the v0.10g
+convention). The first smoke run already showed the mechanism to watch:
+median planned R:R 0.50 with 74 % of setups below 1R, i.e. a structural
+stop (~1.4 % of price) against a target that is usually nearer than the
+stop.
+
 Engine: `backtest/sd_vwap_experiment.py`.
+
+**Results (2026-09-14): FAIL on every window, and the fault is located.**
+
+Primary — the user's rule, target = session VWAP:
+
+| window | n | win % | PF | net on $10k | maxDD | median R:R | R:R < 1 | unwinnable | years + |
+|---|---|---|---|---|---|---|---|---|---|
+| EXPLORE BTC 2019-22 | 540 | 47.0 | **0.59** | **−$6,289** | 63.1 % | 0.65 | 66.3 % | 15.6 % | 0/4 |
+| HOLDOUT BTC 2023-26 | 537 | 34.3 | 0.31 | −$8,876 | 88.8 % | 0.58 | 68.5 % | 30.0 % | 0/4 |
+| HOLDOUT ETH 2018-26 | 1,221 | 50.0 | 0.62 | −$8,829 | 88.5 % | 0.59 | 70.7 % | 14.3 % | 0/9 |
+
+Diagnostic D1 — identical setups, only the target changed to a fixed 2R:
+
+| window | n | win % | PF | net on $10k | maxDD | exit mix STOP/SESSION/TP | years + |
+|---|---|---|---|---|---|---|---|
+| BTC 2019-22 | 531 | 38.0 | 0.75 | −$5,955 | 59.7 % | 49 / 29 / 22 | 1/4 |
+| BTC 2023-26 | 533 | 35.8 | 0.61 | −$8,095 | 81.6 % | 50 / 25 / 25 | 0/4 |
+| ETH 2018-26 | 1,195 | 36.1 | 0.72 | −$9,121 | 91.5 % | 52 / 27 / 22 | 0/9 |
+
+Verdicts against the bar fixed before running:
+- **Explore: gate NOT met.** n = 540 clears 100, but net is −$6,289, so
+  the holdout never unlocked for adoption. Both holdouts are negative
+  anyway, so the result does not hinge on the gate.
+- **Zero of 17 calendar years positive** in the primary, 1 of 17 in D1.
+  Six independent runs, two assets, two eras, two target geometries,
+  one positive year between them. This is not regime concentration; it
+  is an absent edge.
+
+Mechanism, in two parts.
+
+**1. The VWAP target sits inside the cost floor for a large minority of
+setups.** Median planned R:R is 0.58-0.65 and 66-71 % of setups are
+below 1R, because the stop is structural (0.6-1.2 % of price, the whole
+excursion into the zone) while VWAP is wherever it happens to be —
+usually nearer than the stop. Worse, 14-30 % of trades are
+**unwinnable by construction**: their target is closer than the
+round-trip cost, so they lose money even when price reaches the target
+exactly. That is why the TP rate (55-58 %) is far above the win rate
+(34-50 %) — price does reach VWAP more often than not, and it does not
+matter. On BTC 2023-26 the average round trip costs 0.36 R against a
+median target of 0.58 R. This is the tight-stop law's twin: a target
+below the cost floor is as fatal as a stop below it.
+
+**2. But the geometry is not the root cause — the entry is.** D1 gives
+the same setups a fixed 2R target, which removes the whole problem
+above (R:R < 1 share goes to 0 %). It still loses everywhere: PF
+0.61-0.75, average −0.16 to −0.31 R per trade. At a 2R bracket a
+driftless random walk wins 33 %; the setups win 36-38 %, a whisper
+above the coin, and a quarter of trades never reach either level and
+get flattened at the session reset instead. There is no edge to
+re-shape. Shorts were the worse side in five of the six runs.
+
+Boundaries, stated before running and still untested: the tape,
+absorption and exhaustion (not representable in OHLCV); discretionary
+zone selection; zone geometry (body vs wick); the impulse threshold and
+window; an R:R floor filter; 4H or 1H zones instead of 30m; the stop
+placement, which was my choice and not the user's. Per the
+pre-registration none of these were tried in response to the result —
+a grid search over seven constants would manufacture a pass. The
+honest reading is narrower than "this strategy does not work": the
+MECHANICAL SKELETON of it, on BTC and ETH, at Bybit retail costs, does
+not pay. The order-flow leg the user named as the confirmation step is
+exactly the part this test cannot include, so a discretionary trader's
+version is not falsified here.
+
+Trial ledger, this family: 1 rule cell + 1 fault-location diagnostic.
+Family status: not adopted, no refinement scheduled (the v0.16d lesson —
+refinements of an edgeless entry are wasted trials).
 
 ## v0.21 — Paper brackets now resolve on the price PATH, not on one mark per tick (2026-09-13)
 

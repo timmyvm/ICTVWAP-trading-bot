@@ -166,6 +166,19 @@ config.py        — All tuneable parameters (TESTING_MODE, ENTRY_MODE, etc.)
   order, so the exchange holds the bracket, fills on any touch, and slippage is milliseconds not minutes.
   Whether your stop is exchange-side or bot-side changes which fill model is honest — check, don't assume.
 
+- A TARGET below the cost floor kills a strategy exactly like a stop below it. Report the planned R:R
+  distribution and the "unwinnable" share (planned R:R <= round-trip cost in R) as first-class outputs of
+  any engine with a dynamic or level-based target. The v0.22 VWAP target had a median of 0.6 R against a
+  structural stop, and 14-30 % of trades could not profit even when price reached the target exactly —
+  which is why its 55-58 % target-hit rate produced a 34-50 % win rate.
+
+- When a strategy with several stages fails, locate the fault with a ONE-VARIABLE diagnostic before
+  touching anything else, and pre-state it before reading the results. v0.22's D1 kept the bias, zones,
+  trigger, entry, stop and the skip rule identical and changed only the target to a fixed 2R: it still
+  lost everywhere, which proved the entry carried no edge and that no target geometry could have rescued
+  it. Keep the trade population identical between the cell and its diagnostic, or the comparison is
+  confounded rather than informative.
+
 - Every new backtest engine must assert bracket invariants at position creation:
   `dr * (entry - stop) > 0` and `dr * (target - entry) > 0`. The v0.16 engine shipped with
   `tgt = e - dr * RR * dist` (sign flipped), which fills every "TP" as a -3R loss and produces a

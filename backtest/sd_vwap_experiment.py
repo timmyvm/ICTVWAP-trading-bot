@@ -140,7 +140,12 @@ def session_vwap(df5: pd.DataFrame) -> np.ndarray:
 
 
 def simulate(df1m: pd.DataFrame, start_bal: float = 10_000.0,
-             taker_pct: float = TAKER, slip_pct: float = SLIP) -> dict:
+             taker_pct: float = TAKER, slip_pct: float = SLIP,
+             target: str = "vwap") -> dict:
+    # target: "vwap" = the user's rule (dynamic session VWAP).
+    #         "rr2"  = DIAGNOSTIC D1 only (fixed 2R bracket) — not adoptable,
+    #         it exists to separate an entry fault from a target fault.
+    assert target in ("vwap", "rr2")
     df4 = resample_ohlcv(df1m, "4h")
     df30 = resample_30m(df1m)
     df5 = resample_ohlcv(df1m, "5m")
@@ -229,12 +234,15 @@ def simulate(df1m: pd.DataFrame, start_bal: float = 10_000.0,
         k0 = trig + 1                                # entry bar: the next 5m open
         e = o5[k0] * (1 + want * slip)
         stop = ext - want * STOP_BUF_ATR * a5[trig]
-        tgt0 = vwap[k0]
-        if np.isnan(tgt0) or want * (e - stop) <= 0 or want * (tgt0 - e) <= 0:
-            j = k0                                   # target already the wrong side: skip
-            continue
-        assert want * (e - stop) > 0 and want * (tgt0 - e) > 0, "inverted bracket"
         dist = want * (e - stop)
+        vw0 = vwap[k0]
+        # The VWAP-at-entry skip is applied in BOTH modes, so D1 trades exactly
+        # the same setups as the primary and the target is the only variable.
+        if dist <= 0 or np.isnan(vw0) or want * (vw0 - e) <= 0:
+            j = k0
+            continue
+        tgt0 = vw0 if target == "vwap" else e + want * 2.0 * dist
+        assert want * (e - stop) > 0 and want * (tgt0 - e) > 0, "inverted bracket"
         q = min(bal * RISK_PCT / 100.0 / dist, bal * MAX_LEV / e)
 
         px = reason = None
@@ -244,7 +252,7 @@ def simulate(df1m: pd.DataFrame, start_bal: float = 10_000.0,
                 px, reason, exit_j = c5[m - 1], "SESSION", m - 1
                 break
             hit_stop = l5[m] <= stop if want == 1 else h5[m] >= stop
-            tv = vwap[m]
+            tv = vwap[m] if target == "vwap" else tgt0
             hit_tgt = (not np.isnan(tv)) and (h5[m] >= tv if want == 1 else l5[m] <= tv)
             if hit_stop:
                 px, reason, exit_j = stop, "STOP", m
@@ -264,6 +272,9 @@ def simulate(df1m: pd.DataFrame, start_bal: float = 10_000.0,
             "reason": reason, "r": net / (dist * q),
             "rr_planned": abs(tgt0 - e) / dist,
             "stop_pct": 100 * dist / e,
+            # round-trip cost expressed in R: a setup whose planned R:R is below
+            # this cannot profit even when the target is reached exactly.
+            "cost_r": (e + tgt0) * cost / dist,
             "bars_held": exit_j - k0,
         })
         j = max(exit_j, k0) + 1                      # no same-bar re-entry
@@ -283,6 +294,8 @@ def simulate(df1m: pd.DataFrame, start_bal: float = 10_000.0,
         "avg_R": round(t.r.mean(), 3),
         "median_rr_planned": round(t.rr_planned.median(), 2),
         "rr_below_1_pct": round(100 * (t.rr_planned < 1).mean(), 1),
+        "avg_cost_per_R": round(t.cost_r.mean(), 3),
+        "unwinnable_pct": round(100 * (t.rr_planned <= t.cost_r).mean(), 1),
         "avg_stop_pct_of_price": round(t.stop_pct.mean(), 3),
         "median_bars_held": int(t.bars_held.median()),
         "exit_mix_pct": (100 * t.reason.value_counts(normalize=True)).round(1).to_dict(),
@@ -298,6 +311,8 @@ def main() -> None:
     ap.add_argument("--start", default=None)
     ap.add_argument("--end", default=None)
     ap.add_argument("--label", default="")
+    ap.add_argument("--target", choices=["vwap", "rr2"], default="vwap",
+                    help="vwap = the user's rule; rr2 = diagnostic D1 only")
     args = ap.parse_args()
     df = load_cached_1m(args.cache)
     if args.start:
@@ -306,7 +321,7 @@ def main() -> None:
         df = df[df.index < pd.Timestamp(args.end, tz="America/New_York")]
     tag = f"[{args.label}] " if args.label else ""
     print(f"{tag}{df.index.min()} -> {df.index.max()} ({len(df)} 1m rows)", flush=True)
-    print(tag, simulate(df), flush=True)
+    print(tag, simulate(df, target=args.target), flush=True)
 
 
 if __name__ == "__main__":
