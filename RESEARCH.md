@@ -111,3 +111,48 @@ stage was cut for budget; two fetched sources were auto-flagged unreliable and
 discarded. Osler's data is 1990s dealer FX — mechanism transfer to 2026 crypto
 perps is plausible (same stop-clustering logic, 24/7 liquidations) but not
 itself proven.*
+
+## 5. Supply/demand + market-structure-shift + VWAP: what is documented (2026-09-15)
+
+Evidence audit of the v0.22 rule (4H bias → 30m pullback → S/D zone → 5m
+structure shift → VWAP target), component by component. Searched for
+peer-reviewed validation of each construct; graded by what actually exists.
+
+| Component | Evidence status | Source |
+|---|---|---|
+| Intraday momentum AND reversal both exist, state-dependent | **Peer-reviewed** | Wen, Bouri, Xu & Zhao, [*Intraday return predictability in the cryptocurrency markets*](https://www.sciencedirect.com/science/article/abs/pii/S1062940822000833), N. Am. J. Econ. Fin. 62 (2022) |
+| Intraday time-series momentum across global markets | **Peer-reviewed** | [Intraday time series momentum: global evidence](https://centaur.reading.ac.uk/95566/1/Accepted-Version.pdf) |
+| Levels attract reactions (~4-6 pp over random) | **Peer-reviewed**, thin | Osler, *Support for Resistance* (FRBNY 2000) — §1 above |
+| Broken levels → continuation dominates reversal | **Peer-reviewed** | Osler, *Stop-Loss Orders and Price Cascades* (NY Fed SR 150) |
+| Order flow / absorption / exhaustion ("the tape") | **Real mechanism**, and the part OHLCV cannot represent | Osler (2003) order clustering |
+| **Supply/demand zones as drawn** | **No peer-reviewed validation found** | vendor blogs, MQL5 articles, course marketing only |
+| **Market structure shift (MSS / CHoCH / BOS)** | **No peer-reviewed validation found** | trading-education sources only |
+| Wyckoff lineage (accumulation/distribution) | 1910s practitioner theory; never formally tested | education sources only |
+| VWAP as a profit target | Execution benchmark, not an alpha claim | §2 above |
+
+**Citation trap, on record.** Searching "smart money" in finance databases
+returns Gruber's *smart money effect* literature — [Keswani & Stolin
+(2012)](https://ideas.repec.org/a/eee/empfin/v19y2012i1p51-64.html), [Jiang &
+Yuksel (2017)](https://ideas.repec.org/a/eee/empfin/v40y2017icp39-58.html) —
+which is about MUTUAL FUND FLOWS predicting fund returns. It has nothing to do
+with SMC trading and is sometimes cited as if it validated it. It does not.
+The only paper found claiming backtest support for SMC is in a non-indexed
+pay-to-publish journal ([IJNRD 2411009](https://www.ijnrd.org/papers/IJNRD2411009.pdf));
+its method was not verified here and it should not be treated as evidence.
+
+**The split maps onto our result exactly.** The documented components are thin
+and state-dependent; the undocumented ones (zones as drawn, MSS) are the ones
+carrying the rule; the best-evidenced one (order flow) is the one a kline
+backtest cannot include. §2's finding — VWAP mean reversion on crypto nets
+≈ zero gross at retail fees — predicted the v0.22 target failure before it was
+run, and §4 item 2 (minimum target distance ≥ 3× round-trip cost) is exactly
+the filter v0.22 lacked: its median target was 0.6 R with 14-30 % of trades
+unwinnable by construction. The DEVLOG v0.22 fault-location diagnostic then
+showed the entry had no edge either, so the target filter would not have
+rescued it.
+
+**Subjectivity is the deeper problem.** Practitioner guides concede that the
+same chart yields a zone for one trader and noise for another — so traders
+"using the same method" share vocabulary, not a method. That makes the
+discretionary version unfalsifiable rather than proven, and it is why a
+mechanical test can only ever falsify one particular drawing of the rules.
