@@ -142,7 +142,12 @@ def session_vwap(df5: pd.DataFrame) -> np.ndarray:
 def simulate(df1m: pd.DataFrame, start_bal: float = 10_000.0,
              taker_pct: float = TAKER, slip_pct: float = SLIP,
              target: str = "vwap", signals_only: bool = False,
-             require_zone: bool = True) -> dict:
+             require_zone: bool = True, base: str = "1m") -> dict:
+    # base: timeframe of the input frame. "1m" resamples 5m/30m/4h from it as
+    # usual; "5m" takes the frame AS the 5m series (for venues where only 5m
+    # history is practical to fetch) and builds 30m/4h from it. The rule is
+    # identical either way — every timeframe it uses is >= 5m.
+    assert base in ("1m", "5m")
     # require_zone: DIAGNOSTIC D3 (ablation). False drops the supply/demand
     # stage entirely and takes every fresh 5m structure shift while the 4H/30m
     # bias pair is aligned. If the information survives without zones, the edge
@@ -157,7 +162,7 @@ def simulate(df1m: pd.DataFrame, start_bal: float = 10_000.0,
     assert target in ("vwap", "rr2")
     df4 = resample_ohlcv(df1m, "4h")
     df30 = resample_30m(df1m)
-    df5 = resample_ohlcv(df1m, "5m")
+    df5 = df1m if base == "5m" else resample_ohlcv(df1m, "5m")
 
     bias4 = structure_bias(df4)
     bias30 = structure_bias(df30)

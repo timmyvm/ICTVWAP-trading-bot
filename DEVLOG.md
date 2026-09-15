@@ -1,5 +1,96 @@
 # DEVLOG — Powell Trades Bot
 
+## v0.23-exp — Horizon harvest: the v0.22 entry, packaged for the edge it actually has (2026-09-15)
+
+v0.22's entry carries real information (D2: 12/12 cells positive, up to
+2.91× the fee on ETH at 24 h; D3: the zone roughly doubles per-signal
+excess) but the packaging destroyed it — a ~1 %-of-price structural stop
+chasing a median 0.6 R VWAP target inside two hours, while the edge
+lives at 4-24 h. This cell keeps the ENTRY VERBATIM and rebuilds only
+the exit, the sizing and the position model around the measured horizon.
+User asked for it explicitly after the D2/D3 report.
+
+**Design premise, stated so it can be attacked.** Per-signal excess is
+0.04-0.38 % of price against 4-24 h volatility of 2-4 %, so the
+signal-to-noise ratio per trade is ~0.03-0.12 and hit rates are 49-54 %.
+That is a portfolio/statistical edge, not a trade-by-trade one. Three
+consequences drive the design: (a) no tight stop can survive that noise,
+so the primary exit is TIME, not price; (b) risk must be bounded by
+POSITION SIZE rather than by stop distance; (c) positions must be
+allowed to overlap, because the edge is harvested across many small
+independent bets, not one at a time. This is a different machine from
+every bracket engine in this repo, and that is deliberate.
+
+**Entry: v0.22 VERBATIM, zero changes.** 4H structure bias, 30m bias
+inverted, 30m supply/demand zone touch, 5m structure shift, entry at the
+next 5m open slipped 0.01 %. All seven v0.22 specification constants
+unchanged. Zones stay in: D3 showed they roughly double per-signal
+excess (10 of 12 cells), so removing them would discard the one named
+SMC construct this project has found support for.
+
+**Cells (exactly two exit rules × three horizons, all reported, none
+selected).**
+- **T1 — time exit only.** Flat exactly H hours after entry at that
+  bar's open. No stop, no target. Harvests the measured edge directly;
+  per-trade loss is bounded only by position size and the holding
+  window, which is the honest cost of having no stop.
+- **T2 — time exit plus a WIDE protective stop** at 2 × σ_H, where
+  σ_H = ATR14(5m) × √(H in 5m bars). Sized to be rarely touched; its
+  purpose is to test whether bounding the tail destroys the edge, which
+  is exactly how v0.22 died. Stop-first on 5m bars, no same-bar exit.
+- H ∈ {4, 12, 24} hours. These four horizons (1/4/12/24) were fixed
+  before D2 ran; 1 h is dropped because its excess/cost never exceeded
+  0.69 anywhere. Choosing to build at 4-24 h IS informed by D2, so all
+  three are reported together and no single H may be cherry-picked.
+
+**Sizing and portfolio.** Fixed notional of 20 % of current equity per
+position, no leverage beyond that, maximum 5 concurrent positions
+(gross ≤ 100 % of equity). $10,000 start, compounding. Fixed notional
+rather than vol-scaling keeps the assumption count down; per-asset
+results are reported separately rather than pooled into one curve, so
+volatility differences between coins stay visible instead of being
+blended away.
+
+**Costs, including the one v0.22 could ignore.** Taker 0.055 % + slip
+0.01 % per side on both legs, AND funding: 3 settlements a day on
+USDT-M perps, applied to any position held across one. At a 24 h hold
+that is ~0.09 % on a long in a normal positive-funding regime, roughly
+a quarter of the ETH 24 h edge — omitting it would be a known bias. The
+signal is close to direction-balanced (49-52 % long) so funding largely
+but not exactly nets out.
+
+**Data and the split.** Development: BTC 2019-22, BTC 2023-26, ETH
+2018-26 — these are the datasets D2/D3 measured, so their results here
+are IN-SAMPLE and can only disqualify, never validate. *Funding-coverage
+caveat found before running:* the committed funding series start
+2020-01-01, so BTC 2019 and ETH 2018-19 are simulated funding-free.
+Funding has averaged +11.8 % (BTC) and +14.0 % (ETH) annualised, which
+longs PAY, so those early years are flattered for longs. The holdout
+window (2021+) is fully covered, which is where the verdict is decided.
+**Holdout: BNB, XRP, ADA, DOGE, SOL, LINK, 5m USDT-M perps 2021-01 →
+2026-08**, fetched fresh and never touched by any experiment in this
+repo. The six were chosen before any run, by liquidity and history
+length alone, from the twelve-coin universe already used for the v0.18
+carry work; no coin was swapped for another after seeing a result.
+
+**Pass bar, pre-registered.** Development is informational. HOLDOUT
+PASS requires ALL of: (1) pooled net > 0 across the six coins; (2) net
+> 0 on at least 4 of the 6 coins; (3) pooled PF ≥ 1.05; (4) the same H
+and the same cell positive in development; and critically (5) **pooled
+net still > 0 at 1.5× all costs** — the v0.16c lesson, which retired
+the ORB family and which this edge, at 0.7-2.9× the fee, must face
+head-on. Anything short of all five is reported and NOT adopted. No
+variations in response to results: if T1/T2 at 4/12/24 h all fail, the
+family closes for good rather than being re-parameterised.
+
+Untested boundaries on record: maker entries (the entry is a breakout,
+so a resting limit invites adverse selection — worth testing only after
+a taker pass), vol-scaled sizing, concurrency caps other than 5, an
+R-based partial exit, the 1 h horizon, and the order-flow leg that no
+kline test can include.
+
+Engine: `backtest/horizon_harvest.py`.
+
 ## v0.22-exp — HTF bias / LTF pullback / supply-demand / 5m shift → VWAP (2026-09-14)
 
 **STATUS: FAIL. Explore gate not met (PF 0.59), both holdouts negative
