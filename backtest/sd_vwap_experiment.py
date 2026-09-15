@@ -141,7 +141,16 @@ def session_vwap(df5: pd.DataFrame) -> np.ndarray:
 
 def simulate(df1m: pd.DataFrame, start_bal: float = 10_000.0,
              taker_pct: float = TAKER, slip_pct: float = SLIP,
-             target: str = "vwap") -> dict:
+             target: str = "vwap", signals_only: bool = False,
+             require_zone: bool = True) -> dict:
+    # require_zone: DIAGNOSTIC D3 (ablation). False drops the supply/demand
+    # stage entirely and takes every fresh 5m structure shift while the 4H/30m
+    # bias pair is aligned. If the information survives without zones, the edge
+    # is momentum and the zones are decoration.
+    # signals_only: DIAGNOSTIC D2. Record every trigger and keep scanning instead
+    # of managing a position, so the signal population is not thinned by
+    # one-trade-at-a-time. Returns {"signals": DataFrame(bar, dir)} and the 5m
+    # frame, for the forward-return information test. No trades, no P&L.
     # target: "vwap" = the user's rule (dynamic session VWAP).
     #         "rr2"  = DIAGNOSTIC D1 only (fixed 2R bracket) — not adoptable,
     #         it exists to separate an entry fault from a target fault.
@@ -172,6 +181,7 @@ def simulate(df1m: pd.DataFrame, start_bal: float = 10_000.0,
     peak, max_dd = start_bal, 0.0
     trades: list[dict] = []
 
+    sig_rows: list[dict] = []
     zone_by_start: dict[int, list] = {}
     for z in zones:
         zone_by_start.setdefault(z["from"], []).append(z)
@@ -201,16 +211,17 @@ def simulate(df1m: pd.DataFrame, start_bal: float = 10_000.0,
             j += 1
             continue
 
-        touched = None
-        for z in live:
-            # the 5m bar overlaps the zone: price has reached it
-            if z["side"] == want and l5[j] <= z["hi"] and h5[j] >= z["lo"]:
-                touched = z
-                break
-        if touched is None:
-            j += 1
-            continue
-        touched["dead"] = True                      # first test consumes the zone
+        if require_zone:
+            touched = None
+            for z in live:
+                # the 5m bar overlaps the zone: price has reached it
+                if z["side"] == want and l5[j] <= z["hi"] and h5[j] >= z["lo"]:
+                    touched = z
+                    break
+            if touched is None:
+                j += 1
+                continue
+            touched["dead"] = True                  # first test consumes the zone
 
         # --- wait for the 5m structure shift ---
         ext = l5[j] if want == 1 else h5[j]
@@ -232,6 +243,10 @@ def simulate(df1m: pd.DataFrame, start_bal: float = 10_000.0,
             continue
 
         k0 = trig + 1                                # entry bar: the next 5m open
+        if signals_only:
+            sig_rows.append({"bar": k0, "ts": i5[k0], "dir": want})
+            j = k0
+            continue
         e = o5[k0] * (1 + want * slip)
         stop = ext - want * STOP_BUF_ATR * a5[trig]
         dist = want * (e - stop)
@@ -278,6 +293,9 @@ def simulate(df1m: pd.DataFrame, start_bal: float = 10_000.0,
             "bars_held": exit_j - k0,
         })
         j = max(exit_j, k0) + 1                      # no same-bar re-entry
+
+    if signals_only:
+        return {"signals": pd.DataFrame(sig_rows), "df5": df5}
 
     t = pd.DataFrame(trades)
     if t.empty:

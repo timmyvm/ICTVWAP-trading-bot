@@ -168,6 +168,109 @@ Trial ledger, this family: 1 rule cell + 1 fault-location diagnostic.
 Family status: not adopted, no refinement scheduled (the v0.16d lesson —
 refinements of an edgeless entry are wasted trials).
 
+### D2 — signal information test (pre-stated 2026-09-15, before reading it)
+
+User: "people seem to back this strategy with such confidence, I feel
+like there has to be a little truth." Fair challenge, and "the packaged
+strategy loses" is NOT the same claim as "there is nothing in it".
+D1 already hinted at the distinction: at a 2R bracket a driftless random
+walk wins 33.3 % and the setups won 36-38 %. So this strips the
+packaging off entirely and measures the entry's information content.
+
+`backtest/sd_signal_information.py`: every trigger, no stop, no target,
+no position management and no one-trade-at-a-time thinning (the signal
+population is the full one). Forward return in the signal's direction at
+1 h / 4 h / 12 h / 24 h, MINUS the asset's unconditional mean forward
+return over the same horizon matched to the signal's long/short mix, so
+drift cannot be mistaken for skill. Reported beside the 0.13 % retail
+round trip as an `excess/cost` ratio. Overlapping windows inflate the
+t-statistic, so a non-overlapping subsample (signals spaced at least one
+horizon apart) is reported alongside; both are indicative, not
+inferential.
+
+**Pre-stated readings.** Excess ≈ 0 at every horizon on all three
+datasets ⇒ the construct carries no information and the confidence
+behind it is pure narrative. Excess > 0 but excess/cost < 1 ⇒ the signal
+is REAL and untradeable at retail cost — the Osler outcome (levels do
+predict, by ~4-6 pp, and thin edges die to fees), which would mean the
+believers are seeing something true and mis-attributing what it is worth.
+Excess/cost > 1 at some horizon ⇒ the v0.22 packaging (my stop, the VWAP
+target) wasted a tradeable edge, and the family reopens with a new
+pre-registration built around that horizon. This is a diagnostic, not a
+strategy: a forward return with no stop is not tradeable as stated.
+
+**D2 results (2026-09-15): the middle-to-third reading. The entry DOES
+carry information — 12 of 12 cells positive — and on ETH it exceeds the
+fee line.** Excess = signal forward return minus the drift-matched
+unconditional return, in % of price. Round trip = 0.130 %.
+
+| dataset (signals) | horizon | excess % | t(indep) | hit % | excess/cost |
+|---|---|---|---|---|---|
+| BTC 2019-22 (872) | 1h | +0.054 | 1.84 | 49.4 | 0.41 |
+| | 4h | +0.088 | 1.07 | 53.4 | 0.68 |
+| | 12h | +0.033 | 0.90 | 52.1 | 0.25 |
+| | 24h | +0.073 | −0.01 | 51.8 | 0.56 |
+| BTC 2023-26 (939) | 1h | +0.041 | 2.79 | 53.2 | 0.32 |
+| | 4h | +0.100 | **3.19** | 52.9 | 0.77 |
+| | 12h | +0.105 | 1.46 | 50.4 | 0.80 |
+| | 24h | +0.138 | 0.94 | 52.5 | **1.06** |
+| ETH 2018-26 (2,025) | 1h | +0.089 | **4.52** | 52.5 | 0.69 |
+| | 4h | +0.189 | **4.73** | 54.5 | **1.46** |
+| | 12h | +0.234 | **3.69** | 51.9 | **1.80** |
+| | 24h | +0.378 | **3.08** | 52.4 | **2.91** |
+
+### D3 — zone ablation: are the zones doing anything, or is it momentum?
+
+Run immediately, because D2 alone would invite the wrong update ("zones
+work!") when the edge might be generic post-breakout momentum. Same
+bias pair, same 5m structure shift, same everything — the supply/demand
+stage REMOVED (`--no-zones`), so every fresh shift while the bias pair
+is aligned becomes a signal.
+
+Per-signal excess %, zones vs no zones, and the ratio:
+
+| dataset | horizon | with zones | without | zone multiplier |
+|---|---|---|---|---|
+| BTC 2019-22 | 1h / 4h / 12h / 24h | 0.054 / 0.088 / 0.033 / 0.073 | 0.026 / 0.049 / 0.033 / 0.147 | 2.09 / 1.79 / 1.00 / **0.50** |
+| BTC 2023-26 | 1h / 4h / 12h / 24h | 0.041 / 0.100 / 0.105 / 0.138 | 0.022 / 0.048 / 0.049 / 0.088 | 1.88 / 2.06 / 2.13 / 1.57 |
+| ETH 2018-26 | 1h / 4h / 12h / 24h | 0.089 / 0.189 / 0.234 / 0.378 | 0.032 / 0.077 / 0.106 / 0.199 | 2.80 / 2.47 / 2.21 / 1.90 |
+
+Signal counts: 872 / 939 / 2,025 with zones against 7,990 / 7,897 /
+17,188 without — the zone keeps about 11-12 % of shifts.
+
+**Two findings, both replicated.** (1) The bare structure shift already
+carries information: 12 of 12 no-zone cells positive, t(indep) 1.66-5.22
+on much larger samples. So a large part of this is ordinary short-horizon
+momentum after a breakout, which has its own literature. (2) The zone is
+NOT decoration: it roughly DOUBLES the per-signal excess (10 of 12 cells
+above 1.0, median multiplier ≈ 1.95) while discarding ~88 % of the
+signals. That is real selection value, and it is the first empirical
+support this project has produced for any named SMC construct. The one
+exception is BTC 2019-22 at 24 h (0.50×), where the zone hurt.
+
+**So the honest verdict on the user's rule.** The claim "supply and
+demand is everything" is too strong — roughly half the edge survives
+with no zones at all. But "zones are nonsense" is now falsified on our
+own data: they about double the per-signal edge, consistently, across
+two assets and two eras. The strategy's failure in the primary test was
+NOT an absent signal; it was packaging. The signal lives at 4-24 h and
+is worth 0.04-0.38 % of price, while v0.22 spent a ~1 %-of-price stop
+to chase a median 0.6 R VWAP target inside a couple of hours — the
+wrong horizon and the wrong target for the edge that is actually there.
+
+**Family REOPENED** per the pre-stated third reading, with limits. The
+next cell must be pre-registered separately and must confront what D2
+cannot: a mean forward excess is not tradeable, because capturing a
+24 h drift means surviving its path, and every stop tight enough to
+bound risk converts adverse excursions into realised losses — which is
+exactly how the primary died. Hit rates of 49-54 % say the excess comes
+from magnitude, not frequency, so position sizing and drawdown are the
+binding constraints, not entry quality. Trial ledger: 1 rule cell + 3
+diagnostics; 24 information cells were examined, so any single cell's
+t-statistic should be discounted accordingly. Caveat repeated: forward
+windows overlap, t(indep) uses spaced subsamples, and both are
+indicative rather than inferential.
+
 ## v0.21 — Paper brackets now resolve on the price PATH, not on one mark per tick (2026-09-13)
 
 User: "fix it all please", after v0.20-diag measured the divergence

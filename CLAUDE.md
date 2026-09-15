@@ -179,6 +179,19 @@ config.py        — All tuneable parameters (TESTING_MODE, ENTRY_MODE, etc.)
   it. Keep the trade population identical between the cell and its diagnostic, or the comparison is
   confounded rather than informative.
 
+- "The packaged strategy loses" is NOT "there is no signal". Before retiring a family, strip the
+  packaging off and measure the entry's INFORMATION content directly: forward return in the signal's
+  direction at several horizons, minus the drift-matched unconditional return, printed beside the
+  round-trip cost as an excess/cost ratio (backtest/sd_signal_information.py). v0.22 looked dead at
+  PF 0.31-0.62 and its entry turned out to be positive in 12 of 12 cells, worth 2.9x the fee on ETH at
+  24 h. The edge was real and the stop/target/horizon were wrong. Run this BEFORE writing a family off.
+
+- When a signal survives an information test, immediately ablate the stage the user believes in most,
+  or you will invite the wrong update. v0.22's zone ablation showed the bare structure shift already
+  carries about half the edge (so "supply and demand is everything" is false) while the zone still
+  roughly doubles per-signal excess in 10 of 12 cells (so "zones are nonsense" is also false). Both
+  halves matter; reporting only one is misleading.
+
 - Every new backtest engine must assert bracket invariants at position creation:
   `dr * (entry - stop) > 0` and `dr * (target - entry) > 0`. The v0.16 engine shipped with
   `tgt = e - dr * RR * dist` (sign flipped), which fills every "TP" as a -3R loss and produces a
