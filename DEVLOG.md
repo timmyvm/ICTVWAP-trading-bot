@@ -91,6 +91,131 @@ kline test can include.
 
 Engine: `backtest/horizon_harvest.py`.
 
+**Development results (2026-09-15) — in-sample, can disqualify only.**
+Net on $10k, base costs, funding included.
+
+| asset | cell | 4 h | 12 h | 24 h |
+|---|---|---|---|---|
+| BTC 2019-22 | T1 | −1,265 (PF 0.87) | −2,198 (0.84) | −1,722 (0.92) |
+| BTC 2019-22 | T2 | −1,012 (0.89) | −2,587 (0.82) | −2,067 (0.90) |
+| BTC 2023-26 | T1 | −640 (0.90) | −600 (0.95) | −196 (0.99) |
+| BTC 2023-26 | T2 | −791 (0.88) | −595 (0.95) | **+192 (1.01)** |
+| ETH 2018-26 | T1 | **+2,072 (1.09)** | **+3,617 (1.08)** | **+13,781 (1.13)** |
+| ETH 2018-26 | T2 | **+1,825 (1.08)** | **+3,861 (1.09)** | **+13,796 (1.13)** |
+
+Four things worth recording before the holdout is read.
+
+**1. The engine reproduces D2 almost exactly, which is the check that
+matters.** Mean per-trade return here vs D2's measured excess: ETH 24 h
+0.377 % vs 0.378 %, ETH 4 h 0.181 % vs 0.189 %, BTC 2023-26 24 h 0.129 %
+vs 0.138 %. Two independently written measurement paths agreeing to the
+third decimal means the portfolio engine is harvesting the thing D2
+found, not something else.
+
+**2. Profit or loss is decided by one comparison: mean return per trade
+vs the 0.130 % round trip.** BTC's per-trade return is 0.03-0.15 %, at
+or under the fee, and every BTC cell loses except one that scrapes
++$192. ETH's is 0.18-0.38 %, above the fee, and every ETH cell wins.
+There is no third mechanism. This is the same cost-floor arithmetic that
+killed v0.22, now running in the strategy's favour where the edge is
+large enough.
+
+**3. The wide stop is nearly free — which refutes my own warning.** I
+argued a stop tight enough to bound risk would convert adverse
+excursions into realised losses and kill the edge. At 2 σ_H it fires on
+only 2.9-7.5 % of trades and moves net by small amounts in both
+directions (ETH 24 h: +13,781 → +13,796). So tail risk CAN be bounded
+here without paying for it. The reason v0.22's stop destroyed the edge
+was its size, not its existence.
+
+**4. ETH's headline is badly front-loaded.** Of the +$13,781 at 24 h,
+2018 and 2019 contribute +$9,041, or 66 %, and those are exactly the two
+years with no funding data. The remaining 2020-2026 stretch is +$4,740
+over seven years with 5 of 7 positive — real, but a quarter of the
+headline rate. Read the holdout, which is 2021+ and fully funded, as the
+honest number.
+
+**Cost stress on ETH (1.5×, informational):** 24 h survives at +$7,907
+(T1) / +$7,932 (T2), PF 1.08; 12 h is marginal at +$253 / +$443; 4 h
+fails at −$909 / −$1,097. So only the 24 h horizon has real margin over
+execution cost, and the pre-registered holdout stress will be the test
+that counts.
+
+**HOLDOUT RESULTS (2026-09-15) — six untouched altcoins, 5m USDT-M
+perps, 2021-01 → 2026-08, funding included, $10k per coin run
+independently.**
+
+T1 at 24 h, base costs:
+
+| coin | signals | win % | PF | net on $10k | maxDD | years + |
+|---|---|---|---|---|---|---|
+| ADA | 1,261 | 51.0 | 1.18 | **+8,196** | 30.5 % | 4/6 |
+| DOGE | 1,363 | 47.5 | 1.14 | **+11,129** | 35.0 % | 4/6 |
+| SOL | 1,273 | 52.8 | 1.12 | **+10,029** | 35.0 % | 4/6 |
+| BNB | 1,360 | 46.2 | 1.03 | +1,071 | 29.0 % | 2/6 |
+| XRP | 1,275 | 48.4 | 1.01 | +339 | 52.6 % | 4/6 |
+| LINK | 1,274 | 47.9 | 0.88 | **−4,217** | 51.3 % | 2/6 |
+
+Horizon sweep, pooled net across the six (base costs): T1 4 h −1,712 ·
+T2 4 h −2,187 · T1 12 h +8,829 (only 3/6 coins positive) · T2 12 h
++10,445 (3/6) · **T1 24 h +26,547 (5/6)** · **T2 24 h +24,960 (5/6)**.
+At 1.5× costs: T1 24 h **+12,089**, T2 24 h **+10,801** (3/6 coins each).
+
+Pooled profit factors, computed from summed gross wins and losses rather
+than averaged per-coin figures: base **1.085** (T1) / **1.081** (T2);
+at 1.5× costs **1.041** / **1.037**.
+
+**Verdict against the five pre-registered criteria, for T1/T2 at 24 h:**
+(1) pooled net > 0 — yes, +26,547 / +24,960. (2) net > 0 on ≥ 4 of 6 —
+yes, 5 of 6. (3) pooled PF ≥ 1.05 — yes, 1.085 / 1.081. (4) same cell
+and horizon positive in development — yes, ETH T1 and T2 at 24 h.
+(5) pooled net > 0 at 1.5× costs — yes, +12,089 / +10,801. **The 24 h
+cells PASS on all five. The 4 h and 12 h cells FAIL** (4 h pooled
+negative; 12 h positive but only 3 of 6 coins). This is the first
+pre-registered holdout pass in this project's history.
+
+Recorded precisely because it is the weakest link: criterion (5) asked
+only for net > 0 under stress, and at 1.5× costs the pooled PF is 1.04
+with just 3 of 6 coins positive. The edge is real but it sits close
+enough to the execution-cost line that a worse fill model, a wider
+spread, or one more basis point of slippage would take it out. That is
+the same sentence this project wrote about the ORB family before
+retiring it; the difference here is that this one clears its stress
+test rather than failing it.
+
+**What the pass is actually worth, before anyone gets excited.**
+Equal-weighted across the six coins, +$4,424 per $10k over 5.7 years =
+**+44 % total, ≈ 6.7 %/yr**, and **≈ 3.3 %/yr at 1.5× costs**, with
+per-coin drawdowns of 29-53 %. That is a worse risk-adjusted return than
+the v0.18 funding carry (≈ 11-14 %/yr at ~2 % maxDD) and it is nowhere
+near what the reels claim.
+
+**Five caveats that belong next to the pass.**
+1. **Six correlated altcoins in one era is not six independent tests.**
+   These coins co-move with each other and with BTC; the effective
+   sample is closer to two or three observations than six, so the pooled
+   figures overstate significance. A different 5-year era is the real
+   next test, and it does not exist yet.
+2. **The spread across coins is enormous.** Three carry it (ADA, DOGE,
+   SOL), two are noise (BNB +1.8 %/yr, XRP +0.6 %/yr), and LINK loses in
+   every single configuration (PF 0.82-0.90). Nothing known in advance
+   distinguishes them, so live coin selection is an unsolved problem.
+3. **Drawdowns are brutal** — 30-53 % per coin, at 20 % notional per
+   position with up to five concurrent. This is not a smooth curve.
+4. **Only one horizon works, and it was chosen after seeing D2.** That
+   4 h and 12 h fail is reassuring (the result is not "any horizon
+   works") but the 24 h choice is not independent of the earlier
+   information test.
+5. **Capacity and slippage are untested.** 0.01 % slippage on altcoin
+   perps at meaningful size is optimistic, and the 1.5× stress is the
+   only probe of that.
+
+**Status: candidate, NOT deployed.** Required before any money: a
+forward paper run on the live bot with the same rule, sized as tested;
+a capacity/slippage study; and a decision rule for which coins to trade
+that does not depend on hindsight. Trial ledger, this family: 1 rule
+cell (v0.22) + 3 diagnostics + 6 packaging cells here.
+
 ## v0.22-exp — HTF bias / LTF pullback / supply-demand / 5m shift → VWAP (2026-09-14)
 
 **STATUS: FAIL. Explore gate not met (PF 0.59), both holdouts negative

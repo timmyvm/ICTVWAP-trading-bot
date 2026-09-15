@@ -145,6 +145,7 @@ def run_cell(signals: pd.DataFrame, df5: pd.DataFrame, a5: np.ndarray,
     return {
         "n": len(t), "win_pct": round(100 * len(wins) / len(t), 1),
         "net": round(t.net.sum(), 0), "end_bal": round(bal, 0),
+        "gross_win": round(wins.net.sum(), 2), "gross_loss": round(gl, 2),
         "pf": round(wins.net.sum() / gl, 2) if gl > 0 else float("inf"),
         "max_dd_pct": round(100 * max_dd, 1),
         "avg_ret_pct": round(t.ret_pct.mean(), 4),
@@ -177,15 +178,20 @@ def main() -> None:
     ap.add_argument("--cost-mult", type=float, default=1.0)
     args = ap.parse_args()
 
+    def holdout_item(s: str) -> tuple:
+        return (s, f"backtest/data_cache/local/sdz/um5m_{s}.csv.gz", "5m",
+                f"backtest/data_cache/local/sdz/funding_{s}.csv", None)
+
     if args.assets == "dev":
         items = [(k, *v) for k, v in ASSETS.items()]
     elif args.assets == "holdout":
-        items = [(s, f"backtest/data_cache/local/sdz/um5m_{s}.csv.gz", "5m",
-                  f"backtest/data_cache/local/sdz/funding_{s}.csv", None) for s in HOLDOUT]
+        items = [holdout_item(s) for s in HOLDOUT]
     else:
-        items = [(k, *ASSETS[k]) for k in args.assets.split(",")]
+        items = [(k, *ASSETS[k]) if k in ASSETS else holdout_item(k)
+                 for k in args.assets.split(",")]
 
     pooled: dict[tuple, float] = {}
+    gross: dict[tuple, list] = {}      # (cell, hours) -> [sum gross win, sum gross loss, coins positive, coins]
     for label, path, base, fpath, start in items:
         df = load_cached_1m(path)
         if start:
@@ -202,10 +208,18 @@ def main() -> None:
                 r = run_cell(sig, df5, a5, fund, hrs, use_stop=(cell == "T2"),
                              cost_mult=args.cost_mult)
                 pooled[(cell, hrs)] = pooled.get((cell, hrs), 0.0) + r.get("net", 0.0)
+                g = gross.setdefault((cell, hrs), [0.0, 0.0, 0, 0])
+                g[0] += r.get("gross_win", 0.0)
+                g[1] += r.get("gross_loss", 0.0)
+                g[2] += 1 if r.get("net", 0.0) > 0 else 0
+                g[3] += 1
                 print(f"  {cell} {hrs:>2d}h ", r, flush=True)
         print(flush=True)
-    print("pooled net by cell/horizon:",
-          {f"{c} {h}h": round(v, 0) for (c, h), v in sorted(pooled.items())})
+    print("POOLED (the pre-registered criteria):")
+    for (cell, hrs), (gw, glo, pos, tot) in sorted(gross.items()):
+        pf = gw / glo if glo > 0 else float("inf")
+        print(f"  {cell} {hrs:>2d}h  net {pooled[(cell, hrs)]:>9.0f}  pooled_PF {pf:5.3f}  "
+              f"assets_net_positive {pos}/{tot}")
 
 
 if __name__ == "__main__":
