@@ -2,6 +2,10 @@
 
 ## v0.25-diag — Settlement-timing overlay on the v0.23 harvest (2026-10-04)
 
+**STATUS: KEPT as a costless entry rule, not validated. Defers 4.9 % of
+entries, adds +$687 to +$1,817 across eight $10k coin runs (positive in
+all four variants, never significant). Does not change v0.23.**
+
 User: "combine it with all the best parts of the failed strategy." Read
 as: layer the v0.24 settlement effect onto the best surviving parts of
 the supply/demand work. Inventory first, because "best parts" has to
@@ -46,6 +50,52 @@ spot 1m caches v0.23's development used (those were wiped by a
 container reset), so baseline numbers will not match v0.23's tables;
 the comparison that matters is with vs without the overlay on identical
 signals.
+
+**Results (2026-10-04): a real-looking, free, and tiny improvement. Kept
+as an entry rule; it does not change the strategy.**
+
+Net on $10k per coin, 24 h hold, 8 perps 2020-2026, 11,906 entries, 578
+deferred (4.9 %, against a pre-run estimate of ~5 %):
+
+| cell | overlay off | ceiling `f_next` | lookahead-free `f_prev` | coins improved (next / prev) |
+|---|---|---|---|---|
+| T1 | +39,443 | +40,596 (+1,153) | +40,130 (+687) | 6/8 · 6/8 |
+| T2 | +37,208 | +39,025 (+1,817) | +38,534 (+1,326) | 7/8 · 6/8 |
+
+Paired across coins, the improvement is positive in all four variants
+(mean +$86 to +$227 per coin) but never significant: paired t +0.64
+(T1 prev), +1.11 (T2 prev), +1.36 (T1 next), +1.84 (T2 next); one-sided
+sign-test p 0.145 except T2 ceiling at 0.035. Per deferred trade that is
+roughly 4-7 basis points — the size v0.24 measured, which is the
+internal-consistency check that matters. DOGE gets worse under every
+variant (−$268 to −$537); SOL and ADA carry most of the gain.
+
+**Verdict.** As pre-registered, the ceiling moved pooled net by less than
+noise (best paired t 1.84), so the overlay is not worth a holdout. It
+also costs nothing — a deferred fill, no extra round trip — and its sign
+is right in 25 of 32 coin-variant cells, so it is KEPT as a costless
+entry-timing rule for any live implementation of v0.23, using the
+lookahead-free `f_prev`. Expected value is about +1-3 % of the
+strategy's net, which is to say it does not change what v0.23 is:
+roughly 6-7 %/yr with 30-50 % drawdowns.
+
+**Side observation, consistent with v0.23.** The baseline across these
+eight perps is +$39,443 with 6 of 8 coins positive; BTC and LINK lose
+again, as they did in every prior v0.23 analysis. ADA's +$19,707 is far
+above its 2021-2026 holdout figure because this window includes the
+2020-21 ADA run — the regime-concentration warning in a new costume.
+
+**What "combine the best parts" can and cannot do.** Stacking a 4-7 bp
+timing tweak onto a modest strategy produces a very slightly less modest
+strategy; it cannot manufacture an edge that is not there, and adding
+the edgeless components of the failed reels would only add overfitting.
+The one combination with real leverage is at the PORTFOLIO level —
+v0.23 alongside the v0.18 funding carry, two independently validated,
+plausibly uncorrelated return streams. Caveat before anyone builds it:
+carry's risk-adjusted return is an order of magnitude better, so in an
+optimally weighted blend carry dominates and v0.23 mostly adds return at
+the cost of drawdown. Not built here; the carry inputs were among the
+caches the container reset wiped.
 
 ## v0.24-exp — Funding-settlement flow: a reason-first hypothesis (2026-10-04)
 
