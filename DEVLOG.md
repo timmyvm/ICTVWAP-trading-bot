@@ -1,5 +1,52 @@
 # DEVLOG — Powell Trades Bot
 
+## v0.25-diag — Settlement-timing overlay on the v0.23 harvest (2026-10-04)
+
+User: "combine it with all the best parts of the failed strategy." Read
+as: layer the v0.24 settlement effect onto the best surviving parts of
+the supply/demand work. Inventory first, because "best parts" has to
+mean parts with demonstrated value:
+- **Has value:** the v0.22 entry with zones (D2: positive excess in
+  12/12 cells; D3: zones roughly double per-signal edge), the 24 h
+  time exit (v0.23 holdout PASS), and the v0.24 settlement flow (real in
+  the diagnostic, 1-5 bp, untradeable alone).
+- **No value to contribute:** the VWAP target (unwinnable 14-30 % of the
+  time), the structural stop (v0.23 showed a wide one is free and a
+  tight one is fatal), and every other reel construct tested here (FVG
+  wicks, sweeps, 3-candle grab, volume profile, first-candle ORB). Their
+  components showed no edge; adding them as filters would only shrink
+  the sample and widen the overfitting surface.
+
+**The only legitimate way to use a sub-cost edge** is as an overlay on
+trades already being taken, where it changes WHEN you fill without
+adding a round trip. So: v0.23 T1 24 h verbatim, plus one rule.
+
+**Overlay S, fixed before running.** If a v0.23 entry would fill in the
+60 minutes before a settlement AND the entry direction is on the PAYING
+side of funding — long with f ≥ 0.01 %, or short with f < 0 — defer the
+fill to the open of the settlement bar. Everything else unchanged,
+including the 24 h hold measured from the actual fill. Thresholds are
+absolute (the 0.01 % default rate and zero), not sample terciles, so the
+rule carries no lookahead in its cut points.
+
+**Bound the ceiling before validating.** Run with f = the rate about to
+be paid (`f_next`, the v0.24 diagnostic, mild lookahead) — the BEST the
+overlay could possibly do — and with the lookahead-free `f_prev`. If even
+the ceiling moves pooled net by less than noise, the overlay is not
+worth a holdout and the answer is "no", with the arithmetic shown.
+Expected before running: ~1/8 of entries land in a pre-settlement hour,
+roughly half of those on the paying side, and v0.24 measured ~1-5 bp of
+adverse drift there — so a few percent of trades improving by a few
+basis points, which may well round to nothing. Same trade population in
+every run (the v0.22 D1 rule): only the fill timing changes.
+
+Data: the eight perps refetched for v0.24 (BTC, ETH, BNB, XRP, ADA,
+DOGE, SOL, LINK; 5m, 2020-2026). BTC/ETH here are perps at 5m, not the
+spot 1m caches v0.23's development used (those were wiped by a
+container reset), so baseline numbers will not match v0.23's tables;
+the comparison that matters is with vs without the overlay on identical
+signals.
+
 ## v0.24-exp — Funding-settlement flow: a reason-first hypothesis (2026-10-04)
 
 **STATUS: KILLED by its own pre-registered cost criterion, and never

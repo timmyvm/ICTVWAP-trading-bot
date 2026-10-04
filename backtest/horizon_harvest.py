@@ -59,9 +59,48 @@ def load_funding(path: str, index: pd.DatetimeIndex) -> np.ndarray:
     return rates
 
 
+def _epoch_s(idx) -> np.ndarray:
+    """Integer epoch seconds via the subtraction idiom (CLAUDE.md: never astype int64)."""
+    d = pd.DatetimeIndex(idx)
+    if d.tz is None:
+        d = d.tz_localize("UTC")
+    return np.asarray((d - pd.Timestamp(0, tz="UTC")) // pd.Timedelta(seconds=1), dtype=np.int64)
+
+
+def settlement_schedule(path: str, index: pd.DatetimeIndex) -> tuple:
+    """
+    For every 5m bar: seconds until the next settlement at or after its open, that
+    settlement's rate (f_next, mild lookahead — v0.24 diagnostic), the rate settled
+    before it (f_prev, lookahead-free), and the bar index whose open IS that
+    settlement. Settlement times come from the funding file, never assumed.
+    """
+    f = pd.read_csv(path)
+    ts = pd.to_datetime(f["timestamp"], unit="s", utc=True).dt.round("min")
+    s = pd.DataFrame({"t": _epoch_s(ts), "rate": f["rate"].astype(float).to_numpy()})
+    s = s.drop_duplicates("t").sort_values("t")
+    st, sr = s["t"].to_numpy(), s["rate"].to_numpy()
+    bt = _epoch_s(index)
+    j = np.searchsorted(st, bt, side="left")
+    valid = j < len(st)
+    jn = np.clip(j, 0, len(st) - 1)
+    secs_to = np.where(valid, st[jn] - bt, 10 ** 9)
+    f_next = np.where(valid, sr[jn], np.nan)
+    f_prev = np.where(j >= 1, sr[np.clip(j - 1, 0, len(sr) - 1)], np.nan)
+    settle_bar = np.where(valid, np.searchsorted(bt, st[jn], side="left"), -1)
+    return secs_to, f_next, f_prev, settle_bar
+
+
 def run_cell(signals: pd.DataFrame, df5: pd.DataFrame, a5: np.ndarray,
              fund: np.ndarray, hours: int, use_stop: bool,
-             cost_mult: float = 1.0) -> dict:
+             cost_mult: float = 1.0, settle: tuple | None = None,
+             overlay: str | None = None) -> dict:
+    # overlay (v0.25-diag): None = v0.23 verbatim. "next"/"prev" = defer any entry
+    # that would fill in the 60 min before a settlement while on the PAYING side of
+    # funding (long with f >= 0.01 %, short with f < 0) to the settlement bar's
+    # open. "next" conditions on the rate about to be paid (ceiling, mild
+    # lookahead), "prev" on the last settled rate (lookahead-free).
+    assert overlay in (None, "next", "prev")
+    assert overlay is None or settle is not None, "overlay needs a settlement schedule"
     o = df5["open"].to_numpy()
     h = df5["high"].to_numpy()
     low = df5["low"].to_numpy()
@@ -81,6 +120,9 @@ def run_cell(signals: pd.DataFrame, df5: pd.DataFrame, a5: np.ndarray,
     open_pos: list[dict] = []
     trades: list[dict] = []
     skipped_full = 0
+    deferred: dict[int, list] = {}
+    n_deferred = 0
+    deferred_skipped = 0
 
     for i in range(ATR_PERIOD + 1, n):
         # --- funding on everything held into this bar ---
@@ -113,10 +155,20 @@ def run_cell(signals: pd.DataFrame, df5: pd.DataFrame, a5: np.ndarray,
             })
         open_pos = still
 
-        # --- entries ---
-        for d in by_bar.get(i, []):
+        # --- entries (fresh signals, plus any the overlay deferred to this bar) ---
+        cands = [(d, False) for d in by_bar.get(i, [])] + [(d, True) for d in deferred.pop(i, [])]
+        for d, was_deferred in cands:
+            if overlay is not None and not was_deferred:
+                secs_to, f_nx, f_pv, sbar = settle
+                fval = f_nx[i] if overlay == "next" else f_pv[i]
+                paying = (d == 1 and fval >= 0.0001) or (d == -1 and fval < 0)
+                if 0 < secs_to[i] <= 3600 and paying and sbar[i] > i:
+                    deferred.setdefault(int(sbar[i]), []).append(d)
+                    n_deferred += 1
+                    continue
             if len(open_pos) >= MAX_CONCURRENT:
                 skipped_full += 1
+                deferred_skipped += 1 if was_deferred else 0
                 continue
             if i + 1 >= n or np.isnan(a5[i]) or a5[i] <= 0 or bal <= 0:
                 continue
@@ -153,6 +205,7 @@ def run_cell(signals: pd.DataFrame, df5: pd.DataFrame, a5: np.ndarray,
         "fees_total": round(t.fees.sum(), 0),
         "stop_share_pct": round(100 * (t.reason == "STOP").mean(), 1) if use_stop else 0.0,
         "skipped_full": skipped_full,
+        "deferred": n_deferred, "deferred_skipped": deferred_skipped,
         "per_year": per_year,
         "years_positive": f"{sum(1 for v in per_year.values() if v > 0)}/{len(per_year)}",
     }
@@ -168,30 +221,40 @@ ASSETS = {
                     "backtest/data_cache/funding_ethusdt_binance.csv", "2018-01-01"),
 }
 HOLDOUT = ["BNBUSDT", "XRPUSDT", "ADAUSDT", "DOGEUSDT", "SOLUSDT", "LINKUSDT"]
+PERP8 = ["BTCUSDT", "ETHUSDT"] + HOLDOUT
+SDZ = "backtest/data_cache/local/sdz"
+COMMITTED_FUNDING = {"BTCUSDT": "backtest/data_cache/funding_btcusdt_binance.csv",
+                     "ETHUSDT": "backtest/data_cache/funding_ethusdt_binance.csv"}
 
 
 def main() -> None:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--assets", default="dev", help="'dev', 'holdout', or a comma list")
+    ap.add_argument("--assets", default="dev", help="'dev', 'holdout', 'perp8', or a comma list")
     ap.add_argument("--hours", default="4,12,24")
     ap.add_argument("--cells", default="T1,T2")
     ap.add_argument("--cost-mult", type=float, default=1.0)
+    ap.add_argument("--overlays", default="off",
+                    help="v0.25-diag settlement overlay(s), comma list of off/next/prev; "
+                         "all run on the SAME signals so only fill timing differs")
     args = ap.parse_args()
+    overlays = [None if x == "off" else x for x in args.overlays.split(",")]
 
-    def holdout_item(s: str) -> tuple:
-        return (s, f"backtest/data_cache/local/sdz/um5m_{s}.csv.gz", "5m",
-                f"backtest/data_cache/local/sdz/funding_{s}.csv", None)
+    def perp_item(s: str) -> tuple:
+        fpath = COMMITTED_FUNDING.get(s, f"{SDZ}/funding_{s}.csv")
+        return (s, f"{SDZ}/um5m_{s}.csv.gz", "5m", fpath, None)
 
     if args.assets == "dev":
         items = [(k, *v) for k, v in ASSETS.items()]
     elif args.assets == "holdout":
-        items = [holdout_item(s) for s in HOLDOUT]
+        items = [perp_item(s) for s in HOLDOUT]
+    elif args.assets == "perp8":
+        items = [perp_item(s) for s in PERP8]
     else:
-        items = [(k, *ASSETS[k]) if k in ASSETS else holdout_item(k)
+        items = [(k, *ASSETS[k]) if k in ASSETS else perp_item(k)
                  for k in args.assets.split(",")]
 
     pooled: dict[tuple, float] = {}
-    gross: dict[tuple, list] = {}      # (cell, hours) -> [sum gross win, sum gross loss, coins positive, coins]
+    gross: dict[tuple, list] = {}      # key -> [sum gross win, sum gross loss, coins positive, coins]
     for label, path, base, fpath, start in items:
         df = load_cached_1m(path)
         if start:
@@ -199,26 +262,30 @@ def main() -> None:
         sig, df5 = get_signals(df, base)
         a5 = atr(df5)
         fund = load_funding(fpath, df5.index)
+        settle = settlement_schedule(fpath, df5.index) if any(overlays) else None
         print(f"=== {label}: {len(df5)} 5m bars {df5.index.min().date()} -> "
               f"{df5.index.max().date()}, {len(sig)} signals, "
               f"funding rows applied {int((fund != 0).sum())} "
               f"[x{args.cost_mult:g} costs]", flush=True)
         for cell in args.cells.split(","):
             for hrs in (int(x) for x in args.hours.split(",")):
-                r = run_cell(sig, df5, a5, fund, hrs, use_stop=(cell == "T2"),
-                             cost_mult=args.cost_mult)
-                pooled[(cell, hrs)] = pooled.get((cell, hrs), 0.0) + r.get("net", 0.0)
-                g = gross.setdefault((cell, hrs), [0.0, 0.0, 0, 0])
-                g[0] += r.get("gross_win", 0.0)
-                g[1] += r.get("gross_loss", 0.0)
-                g[2] += 1 if r.get("net", 0.0) > 0 else 0
-                g[3] += 1
-                print(f"  {cell} {hrs:>2d}h ", r, flush=True)
+                for ov in overlays:
+                    r = run_cell(sig, df5, a5, fund, hrs, use_stop=(cell == "T2"),
+                                 cost_mult=args.cost_mult, settle=settle, overlay=ov)
+                    key = (cell, hrs, ov or "off")
+                    pooled[key] = pooled.get(key, 0.0) + r.get("net", 0.0)
+                    g = gross.setdefault(key, [0.0, 0.0, 0, 0])
+                    g[0] += r.get("gross_win", 0.0)
+                    g[1] += r.get("gross_loss", 0.0)
+                    g[2] += 1 if r.get("net", 0.0) > 0 else 0
+                    g[3] += 1
+                    print(f"  {cell} {hrs:>2d}h overlay={ov or 'off':4s} ", r, flush=True)
         print(flush=True)
     print("POOLED (the pre-registered criteria):")
-    for (cell, hrs), (gw, glo, pos, tot) in sorted(gross.items()):
+    for key, (gw, glo, pos, tot) in sorted(gross.items()):
+        cell, hrs, ov = key
         pf = gw / glo if glo > 0 else float("inf")
-        print(f"  {cell} {hrs:>2d}h  net {pooled[(cell, hrs)]:>9.0f}  pooled_PF {pf:5.3f}  "
+        print(f"  {cell} {hrs:>2d}h overlay={ov:4s} net {pooled[key]:>9.0f}  pooled_PF {pf:5.3f}  "
               f"assets_net_positive {pos}/{tot}")
 
 
