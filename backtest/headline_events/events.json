@@ -1,0 +1,355 @@
+[
+  {
+    "ticker": "MSFT",
+    "company": "Microsoft Corporation",
+    "period": "Fiscal 2026 Q4 (quarter ended 2026-06-30)",
+    "release_date_et": "2026-07-29",
+    "release_time_et": "16:05",
+    "timing": "AMC",
+    "revenue_reported": "$90.0B (+18% y/y; +17% constant currency)",
+    "revenue_consensus": "$87.62B (FactSet/LSEG)",
+    "eps_reported": "$4.74 non-GAAP (excludes impact of OpenAI investment); GAAP $4.81",
+    "eps_consensus": "$4.24",
+    "eps_basis": "adjusted",
+    "guidance": "Q1 FY27 (September 2026 quarter): revenue $89.85-90.95B (+16-17%; midpoint $90.4B vs $89.66B LSEG consensus); Productivity & Business Processes $36.7-37.0B, Intelligent Cloud $40.95-41.25B, More Personal Computing $12.2-12.7B; Azure growth ~45% in constant currency (Visible Alpha consensus 40.92%), with H1 FY27 Azure growth expected to accelerate; operating margin roughly flat y/y; capex over $50B including the lease-reclassification impact (Visible Alpha consensus $56.02B); tax rate ~20%. Full FY27: double-digit revenue and operating income growth; operating margins down less than 1 point; capex to grow y/y. Calendar-2026 capex expectation now ~$175B vs ~$190B guided on 2026-04-29; company attributes the change to more datacenter leases being classified as operating leases (not included in capex) and says underlying CY2026 investment expectations are unchanged.",
+    "key_metrics": [
+      "Azure and other cloud services revenue growth: +43% reported, +43% constant currency (company guidance given in April: 39-40% cc; Visible Alpha consensus 39.98%)",
+      "Capital expenditures: $41B including finance leases ($35.8B cash paid for PP&E; $5.6B finance leases) vs company guidance of 'over $40B' and Visible Alpha consensus $42.37B. Capex outlook given the same day: Q1 FY27 over $50B (Visible Alpha consensus $56.02B); FY27 capex to grow y/y; calendar-2026 capex ~$175B vs ~$190B prior, attributed to lease reclassification"
+    ],
+    "other_announcements": [
+      "Effective at the start of FY27, extending estimated useful lives of datacenters and office buildings from 15 to 25 years; company said this shifts more future datacenter leases from finance to operating leases (reducing reported capex) and has a minimal benefit to FY27 operating income",
+      "Returned $10.2B to shareholders through dividends and share repurchases in the quarter"
+    ],
+    "headline": "Microsoft FY26 Q4: revenue $90.0B vs $87.62B est; non-GAAP EPS $4.74 vs $4.24 est; Azure +43% vs 39-40% guide (39.98% est); capex $41B vs $42.37B est; guides Q1 FY27 revenue $89.85-90.95B vs $89.66B est, Azure ~45% cc vs 40.92% est, capex over $50B",
+    "notes": "Revenue consensus differs slightly by provider ($87.61B-$87.72B); used $87.62B (FactSet as cited by AP, also cited as the LSEG figure). EPS comparison uses non-GAAP $4.74 (excludes OpenAI investment impact; GAAP $4.81). Company stated that discrete items versus its April guidance (including a $3.2B gain on its Anthropic investment and lower-than-expected Voluntary Retirement Program costs, partly offset by severance and Xbox impairment charges) added $0.27 to diluted EPS; these items are included in both GAAP and non-GAAP EPS. Visible Alpha capex estimates may not reflect the lease reclassification announced on the call. A StreetAccount Azure consensus of ~40.2% appears in secondary reports but was not verified. release_time_et is the PR Newswire timestamp; SEC 8-K accepted 16:04:53 ET."
+  },
+  {
+    "ticker": "GOOGL",
+    "company": "Alphabet Inc.",
+    "period": "Q2 2026 (quarter ended 2026-06-30)",
+    "release_date_et": "2026-07-22",
+    "release_time_et": "16:01",
+    "timing": "AMC",
+    "revenue_reported": "$119.8B (+24% y/y; +23% constant currency)",
+    "revenue_consensus": "$116.93B (LSEG)",
+    "eps_reported": "$9.11 GAAP diluted; $2.85 excluding the $6.26/share net effect of a $99.0B gain on equity securities",
+    "eps_consensus": "$2.89 (LSEG)",
+    "eps_basis": "adjusted",
+    "guidance": "No revenue or EPS guidance. Full-year 2026 capex $195-205B, up from the prior $180-190B (given April 2026); pre-release Visible Alpha consensus for 2026 capex ~$188B. 2027 capex expected to 'increase significantly', with details later. CFO said Alphabet will expand use of third-party capacity in Q3 as a bridging strategy, creating 'modest margin pressure in the near term', and that higher depreciation and data-center operating costs will continue to pressure the P&L.",
+    "key_metrics": [
+      "Google Cloud revenue $24.8B ($24.77B), +82% y/y (StreetAccount consensus $22.24B, ~64% growth)",
+      "2026 capex guidance $195-205B, changed from the prior guidance of $180-190B (pre-release Visible Alpha consensus ~$188B)"
+    ],
+    "other_announcements": [
+      "Declared quarterly cash dividend of $0.22 per share on Class A, B and C stock",
+      "No share repurchases in Q2 2026 (vs $13.2B in Q2 2025)"
+    ],
+    "headline": "Alphabet Q2 2026: revenue $119.8B vs $116.93B est; EPS $9.11 GAAP ($2.85 ex equity-securities gain) vs $2.89 est; Google Cloud +82% to $24.8B vs $22.24B est; 2026 capex guidance $195-205B vs prior $180-190B",
+    "notes": "Alphabet reports GAAP EPS only; $2.85 equals $9.11 less the $6.26/share net effect of the $99.0B equity-securities gain stated in the release (total other income $98.0B). EPS consensus: LSEG $2.89 as reported by CNBC (Investing.com consensus $2.88). Revenue consensus: LSEG $116.93B (Investing.com $116.51B; an LSEG preview dated 2026-07-16 showed $116.8B). The StreetAccount Cloud consensus and the Visible Alpha ~$188B 2026-capex consensus come from secondary press reports and were not verified against the original article. release_time_et is the SEC 8-K acceptance time (16:01:36 ET); Alphabet posts on its IR site and no newswire timestamp was found."
+  },
+  {
+    "ticker": "META",
+    "company": "Meta Platforms, Inc.",
+    "period": "Q2 2026 (quarter ended 2026-06-30)",
+    "release_date_et": "2026-07-29",
+    "release_time_et": "16:01",
+    "timing": "AMC",
+    "revenue_reported": "$60.80B (+28% y/y)",
+    "revenue_consensus": "$60.17B (LSEG)",
+    "eps_reported": "$6.18 diluted (GAAP; -13% y/y)",
+    "eps_consensus": "$7.22 (LSEG)",
+    "eps_basis": "GAAP",
+    "guidance": "Q3 2026 revenue $61-64B (midpoint $62.5B; assumes ~1% FX headwind) vs $63.15B LSEG consensus. Full-year 2026 total expenses $165-169B (prior $162-169B; low end raised to incorporate the $2.4B Q2 legal charges). Full-year 2026 capex including principal payments on finance leases $130-145B (prior $125-145B). Tax rate 15-17% for the remaining 2026 quarters (prior 13-16%). Continues to expect 2026 operating income above 2025. No 2027 capex outlook given.",
+    "key_metrics": [
+      "Next-quarter (Q3 2026) revenue guidance $61-64B (midpoint $62.5B) vs LSEG pre-release consensus $63.15B",
+      "Full-year 2026 total expenses guidance $165-169B (prior $162-169B); full-year 2026 capex guidance $130-145B (prior $125-145B)"
+    ],
+    "other_announcements": [
+      "Q2 costs and expenses include $2.40B of charges related to legal proceedings and $1.18B of severance tied to the May 2026 headcount reduction; release states that youth-related U.S. trials scheduled this year may result in a material loss",
+      "No share repurchases in Q2 2026; dividend and dividend-equivalent payments of $1.35B"
+    ],
+    "headline": "Meta Q2 2026: revenue $60.80B vs $60.17B est; EPS $6.18 vs $7.22 est; guides Q3 revenue $61-64B vs $63.15B est; 2026 total expenses $165-169B (prior $162-169B), capex $130-145B (prior $125-145B)",
+    "notes": "Meta reports GAAP only; Q2 EPS includes the $2.40B legal charges and $1.18B severance, and it is not known whether consensus included them. Consensus varies by provider: EPS $7.14-$7.22, revenue $60.17B-$60.22B, Q3 revenue $63.1B-$63.24B; LSEG figures used (as reported by CNBC and secondary sources). release_time_et is the PR Newswire timestamp; SEC 8-K accepted 16:03:23 ET."
+  },
+  {
+    "ticker": "AAPL",
+    "company": "Apple Inc.",
+    "period": "Fiscal 2026 Q3 (quarter ended 2026-06-27)",
+    "release_date_et": "2026-07-30",
+    "release_time_et": "16:30",
+    "timing": "AMC",
+    "revenue_reported": "$109.42B (+16% y/y)",
+    "revenue_consensus": "$108.65B (LSEG)",
+    "eps_reported": "$2.02 diluted (GAAP), including a $0.11 favorable impact from tariff refunds",
+    "eps_consensus": "$1.89 (LSEG)",
+    "eps_basis": "GAAP",
+    "guidance": "September quarter (fiscal Q4), given on the call: total revenue growth 9%-11% y/y (LSEG consensus ~12%); iPhone growth mid-teens y/y (LSEG consensus 17.6%); Services growth largely similar to the June quarter's rate after removing a ~2.5-point negative sequential FX impact; gross margin 47%-48% including ~1 point benefit from tariff refunds; operating expenses $19.1-19.4B; tax rate ~16.5%.",
+    "key_metrics": [
+      "iPhone revenue $54.25B (+22% y/y) vs LSEG pre-release estimate $53.86B",
+      "Next-quarter (September quarter) total revenue growth guidance 9%-11% y/y vs LSEG pre-release expectation ~12%"
+    ],
+    "other_announcements": [
+      "Board declared a quarterly cash dividend of $0.27 per share (same as the prior quarter), payable 2026-08-13",
+      "CFO said Apple returned $33B to shareholders in the quarter, including $25.8B of share repurchases and $4B of dividends and equivalents"
+    ],
+    "headline": "Apple FY26 Q3: revenue $109.42B vs $108.65B est; EPS $2.02 vs $1.89 est (incl. $0.11 tariff refunds); iPhone $54.25B vs $53.86B est; guides September-quarter revenue growth 9-11% vs ~12% est",
+    "notes": "Apple reports GAAP only; EPS includes $0.11 and gross margin (50.1%) includes ~2 points from tariff refunds. LSEG consensus figures as cited by Reuters; other revenue consensus figures were $108.96B (Yahoo Finance) and $109.04B (TipRanks). iPhone revenue is $54.252B in the release table ($54.3B as stated on the call). The capital-return components stated on the call ($25.8B + $4B) do not sum to the stated $33B; reported as stated. The CEO transition (John Ternus succeeding Tim Cook effective 2026-09-01) was announced 2026-04-20, before this release, so it is not listed as a release-day announcement. release_time_et from the Business Wire syndication timestamp (20:30 UTC); SEC 8-K accepted 16:30:28 ET."
+  },
+  {
+    "ticker": "AMZN",
+    "company": "Amazon.com, Inc.",
+    "period": "Q2 2026 (quarter ended 2026-06-30)",
+    "release_date_et": "2026-07-30",
+    "release_time_et": "16:01",
+    "timing": "AMC",
+    "revenue_reported": "$200.6B (+20% y/y)",
+    "revenue_consensus": "$196.43B (LSEG)",
+    "eps_reported": "$5.75 diluted (GAAP); net income includes $53.4B of pre-tax non-operating other income, primarily from investments in Anthropic",
+    "eps_consensus": "$1.82 (LSEG)",
+    "eps_basis": "GAAP",
+    "guidance": "Q3 2026: net sales $197.0-202.0B (+9-12% y/y; company says growth would be nearly 400bp higher excluding Prime Day, which occurred mostly in Q2 in 2026 vs entirely in Q3 in 2025; ~80bp FX headwind) vs LSEG consensus $204.1B; operating income $22.5-26.5B (vs $17.4B in Q3 2025) vs StreetAccount consensus $24.92B; assumes no energy-derivative remeasurement impact and no additional acquisitions, restructurings or legal settlements. On the call: 2026 cash capex ~$220B, up from the prior estimate of ~$200B, attributed to higher memory costs.",
+    "key_metrics": [
+      "AWS revenue growth +37% (36.7%) y/y to $42.2B vs StreetAccount estimate $40.54B (~31% growth)",
+      "Next-quarter (Q3 2026) operating income guidance $22.5-26.5B (midpoint $24.5B) vs StreetAccount pre-release consensus $24.92B"
+    ],
+    "other_announcements": [],
+    "headline": "Amazon Q2 2026: revenue $200.6B vs $196.43B est; EPS $5.75 (incl. $53.4B pre-tax other income, mainly Anthropic) vs $1.82 est; AWS +37% to $42.2B vs $40.54B est; guides Q3 operating income $22.5-26.5B vs $24.92B est, net sales $197-202B vs $204.1B est",
+    "notes": "Amazon reports GAAP EPS only; $5.75 includes $53.4B of pre-tax non-operating other income (primarily Anthropic) and the company gave no EPS figure excluding it, so the $1.82 LSEG consensus is not like-for-like. Revenue consensus varies by provider ($196.16B-$196.5B); LSEG $196.43B used. Q3 net sales consensus: LSEG $204.1B (another report: $203.93B). AWS and Q3 operating-income consensus are StreetAccount figures as cited in press reports. Prime Day occurred mostly in Q2 in 2026 (Q3 in 2025), which affects y/y comparisons for both Q2 results and Q3 guidance. release_time_et from the Business Wire syndication timestamp (20:01 UTC); SEC 8-K accepted 16:06:23 ET."
+  },
+  {
+    "ticker": "NVDA",
+    "company": "NVIDIA Corporation",
+    "period": "Q2 fiscal 2027 (quarter ended 2026-07-26)",
+    "release_date_et": "2026-08-26",
+    "release_time_et": "16:20",
+    "timing": "AMC",
+    "revenue_reported": "$96.2B ($96.22B), +106% y/y, +18% q/q",
+    "revenue_consensus": "$92.17B (LSEG)",
+    "eps_reported": "$2.22 non-GAAP diluted (GAAP $2.46)",
+    "eps_consensus": "$2.10 (LSEG)",
+    "eps_basis": "adjusted",
+    "guidance": "Q3 FY27 (quarter ending Oct 2026): revenue $108.0B +/-2% vs $104.19B consensus (LSEG); GAAP and non-GAAP gross margin 74.0% +/-50bp vs 74.77% consensus; GAAP/non-GAAP operating expenses ~$9.2B/~$9.0B; outlook assumes no Data Center compute revenue from China. On the call the CFO said gross margin is expected to bottom in Q4 FY27 in the 71%-72% range and then run at 72%-73% in FY28 as price increases take effect (citing higher memory prices), and that FY28 (year ending Jan 2028) revenue is expected to grow ~70% (pre-release analyst average for FY28 growth: ~44%); Vera Rubin expected to be ~20% of Q3 Data Center revenue.",
+    "key_metrics": [
+      "Data Center revenue: $89.0B (+117% y/y, +18% q/q) vs $85.08B estimate (LSEG)",
+      "Next-quarter (Q3 FY27) revenue guidance: $108.0B +/-2% vs $104.19B consensus (LSEG)",
+      "Q3 FY27 gross-margin guidance: 74.0% +/-50bp (GAAP and non-GAAP) vs 74.77% consensus; Q2 actual GAAP and non-GAAP gross margin was 75.0%"
+    ],
+    "other_announcements": [
+      "Returned ~$26.0B to shareholders in Q2 (~$20.0B share repurchases, ~$6.0B dividends); ~$99.0B remained under the repurchase authorization; next quarterly dividend $0.25/share payable Oct 1, 2026 (same rate as set in May 2026)"
+    ],
+    "headline": "Nvidia Q2 FY27: revenue $96.2B vs $92.17B est; adj EPS $2.22 vs $2.10 est; data center $89.0B vs $85.08B est; guides Q3 revenue $108.0B +/-2% vs $104.19B est and Q3 gross margin 74.0% vs 74.77% est",
+    "notes": "Consensus figures are LSEG as cited by Reuters (revenue, adj EPS, Data Center, Q3 revenue; Q3 gross margin 74.77% and FY28 growth ~44% are the analyst averages Reuters cited). CoinDesk cited slightly different tallies: revenue $92.27B, EPS $2.09, Data Center $85.4B, Q3 revenue $103.9B. GAAP EPS exceeds non-GAAP mainly because of ~$7.77B of gains on equity securities that non-GAAP excludes. The release reports two segments: Data Center ($89.0B) and Edge Computing ($7.2B). Release time is the GlobeNewswire timestamp. Q4/FY28 margin and FY28 growth statements are from earnings-call transcript summaries."
+  },
+  {
+    "ticker": "AVGO",
+    "company": "Broadcom Inc.",
+    "period": "Q3 fiscal 2026 (quarter ended 2026-08-02)",
+    "release_date_et": "2026-09-02",
+    "release_time_et": "16:15",
+    "timing": "AMC",
+    "revenue_reported": "$29.59B, +86% y/y",
+    "revenue_consensus": "$29.36B (LSEG)",
+    "eps_reported": "$3.32 non-GAAP diluted (GAAP $2.68)",
+    "eps_consensus": "$3.24 (LSEG)",
+    "eps_basis": "adjusted",
+    "guidance": "Q4 FY26: revenue ~$34.8B (+93% y/y) vs $35.03B consensus (LSEG); AI semiconductor revenue $21.7B (+236% y/y) vs $21.33B estimate (Visible Alpha); consolidated gross margin ~73%; non-GAAP operating margin ~66% of revenue. On the call: FY26 AI revenue ~$58B (prior guidance $56B); FY27 AI revenue ~$115B, with supply secured (prior guidance: in excess of $100B); 'line of sight' for FY28 AI semiconductor revenue to double again to ~$230B; expects FY28 EPS to exceed $30 (LSEG FY28 EPS consensus cited at $25.86).",
+    "key_metrics": [
+      "AI semiconductor revenue: $16.7B (+221% y/y, +54% q/q) vs $15.2B average estimate (StreetAccount); the company's own guidance issued June 3, 2026 was ~$16.0B",
+      "Next-quarter (Q4 FY26) revenue guidance: ~$34.8B vs $35.03B consensus (LSEG)"
+    ],
+    "other_announcements": [],
+    "headline": "Broadcom Q3 FY26: revenue $29.59B vs $29.36B est; adj EPS $3.32 vs $3.24 est; AI semiconductor revenue $16.7B vs $15.2B est; guides Q4 revenue ~$34.8B vs $35.03B est and Q4 AI revenue $21.7B vs $21.33B est",
+    "notes": "Revenue/EPS consensus are LSEG as cited by CNBC. The StreetAccount AI estimate ($15.2B, cited by CNBC) sits below the company's own June 3 guidance (~$16.0B); some pre-release previews treated ~$16.0B as the bar. Q4 AI estimate is Visible Alpha as cited by Reuters. FY26/FY27/FY28 AI figures and the FY28 EPS target are from the earnings call; prior FY26 ($56B) and FY27 (>$100B) AI guidance are from the June 2026 call. Release time is the PRNewswire timestamp."
+  },
+  {
+    "ticker": "ORCL",
+    "company": "Oracle Corporation",
+    "period": "Q1 fiscal 2027 (quarter ended 2026-08-31)",
+    "release_date_et": "2026-09-10",
+    "release_time_et": "16:10",
+    "timing": "AMC",
+    "revenue_reported": "$19.35B, +30% y/y",
+    "revenue_consensus": "$19.14B (LSEG)",
+    "eps_reported": "$1.92 non-GAAP diluted (GAAP $1.56)",
+    "eps_consensus": "$1.74 (LSEG)",
+    "eps_basis": "adjusted",
+    "guidance": "Q2 FY27: total revenue growth 30%-34% in USD and constant currency vs $21.20B revenue consensus (the range implies ~$20.9B-$21.5B on Q2 FY26 revenue of $16.06B); total cloud revenue growth 65%-71% in USD (64%-70% cc); non-GAAP EPS $1.85-$1.93 in USD vs $1.89 consensus. FY27: total revenue 'at least $90 billion' (June 10 guidance: $90B; consensus $89.76B) and non-GAAP EPS $8.10 (June 10 guidance: $8.05; consensus $8.07). On the call: FY27 capex ~$90B-$95B gross with net cash capex of not more than ~$70B; about half of RPO expected to convert to revenue over the next 36 months; OCI revenue growth expected to keep accelerating through the rest of FY27.",
+    "key_metrics": [
+      "Remaining performance obligations (RPO): $664B (+$209B y/y, +$26B q/q) vs $630.6B consensus (StreetAccount)",
+      "OCI (Cloud Infrastructure / IaaS) revenue: $7.4B, +121% y/y in USD (+120% cc) vs $7.09B consensus estimate (another tally: $7.19B)",
+      "Full-year FY27 guidance change: revenue now 'at least $90B' (previously $90B); non-GAAP EPS raised to $8.10 from $8.05; pre-release consensus $89.76B revenue and $8.07 EPS"
+    ],
+    "other_announcements": [
+      "Completed the sale of $20B of common stock (before commissions) through an at-the-market equity program during Q1, as part of its previously disclosed capital investment program",
+      "Booked more than $30B of additional AI cloud contracts in Q1; the company said that, based on how those contracts are structured, there is no incremental impact on its plans to raise capital"
+    ],
+    "headline": "Oracle Q1 FY27: revenue $19.35B vs $19.14B est; adj EPS $1.92 vs $1.74 est; RPO $664B vs $630.6B est; OCI revenue $7.4B (+121% y/y) vs $7.09B est; FY27 guidance revenue at least $90B vs $89.76B est, adj EPS $8.10 (from $8.05) vs $8.07 est",
+    "notes": "Revenue/EPS consensus are LSEG as cited by CNBC (other tallies: revenue $19.06B-$19.13B, EPS $1.73). OCI estimate $7.09B as cited by CNBC; Bloomberg cited $7.19B. Q2 and FY27 consensus figures as cited by CNBC. Prior FY27 guidance is from the June 10, 2026 Q4 FY26 release. The implied Q2 dollar range is computed, not company-stated. Capex, RPO-conversion and OCI-acceleration statements are from earnings-call transcript summaries. Release time is the PRNewswire timestamp; the call was at 4:00 pm Central."
+  },
+  {
+    "ticker": "PLTR",
+    "company": "Palantir Technologies Inc.",
+    "period": "Q2 2026 (quarter ended 2026-06-30)",
+    "release_date_et": "2026-08-03",
+    "release_time_et": "16:05",
+    "timing": "AMC",
+    "revenue_reported": "$1.935B, +93% y/y, +19% q/q",
+    "revenue_consensus": "$1.80B (LSEG)",
+    "eps_reported": "$0.41 adjusted diluted (GAAP $0.41)",
+    "eps_consensus": "$0.35 (LSEG)",
+    "eps_basis": "adjusted",
+    "guidance": "Q3 2026: revenue $2.160B-$2.164B vs ~$2.00B consensus; adjusted operating income $1.292B-$1.296B. FY2026 (raised): revenue $8.150B-$8.158B (prior $7.650B-$7.662B; pre-release consensus ~$7.73B); U.S. commercial revenue in excess of $3.424B, at least 134% growth (prior: in excess of $3.224B, at least 120%); adjusted operating income $4.889B-$4.897B (prior $4.440B-$4.452B); adjusted free cash flow $4.5B-$4.7B (prior $4.2B-$4.4B); GAAP operating income and net income expected to be positive in each quarter.",
+    "key_metrics": [
+      "U.S. commercial revenue: $764M, +149% y/y and +28% q/q vs ~$716M (~134% y/y) pre-release estimate",
+      "Full-year 2026 revenue guidance: $8.150B-$8.158B vs prior guidance of $7.650B-$7.662B and pre-release consensus of ~$7.73B"
+    ],
+    "other_announcements": [],
+    "headline": "Palantir Q2 2026: revenue $1.935B vs $1.80B est; adj EPS $0.41 vs $0.35 est; U.S. commercial revenue $764M (+149% y/y) vs ~$716M est; FY26 revenue guidance $8.150-8.158B (prior $7.650-7.662B) vs ~$7.73B est; Q3 revenue guidance $2.160-2.164B vs ~$2.00B est",
+    "notes": "Revenue/EPS consensus are LSEG as cited by CNBC; other tallies were $1.81B and $0.34. The U.S. commercial estimate comes from a pre-release preview that did not name its data source. FY26 (~$7.73B) and Q3 (~$2.00B) consensus figures come from post-release summaries (Futurum; StockStory's guidance comparison implies ~$2.00B for Q3). GAAP and adjusted diluted EPS were both $0.41. Release time 16:05 is from StockTitan's listing of the Business Wire release; the SEC 8-K was accepted at 16:06 ET."
+  },
+  {
+    "ticker": "TSLA",
+    "company": "Tesla, Inc.",
+    "period": "Q2 2026 (quarter ended 2026-06-30)",
+    "release_date_et": "2026-07-22",
+    "release_time_et": "16:14",
+    "timing": "AMC",
+    "revenue_reported": "$28.24B, +26% y/y",
+    "revenue_consensus": "$25.71B (LSEG)",
+    "eps_reported": "$0.33 non-GAAP diluted (GAAP $0.32)",
+    "eps_consensus": "$0.51 (LSEG)",
+    "eps_basis": "adjusted",
+    "guidance": "No numeric revenue, delivery or margin guidance. Update deck outlook: focused on maximum capacity utilization, with deliveries dependent on demand, supply-chain readiness and allocation between customer sales and Tesla's own fleet; Tesla Semi and Megapack 3 on schedule for production starting in 2026; first-generation Optimus lines being installed at Fremont, with production anticipated later in 2026; over time expects hardware-related profits to be accompanied by an acceleration of AI, software and fleet-based profits. Earnings call: CFO said 2026 capex is still expected to be more than $25B (as projected in April) and will grow for the next two to three years as the robotaxi fleet expands; excluding non-recurring Q1 benefits, automotive gross margin would have been about flat q/q; energy gross margin expected to normalize long term in the low-to-mid 20% range. Musk said robotaxi miles were growing more than 10% a week and expected growth at a high rate through the rest of 2026, and self-driving on Tesla Semi around end-2026 or early 2027.",
+    "key_metrics": [
+      "Automotive gross margin: 16.9% GAAP (Q2 2025: 17.2%); 16.3% excluding regulatory credits (Q2 2025: ~15.0%) vs ~19.4% pre-release Street estimate; total GAAP gross margin 16.8% (Q2 2025: 17.2%) vs 19.5% Tesla company-compiled consensus; regulatory credit revenue $146M (Q2 2025: $439M)",
+      "Outlook/guidance statements: no numeric volume or margin guidance; 2026 capex of more than $25B reiterated, rising for the next two to three years; Semi and Megapack 3 production starting in 2026; Optimus production anticipated later in 2026; long-term energy gross margin in the low-to-mid 20% range; continued robotaxi fleet and market expansion through 2026"
+    ],
+    "other_announcements": [
+      "CFO said Tesla is securing debt facilities that will give it capacity to borrow up to $30B",
+      "Update deck: Cybercab production began at Gigafactory Texas; Robotaxi live in seven U.S. metros"
+    ],
+    "headline": "Tesla Q2 2026: revenue $28.24B vs $25.71B est; adj EPS $0.33 vs $0.51 est; automotive gross margin ex-credits 16.3% vs ~19.4% est; total GAAP gross margin 16.8% vs 19.5% company-compiled consensus; 2026 capex >$25B reiterated",
+    "notes": "Consensus differs widely by source: LSEG $25.71B / $0.51 (used); FactSet ~$26.4B / $0.53; Tesla's company-compiled consensus (23 analysts, published July 17) $27.58B revenue / $0.55 non-GAAP EPS / $0.36 GAAP EPS / 19.5% total gross margin / 5.4% operating margin; another tally $25.55B / $0.49. Automotive ex-credit margin estimate: ~19.4% ('Street', per Investing.com) vs ~18.1% (Visible Alpha, cited in a preview). Q2 2025 ex-credit margin (~15.0%) is computed from 10-Q figures. Q2 deliveries (480,126) had been published earlier in July, before this release, so some revenue estimates may predate them. Release time is the Business Wire advisory timestamp as listed by StockTitan (MarketScreener shows 16:15 EDT). Call statements are from earnings-call transcript summaries."
+  },
+  {
+    "ticker": "LLY",
+    "company": "Eli Lilly and Company",
+    "period": "Q2 2026 (quarter ended June 30, 2026)",
+    "release_date_et": "2026-08-05",
+    "release_time_et": "06:45",
+    "timing": "BMO",
+    "revenue_reported": "$22.974B (+48% y/y)",
+    "revenue_consensus": "$20.73B (LSEG)",
+    "eps_reported": "$8.38 non-GAAP (GAAP $7.94); both include $3.03/share of acquired IPR&D charges",
+    "eps_consensus": "$6.01 (LSEG)",
+    "eps_basis": "adjusted",
+    "guidance": "Full-year 2026 (revenue GAAP, other items non-GAAP): revenue $85.0B-$87.0B (prior $82.0B-$85.0B); EPS $35.50-$36.50 (prior $35.50-$37.00) - company says underlying EPS guidance rose $2.78 at the midpoint, more than offset by $3.03 of Q2 acquired IPR&D charges; guidance excludes acquired IPR&D incurred after June 30, 2026; performance margin 49.0%-50.5% (prior 47.0%-48.5%); tax rate 18%-19% (unchanged). Pre-release consensus: full-year 2026 adjusted EPS $34.20 (analysts' average cited by Reuters); full-year revenue consensus n/a. No quarterly guidance given.",
+    "key_metrics": [
+      "Mounjaro Q2 revenue $9.943B (+91% y/y; U.S. $4.8B, +45%; outside U.S. $5.2B, +172%) vs pre-release estimates $8.83B (consensus cited by LiveSquawk) / $8.94B (Zacks consensus)",
+      "Zepbound Q2 revenue $4.928B (+46% y/y; U.S. $4.9B, +44%) vs pre-release estimates $4.64B (consensus cited by LiveSquawk) / $4.72B (Zacks consensus) / $4.73B (cited by Reuters)",
+      "Full-year 2026 revenue guidance $85.0B-$87.0B, raised from $82.0B-$85.0B (midpoint +$2.5B to $86.0B); pre-release full-year revenue consensus n/a"
+    ],
+    "other_announcements": [
+      "Q2 business development: completed acquisitions of Orna Therapeutics, Ajax Therapeutics, Centessa Pharmaceuticals and Kelonia Therapeutics (Q2 acquired IPR&D charges $2.8B, $3.03/share); after quarter-end completed three infectious-disease acquisitions and agreed to acquire AtaiBeckley",
+      "Committed an additional $4.5B to expand Indiana manufacturing sites"
+    ],
+    "headline": "Eli Lilly Q2: revenue $22.97B vs $20.73B est; non-GAAP EPS $8.38 (incl. $3.03 acquired IPR&D) vs $6.01 est; Mounjaro $9.94B vs $8.83B est, Zepbound $4.93B vs $4.64B est; FY26 revenue guide $85.0-87.0B (prior $82.0-85.0B); FY26 EPS guide $35.50-36.50 (prior $35.50-37.00) vs $34.20 est",
+    "notes": "EPS consensus varied widely by source ($6.01 LSEG, $6.55 Alphastreet, $6.71 Zacks), possibly reflecting differing acquired-IPR&D assumptions; LSEG used. Revenue consensus alternatives: $20.59B (LiveSquawk-cited), $20.26B (Zacks); LSEG used. Mounjaro/Zepbound estimates differ by source, all listed. Zepbound $4.928B is the worldwide figure (brand sold as Zepbound in the U.S., Canada and Japan). Full-year EPS consensus $34.20 is Reuters' figure without a named provider. Release time from PR Newswire timestamp; conference call 10:00 a.m. ET same day."
+  },
+  {
+    "ticker": "JNJ",
+    "company": "Johnson & Johnson",
+    "period": "Q2 2026 (fiscal quarter ended June 28, 2026)",
+    "release_date_et": "2026-07-15",
+    "release_time_et": "06:20",
+    "timing": "BMO",
+    "revenue_reported": "$25.310B (+6.6% reported; +5.6% operational; +5.7% adjusted operational)",
+    "revenue_consensus": "$25.05B (LSEG)",
+    "eps_reported": "$2.90 adjusted (GAAP $2.27)",
+    "eps_consensus": "$2.85 (LSEG)",
+    "eps_basis": "adjusted",
+    "guidance": "Full-year 2026 (July vs April 2026 guidance): estimated reported sales $100.8B-$101.4B, midpoint $101.1B (+7.3%), vs prior $100.3B-$101.3B, midpoint $100.8B; operational sales $100.3B-$100.9B vs prior $99.7B-$100.7B; adjusted operational sales growth 6.2%-6.8% vs prior 5.6%-6.6%; adjusted EPS $11.60-$11.75, midpoint $11.68 (+$0.13), vs prior $11.45-$11.65; adjusted operational EPS $11.50-$11.65, midpoint $11.58 (+$0.18), vs prior $11.30-$11.50. Euro assumption $1.15 (April: $1.17). Pre-release consensus: full-year 2026 adjusted EPS ~$11.57 (Barchart preview); full-year sales consensus n/a. No quarterly guidance given.",
+    "key_metrics": [
+      "Full-year 2026 sales guidance: estimated reported sales $100.8B-$101.4B (midpoint $101.1B), up from $100.3B-$101.3B (midpoint $100.8B); adjusted operational sales growth 6.2%-6.8% (from 5.6%-6.6%); pre-release full-year sales consensus n/a",
+      "Full-year 2026 adjusted EPS guidance $11.60-$11.75 (midpoint $11.68, +$0.13), up from $11.45-$11.65 (midpoint $11.55); pre-release consensus ~$11.57",
+      "Innovative Medicine Q2 sales $16.384B: +7.8% reported, +6.8% operational, +6.9% adjusted operational (company cites ~760 bp drag from STELARA); pre-release segment sales estimate ~$16.1B (analyst estimates cited by Reuters)"
+    ],
+    "other_announcements": [],
+    "headline": "Johnson & Johnson Q2: sales $25.31B vs $25.05B est; adj. EPS $2.90 vs $2.85 est; Innovative Medicine sales $16.38B (+7.8% reported, +6.8% operational) vs ~$16.1B est; FY26 reported-sales guide $100.8-101.4B (prior $100.3-101.3B); FY26 adj. EPS guide $11.60-11.75 (prior $11.45-11.65) vs ~$11.57 est",
+    "notes": "Quarter-level consensus from LSEG via Reuters; alternatives: Zacks $25.18B / $2.84, Proactive $25.05B / $2.85, one unattributed pre-release figure $25.02B / $2.86. Full-year EPS consensus ($11.57) comes from a Barchart preview published about three weeks before the release and may have drifted. Release time from the Nasdaq/Business Wire listing (6:20 a.m. EDT); AP syndication timestamp 06:21 ET; conference call 8:30 a.m. ET."
+  },
+  {
+    "ticker": "ABBV",
+    "company": "AbbVie Inc.",
+    "period": "Q2 2026 (quarter ended June 30, 2026)",
+    "release_date_et": "2026-07-31",
+    "release_time_et": "07:47",
+    "timing": "BMO",
+    "revenue_reported": "$16.990B (+10.2% reported; +9.5% operational)",
+    "revenue_consensus": "$16.77B (cited by Reuters)",
+    "eps_reported": "$3.65 adjusted (GAAP $2.03); includes $0.17/share unfavorable acquired IPR&D and milestones expense",
+    "eps_consensus": "$3.60 (cited by Reuters)",
+    "eps_basis": "adjusted",
+    "guidance": "Full-year 2026: adjusted EPS $13.87-$14.07, from $13.91-$14.11 (midpoint -$0.04: $0.10 business overperformance offset by $0.14 expected dilution from the pending Apogee Therapeutics acquisition; includes $0.58 unfavorable YTD acquired IPR&D/milestones; excludes IPR&D after Q2) vs pre-release LSEG consensus $14.08. On the call: net revenues ~ $67.6B (+$0.3B vs prior); Skyrizi ~ $21.7B (+$0.1B); adjusted gross margin above 84%; adjusted tax rate ~14.5%. Q3 2026 (call): net revenues ~ $17.2B (includes ~0.4% unfavorable FX) and adjusted EPS $3.84-$3.88 (includes partial-quarter Apogee dilution, excludes any Q3 acquired IPR&D); Q3 consensus n/a.",
+    "key_metrics": [
+      "Skyrizi Q2 net revenue $5.505B (+24.4% reported, +24.0% operational) vs pre-release estimates $5.45B (cited by Reuters) / $5.49B (Zacks consensus)",
+      "Rinvoq Q2 net revenue $2.525B (+24.5% reported, +23.7% operational) vs pre-release estimates $2.48B (cited by Reuters) / $2.47B (Zacks consensus)",
+      "Full-year 2026 adjusted EPS guidance $13.87-$14.07, from $13.91-$14.11 (midpoint -$0.04, net of $0.14 Apogee dilution and $0.10 overperformance) vs pre-release LSEG consensus $14.08"
+    ],
+    "other_announcements": [
+      "Pending acquisition of Apogee Therapeutics (definitive agreement announced June 22, 2026; equity value ~ $10.9B; expected to close in Q3 2026); now included in guidance as $0.14 dilutive to 2026 adjusted EPS"
+    ],
+    "headline": "AbbVie Q2: revenue $16.99B vs $16.77B est; adj. EPS $3.65 vs $3.60 est; Skyrizi $5.51B vs $5.45B est, Rinvoq $2.53B vs $2.48B est; FY26 adj. EPS guide $13.87-14.07 (prior $13.91-14.11, incl. $0.14 Apogee dilution) vs $14.08 est; Q3 adj. EPS guide $3.84-3.88",
+    "notes": "Quarter EPS/revenue consensus from Reuters (provider not named in the sentence; Reuters attributes its full-year figure to LSEG); Investing.com consensus was $3.71 EPS / $16.77B revenue. Skyrizi/Rinvoq: Reuters-cited estimates used, Zacks figures also listed. Revenue, Skyrizi and Q3 guidance figures are from the earnings call, not the press release. Release time from PR Newswire timestamp; call 8:00 a.m. CT (9:00 a.m. ET)."
+  },
+  {
+    "ticker": "XOM",
+    "company": "Exxon Mobil (ExxonMobil Holdings Corporation)",
+    "period": "Q2 2026 (quarter ended June 30, 2026)",
+    "release_date_et": "2026-07-31",
+    "release_time_et": "06:30",
+    "timing": "BMO",
+    "revenue_reported": "$116.017B total revenues and other income (sales and other operating revenue $114.529B)",
+    "revenue_consensus": "$108.6B (StockStory); Zacks consensus $95.8B",
+    "eps_reported": "$3.52 adjusted (GAAP $3.48); earnings $14.5B, adjusted earnings $14.7B",
+    "eps_consensus": "$3.60 (LSEG)",
+    "eps_basis": "adjusted",
+    "guidance": "No EPS or revenue guidance. 3Q26 outlook (call slides/prepared remarks): Guyana net entitlement volumes to decrease ~100 kbd as cost recovery has been reached; a Strait of Hormuz closure for the entire quarter would reduce Middle East production by ~750 koebd versus 2025; two damaged Qatar LNG trains (~100 koebd) to stay offline even after reopening, timing uncertain; Product Solutions scheduled maintenance lower than 2Q26; Corporate and Financing expenses $0.8B-$1.0B. Forward-guidance table in deck (2026 plan): upstream production ~4.9 Moebd, share buybacks ~ $20B, cash capex $27B-$29B; 2030 production guidance unchanged. Pre-release consensus for these items n/a.",
+    "key_metrics": [
+      "Adjusted EPS $3.52 vs pre-release LSEG consensus $3.60 (GAAP EPS $3.48)",
+      "Total production 4,514 koebd (4.51 million oil-equivalent barrels per day) vs 4,594 koebd in 1Q26; Middle East 400 koebd, ex-Middle East ~4.1 Moebd; Permian above 1.8 Moebd (company says record); pre-release estimate 4,237 koebd (Zacks, average of four analysts)"
+    ],
+    "other_announcements": [
+      "Q2 shareholder distributions $9.4B: $4.3B dividends and $5.1B share repurchases; deck shows ~ $20B buyback plan for 2026",
+      "Declared Q3 dividend of $1.03 per share (same as Q2), payable September 10, 2026"
+    ],
+    "headline": "Exxon Mobil Q2: adj. EPS $3.52 vs $3.60 est (GAAP $3.48); revenue $116.0B vs $108.6B est; production 4,514 koebd (1Q26: 4,594) vs ~4,237 koebd est; distributions $9.4B incl. $5.1B buybacks; Q3 dividend $1.03 unchanged",
+    "notes": "Registrant is ExxonMobil Holdings Corporation (successor issuer since July 1, 2026), ticker XOM. EPS consensus: LSEG $3.60 used; Bloomberg average ~ $3.54 (reported as two cents above actual); Zacks $3.68. Revenue consensus figures diverge widely across providers ($95.8B Zacks, $108.6B StockStory, ~$109.9B FMP), so treat revenue surprise with caution. Production estimate is a thin four-analyst Zacks average. Release time per Nasdaq/Business Wire listing (6:30 a.m. EDT); SEC 8-K accepted 06:31 ET; call 8:30 a.m. CT (9:30 a.m. ET)."
+  },
+  {
+    "ticker": "NFLX",
+    "company": "Netflix, Inc.",
+    "period": "Q2 2026 (quarter ended June 30, 2026)",
+    "release_date_et": "2026-07-16",
+    "release_time_et": "16:01",
+    "timing": "AMC",
+    "revenue_reported": "$12.560B (+13.4% y/y; +12% F/X-neutral); operating margin 33.4%",
+    "revenue_consensus": "$12.59B (LSEG)",
+    "eps_reported": "$0.80 (GAAP diluted)",
+    "eps_consensus": "$0.79 (LSEG)",
+    "eps_basis": "GAAP",
+    "guidance": "Q3 2026: revenue $12.86B (+11.7% y/y; ~12% reported, 11% F/X-neutral), operating income $4.268B, operating margin 33.2% (vs 28.2% in Q3 2025), net income $3.452B, diluted EPS $0.82; pre-release LSEG consensus revenue $13.0B and EPS $0.84; Q3 operating-margin consensus n/a. Full-year 2026: revenue $51.0B-$51.4B (13%-14% growth, ~12% F/X-neutral), narrowed from $50.7B-$51.7B (midpoint unchanged at $51.2B); operating margin 31.5% (unchanged; now stated on both reported and Jan-1-2026 F/X basis); ads revenue ~ $3B (roughly doubling); free cash flow ~ $12.5B (unchanged); content amortization growth ~10%. Pre-release full-year consensus: revenue ~ $51.3B, operating margin ~32% (Visible Alpha).",
+    "key_metrics": [
+      "Q3 2026 revenue guidance $12.86B (+11.7% y/y) vs pre-release LSEG consensus $13.0B",
+      "Q3 2026 operating margin guidance 33.2% (vs 28.2% in Q3 2025); pre-release operating-margin consensus n/a (Q3 EPS guidance $0.82 vs LSEG consensus $0.84)",
+      "Full-year 2026 revenue guidance narrowed to $51.0B-$51.4B from $50.7B-$51.7B (midpoint unchanged at $51.2B); pre-release consensus ~ $51.3B (Visible Alpha)",
+      "Full-year 2026 operating margin guidance 31.5%, unchanged from prior guidance; pre-release consensus ~32% (Visible Alpha)"
+    ],
+    "other_announcements": [
+      "Repurchased $4.7B of stock in Q2 (company's largest quarterly repurchase); $27.1B remaining under authorizations",
+      "Semiannual 'What We Watched' engagement report to move to annual publication in Q1, starting 2027, separate from earnings"
+    ],
+    "headline": "Netflix Q2: revenue $12.56B vs $12.59B est; EPS $0.80 vs $0.79 est; operating margin 33.4%; Q3 guide revenue $12.86B vs $13.0B est, EPS $0.82 vs $0.84 est, operating margin 33.2%; FY26 revenue guide narrowed to $51.0-51.4B (prior $50.7-51.7B), operating margin 31.5% unchanged",
+    "notes": "Netflix reports GAAP EPS only; consensus on the same basis. Q2 revenue consensus: $12.59B (LSEG, via Variety) used; other reports $12.58B, Zacks $12.57B. Q3 operating-margin consensus not found. Full-year consensus (Visible Alpha, via S&P Global Market Intelligence preview) taken from a search-result excerpt because the page itself was not accessible; treat as approximate. Release time: company pre-announced posting at ~1:01 p.m. PT; SEC 8-K accepted 16:03 ET; video interview 1:45 p.m. PT."
+  }
+]

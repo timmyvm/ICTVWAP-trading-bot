@@ -1,0 +1,123 @@
+[
+  {
+    "ticker": "LLY",
+    "company": "Eli Lilly and Company",
+    "period": "Q2 2026 (quarter ended June 30, 2026)",
+    "release_date_et": "2026-08-05",
+    "release_time_et": "06:45",
+    "timing": "BMO",
+    "revenue_reported": "$22.974B (+48% y/y)",
+    "revenue_consensus": "$20.73B (LSEG)",
+    "eps_reported": "$8.38 non-GAAP (GAAP $7.94); both include $3.03/share of acquired IPR&D charges",
+    "eps_consensus": "$6.01 (LSEG)",
+    "eps_basis": "adjusted",
+    "guidance": "Full-year 2026 (revenue GAAP, other items non-GAAP): revenue $85.0B-$87.0B (prior $82.0B-$85.0B); EPS $35.50-$36.50 (prior $35.50-$37.00) - company says underlying EPS guidance increased by $2.78 at the midpoint, more than offset by $3.03 of Q2 acquired IPR&D charges; guidance excludes acquired IPR&D incurred after June 30, 2026; performance margin 49.0%-50.5% (prior 47.0%-48.5%); tax rate 18%-19% (unchanged). Pre-release consensus: full-year 2026 adjusted EPS $34.20 (analysts' average cited by Reuters); full-year revenue consensus n/a. No quarterly guidance given.",
+    "key_metrics": [
+      "Mounjaro Q2 revenue $9.943B (+91% y/y; U.S. $4.8B, +45%; outside U.S. $5.2B, +172%) vs pre-release estimates $8.83B (consensus cited by LiveSquawk) / $8.94B (Zacks consensus)",
+      "Zepbound Q2 revenue $4.928B (+46% y/y; U.S. $4.9B, +44%) vs pre-release estimates $4.64B (consensus cited by LiveSquawk) / $4.72B (Zacks consensus) / $4.73B (cited by Reuters)",
+      "Full-year 2026 revenue guidance $85.0B-$87.0B, raised from $82.0B-$85.0B (midpoint +$2.5B to $86.0B); pre-release full-year revenue consensus n/a"
+    ],
+    "other_announcements": [
+      "Q2 business development: completed acquisitions of Orna Therapeutics, Ajax Therapeutics, Centessa Pharmaceuticals and Kelonia Therapeutics (Q2 acquired IPR&D charges $2.8B, $3.03/share); after quarter-end completed three infectious-disease acquisitions and agreed to acquire AtaiBeckley",
+      "Committed an additional $4.5B to expand Indiana manufacturing sites"
+    ],
+    "headline": "Eli Lilly Q2: revenue $22.97B vs $20.73B est; non-GAAP EPS $8.38 (incl. $3.03 acquired IPR&D) vs $6.01 est; Mounjaro $9.94B vs $8.83B est, Zepbound $4.93B vs $4.64B est; FY26 revenue guide $85.0-87.0B (prior $82.0-85.0B); FY26 EPS guide $35.50-36.50 (prior $35.50-37.00) vs $34.20 est",
+    "notes": "EPS consensus varied widely by source ($6.01 LSEG, $6.55 Alphastreet, $6.71 Zacks), possibly reflecting differing acquired-IPR&D assumptions; LSEG used. Revenue consensus alternatives: $20.59B (LiveSquawk-cited), $20.26B (Zacks); LSEG used. Mounjaro/Zepbound estimates differ by source, all listed. Zepbound $4.928B is the worldwide figure (brand sold as Zepbound in the U.S., Canada and Japan). Full-year EPS consensus $34.20 is Reuters' figure without a named provider. Release time from PR Newswire timestamp; conference call 10:00 a.m. ET same day."
+  },
+  {
+    "ticker": "JNJ",
+    "company": "Johnson & Johnson",
+    "period": "Q2 2026 (fiscal quarter ended June 28, 2026)",
+    "release_date_et": "2026-07-15",
+    "release_time_et": "06:20",
+    "timing": "BMO",
+    "revenue_reported": "$25.310B (+6.6% reported; +5.6% operational; +5.7% adjusted operational)",
+    "revenue_consensus": "$25.05B (LSEG)",
+    "eps_reported": "$2.90 adjusted (GAAP $2.27)",
+    "eps_consensus": "$2.85 (LSEG)",
+    "eps_basis": "adjusted",
+    "guidance": "Full-year 2026 (July vs April 2026 guidance): estimated reported sales $100.8B-$101.4B, midpoint $101.1B (+7.3%), vs prior $100.3B-$101.3B, midpoint $100.8B; operational sales $100.3B-$100.9B vs prior $99.7B-$100.7B; adjusted operational sales growth 6.2%-6.8% vs prior 5.6%-6.6%; adjusted EPS $11.60-$11.75, midpoint $11.68 (+$0.13), vs prior $11.45-$11.65; adjusted operational EPS $11.50-$11.65, midpoint $11.58 (+$0.18), vs prior $11.30-$11.50. Euro assumption $1.15 (April: $1.17). Pre-release consensus: full-year 2026 adjusted EPS ~$11.57 (Barchart preview); full-year sales consensus n/a. No quarterly guidance given.",
+    "key_metrics": [
+      "Full-year 2026 sales guidance: estimated reported sales $100.8B-$101.4B (midpoint $101.1B), up from $100.3B-$101.3B (midpoint $100.8B); adjusted operational sales growth 6.2%-6.8% (from 5.6%-6.6%); pre-release full-year sales consensus n/a",
+      "Full-year 2026 adjusted EPS guidance $11.60-$11.75 (midpoint $11.68, +$0.13), up from $11.45-$11.65 (midpoint $11.55); pre-release consensus ~$11.57",
+      "Innovative Medicine Q2 sales $16.384B: +7.8% reported, +6.8% operational, +6.9% adjusted operational (company cites ~760 bp drag from STELARA); pre-release segment sales estimate ~$16.1B (analyst estimates cited by Reuters)"
+    ],
+    "other_announcements": [],
+    "headline": "Johnson & Johnson Q2: sales $25.31B vs $25.05B est; adj. EPS $2.90 vs $2.85 est; Innovative Medicine sales $16.38B (+7.8% reported, +6.8% operational) vs ~$16.1B est; FY26 reported-sales guide $100.8-101.4B (prior $100.3-101.3B); FY26 adj. EPS guide $11.60-11.75 (prior $11.45-11.65) vs ~$11.57 est",
+    "notes": "Quarter-level consensus from LSEG via Reuters; alternatives: Zacks $25.18B / $2.84, Proactive $25.05B / $2.85, one unattributed pre-release figure $25.02B / $2.86. Full-year EPS consensus ($11.57) comes from a Barchart preview published about three weeks before the release and may have drifted. Release time from the Nasdaq/Business Wire listing (6:20 a.m. EDT); AP syndication timestamp 06:21 ET; conference call 8:30 a.m. ET."
+  },
+  {
+    "ticker": "ABBV",
+    "company": "AbbVie Inc.",
+    "period": "Q2 2026 (quarter ended June 30, 2026)",
+    "release_date_et": "2026-07-31",
+    "release_time_et": "07:47",
+    "timing": "BMO",
+    "revenue_reported": "$16.990B (+10.2% reported; +9.5% operational)",
+    "revenue_consensus": "$16.77B (cited by Reuters)",
+    "eps_reported": "$3.65 adjusted (GAAP $2.03); includes $0.17/share unfavorable acquired IPR&D and milestones expense",
+    "eps_consensus": "$3.60 (cited by Reuters)",
+    "eps_basis": "adjusted",
+    "guidance": "Full-year 2026: adjusted EPS $13.87-$14.07, from $13.91-$14.11 (midpoint -$0.04: $0.10 business overperformance offset by $0.14 expected dilution from the pending Apogee Therapeutics acquisition; includes $0.58 unfavorable YTD acquired IPR&D/milestones; excludes IPR&D after Q2) vs pre-release LSEG consensus $14.08. On the call: net revenues ~ $67.6B (+$0.3B vs prior); Skyrizi ~ $21.7B (+$0.1B); adjusted gross margin above 84%; adjusted tax rate ~14.5%. Q3 2026 (call): net revenues ~ $17.2B (includes ~0.4% unfavorable FX) and adjusted EPS $3.84-$3.88 (includes partial-quarter Apogee dilution, excludes any Q3 acquired IPR&D); Q3 consensus n/a.",
+    "key_metrics": [
+      "Skyrizi Q2 net revenue $5.505B (+24.4% reported, +24.0% operational) vs pre-release estimates $5.45B (cited by Reuters) / $5.49B (Zacks consensus)",
+      "Rinvoq Q2 net revenue $2.525B (+24.5% reported, +23.7% operational) vs pre-release estimates $2.48B (cited by Reuters) / $2.47B (Zacks consensus)",
+      "Full-year 2026 adjusted EPS guidance $13.87-$14.07, from $13.91-$14.11 (midpoint -$0.04, net of $0.14 Apogee dilution and $0.10 overperformance) vs pre-release LSEG consensus $14.08"
+    ],
+    "other_announcements": [
+      "Pending acquisition of Apogee Therapeutics (definitive agreement announced June 22, 2026; equity value ~ $10.9B; expected to close in Q3 2026); now included in guidance as $0.14 dilutive to 2026 adjusted EPS"
+    ],
+    "headline": "AbbVie Q2: revenue $16.99B vs $16.77B est; adj. EPS $3.65 vs $3.60 est; Skyrizi $5.51B vs $5.45B est, Rinvoq $2.53B vs $2.48B est; FY26 adj. EPS guide $13.87-14.07 (prior $13.91-14.11, incl. $0.14 Apogee dilution) vs $14.08 est; Q3 adj. EPS guide $3.84-3.88",
+    "notes": "Quarter EPS/revenue consensus from Reuters (provider not named in the sentence; Reuters attributes its full-year figure to LSEG); Investing.com consensus was $3.71 EPS / $16.77B revenue. Skyrizi/Rinvoq: Reuters-cited estimates used, Zacks figures also listed. Revenue, Skyrizi and Q3 guidance figures are from the earnings call, not the press release. Release time from PR Newswire timestamp; call 8:00 a.m. CT (9:00 a.m. ET)."
+  },
+  {
+    "ticker": "XOM",
+    "company": "Exxon Mobil (ExxonMobil Holdings Corporation)",
+    "period": "Q2 2026 (quarter ended June 30, 2026)",
+    "release_date_et": "2026-07-31",
+    "release_time_et": "06:30",
+    "timing": "BMO",
+    "revenue_reported": "$116.017B total revenues and other income (sales and other operating revenue $114.529B)",
+    "revenue_consensus": "$108.6B (StockStory); Zacks consensus $95.8B",
+    "eps_reported": "$3.52 adjusted (GAAP $3.48); earnings $14.5B, adjusted earnings $14.7B",
+    "eps_consensus": "$3.60 (LSEG)",
+    "eps_basis": "adjusted",
+    "guidance": "No EPS or revenue guidance. 3Q26 outlook (call slides/prepared remarks): Guyana net entitlement volumes to decrease ~100 kbd as cost recovery has been reached; a Strait of Hormuz closure for the entire quarter would reduce Middle East production by ~750 koebd versus 2025; two damaged Qatar LNG trains (~100 koebd) to stay offline even after reopening, timing uncertain; Product Solutions scheduled maintenance lower than 2Q26; Corporate and Financing expenses $0.8B-$1.0B. Forward-guidance table in deck (2026 plan): upstream production ~4.9 Moebd, share buybacks ~ $20B, cash capex $27B-$29B; 2030 production guidance unchanged. Pre-release consensus for these items n/a.",
+    "key_metrics": [
+      "Adjusted EPS $3.52 vs pre-release LSEG consensus $3.60 (GAAP EPS $3.48)",
+      "Total production 4,514 koebd (4.51 million oil-equivalent barrels per day) vs 4,594 koebd in 1Q26; Middle East 400 koebd, ex-Middle East ~4.1 Moebd; Permian above 1.8 Moebd (company says record); pre-release estimate 4,237 koebd (Zacks, average of four analysts)"
+    ],
+    "other_announcements": [
+      "Q2 shareholder distributions $9.4B: $4.3B dividends and $5.1B share repurchases; deck shows ~ $20B buyback plan for 2026",
+      "Declared Q3 dividend of $1.03 per share (same as Q2), payable September 10, 2026"
+    ],
+    "headline": "Exxon Mobil Q2: adj. EPS $3.52 vs $3.60 est (GAAP $3.48); revenue $116.0B vs $108.6B est; production 4,514 koebd (1Q26: 4,594) vs ~4,237 koebd est; distributions $9.4B incl. $5.1B buybacks; Q3 dividend $1.03 unchanged",
+    "notes": "Registrant is ExxonMobil Holdings Corporation (successor issuer since July 1, 2026), ticker XOM. EPS consensus: LSEG $3.60 used; Bloomberg average ~ $3.54 (reported as two cents above actual); Zacks $3.68. Revenue consensus figures diverge widely across providers ($95.8B Zacks, $108.6B StockStory, ~$109.9B FMP), so treat revenue surprise with caution. Production estimate is a thin four-analyst Zacks average. Release time per Nasdaq/Business Wire listing (6:30 a.m. EDT); SEC 8-K accepted 06:31 ET; call 8:30 a.m. CT (9:30 a.m. ET)."
+  },
+  {
+    "ticker": "NFLX",
+    "company": "Netflix, Inc.",
+    "period": "Q2 2026 (quarter ended June 30, 2026)",
+    "release_date_et": "2026-07-16",
+    "release_time_et": "16:01",
+    "timing": "AMC",
+    "revenue_reported": "$12.560B (+13.4% y/y; +12% F/X-neutral); operating margin 33.4%",
+    "revenue_consensus": "$12.59B (LSEG)",
+    "eps_reported": "$0.80 (GAAP diluted)",
+    "eps_consensus": "$0.79 (LSEG)",
+    "eps_basis": "GAAP",
+    "guidance": "Q3 2026: revenue $12.86B (+11.7% y/y; ~12% reported, 11% F/X-neutral), operating income $4.268B, operating margin 33.2% (vs 28.2% in Q3 2025), net income $3.452B, diluted EPS $0.82; pre-release LSEG consensus revenue $13.0B and EPS $0.84; Q3 operating-margin consensus n/a. Full-year 2026: revenue $51.0B-$51.4B (13%-14% growth, ~12% F/X-neutral), narrowed from $50.7B-$51.7B (midpoint unchanged at $51.2B); operating margin 31.5% (unchanged; now stated on both reported and Jan-1-2026 F/X basis); ads revenue ~ $3B (roughly doubling); free cash flow ~ $12.5B (unchanged); content amortization growth ~10%. Pre-release full-year consensus: revenue ~ $51.3B, operating margin ~32% (Visible Alpha).",
+    "key_metrics": [
+      "Q3 2026 revenue guidance $12.86B (+11.7% y/y) vs pre-release LSEG consensus $13.0B",
+      "Q3 2026 operating margin guidance 33.2% (vs 28.2% in Q3 2025); pre-release operating-margin consensus n/a (Q3 EPS guidance $0.82 vs LSEG consensus $0.84)",
+      "Full-year 2026 revenue guidance narrowed to $51.0B-$51.4B from $50.7B-$51.7B (midpoint unchanged at $51.2B); pre-release consensus ~ $51.3B (Visible Alpha)",
+      "Full-year 2026 operating margin guidance 31.5%, unchanged from prior guidance; pre-release consensus ~32% (Visible Alpha)"
+    ],
+    "other_announcements": [
+      "Repurchased $4.7B of stock in Q2 (company's largest quarterly repurchase); $27.1B remaining under authorizations",
+      "Semiannual 'What We Watched' engagement report to move to annual publication in Q1, starting 2027, separate from earnings"
+    ],
+    "headline": "Netflix Q2: revenue $12.56B vs $12.59B est; EPS $0.80 vs $0.79 est; operating margin 33.4%; Q3 guide revenue $12.86B vs $13.0B est, EPS $0.82 vs $0.84 est, operating margin 33.2%; FY26 revenue guide narrowed to $51.0-51.4B (prior $50.7-51.7B), operating margin 31.5% unchanged",
+    "notes": "Netflix reports GAAP EPS only; consensus on the same basis. Q2 revenue consensus: $12.59B (LSEG, via Variety) used; other reports $12.58B, Zacks $12.57B. Q3 operating-margin consensus not found. Full-year consensus (Visible Alpha, via S&P Global Market Intelligence preview) taken from a search-result excerpt because the page itself was not accessible; treat as approximate. Release time: company pre-announced posting at ~1:01 p.m. PT; SEC 8-K accepted 16:03 ET; video interview 1:45 p.m. PT."
+  }
+]

@@ -1,0 +1,22 @@
+[
+  {"ticker": "MSFT", "direction": "UP", "size": "medium", "confidence": 0.75,
+   "reason": "Beat on revenue, EPS and Azure (43% vs ~40% est); guides Azure ~45% vs 41% est and revenue above consensus; the lower capex figure is a lease reclassification, not a cut."},
+  {"ticker": "GOOGL", "direction": "UP", "size": "medium", "confidence": 0.65,
+   "reason": "Cloud +82% vs ~64% expected and a 2.5% revenue beat should outweigh a $15B capex raise, paused buybacks and a slight EPS miss ex the equity gain."},
+  {"ticker": "META", "direction": "DOWN", "size": "big", "confidence": 0.70,
+   "reason": "Q3 revenue guide midpoint below consensus, headline EPS miss on charges, capex range raised, a new material-loss warning on youth trials and no buybacks."},
+  {"ticker": "AAPL", "direction": "DOWN", "size": "medium", "confidence": 0.60,
+   "reason": "Small beats, but the September-quarter guide (9-11% growth vs ~12% est, iPhone mid-teens vs 17.6% est) is below consensus."},
+  {"ticker": "AMZN", "direction": "UP", "size": "big", "confidence": 0.65,
+   "reason": "AWS +37% vs ~31% expected is the stock's swing factor; the soft Q3 sales guide is mostly Prime Day timing; the capex raise to ~$220B is a drag but secondary."},
+  {"ticker": "NVDA", "direction": "UP", "size": "medium", "confidence": 0.60,
+   "reason": "Beat and raise (Q3 guide $108B vs $104B est) plus FY28 growth ~70% vs ~44% expected; the margin guide down to 71-72% is the offset and NVDA often fades good news."},
+  {"ticker": "AVGO", "direction": "UP", "size": "big", "confidence": 0.65,
+   "reason": "AI revenue beat and long-range targets far above the Street (FY27 AI ~$115B, FY28 EPS > $30 vs $25.86 est) outweigh a Q4 revenue guide 0.7% light."},
+  {"ticker": "ORCL", "direction": "UP", "size": "big", "confidence": 0.60,
+   "reason": "Beats on revenue, EPS (+10%), RPO and OCI growth; full-year guide nudged up; the $20B equity sale was pre-disclosed. Debt/capex worries are the risk."},
+  {"ticker": "PLTR", "direction": "UP", "size": "big", "confidence": 0.70,
+   "reason": "Large beat and raise: revenue +7.5% vs est, Q3 guide ~8% above, FY guide raised ~5% above consensus. Valuation is the only argument against."},
+  {"ticker": "TSLA", "direction": "DOWN", "size": "big", "confidence": 0.65,
+   "reason": "EPS $0.33 vs $0.51 and margins ~3 points below estimates, no guidance, capex rising for years and a new $30B borrowing capacity; robotaxi/Cybercab news is the bull offset."}
+]

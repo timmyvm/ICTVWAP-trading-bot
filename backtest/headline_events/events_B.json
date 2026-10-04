@@ -1,0 +1,117 @@
+[
+  {
+    "ticker": "NVDA",
+    "company": "NVIDIA Corporation",
+    "period": "Q2 fiscal 2027 (quarter ended 2026-07-26)",
+    "release_date_et": "2026-08-26",
+    "release_time_et": "16:20",
+    "timing": "AMC",
+    "revenue_reported": "$96.2B ($96.22B), +106% y/y, +18% q/q",
+    "revenue_consensus": "$92.17B (LSEG)",
+    "eps_reported": "$2.22 non-GAAP diluted (GAAP $2.46)",
+    "eps_consensus": "$2.10 (LSEG)",
+    "eps_basis": "adjusted",
+    "guidance": "Q3 FY27 (quarter ending Oct 2026): revenue $108.0B +/-2% vs $104.19B consensus (LSEG); GAAP and non-GAAP gross margin 74.0% +/-50bp vs 74.77% consensus; GAAP/non-GAAP operating expenses ~$9.2B/~$9.0B; outlook assumes no Data Center compute revenue from China. On the call the CFO said gross margin is expected to bottom in Q4 FY27 in the 71%-72% range and then run at 72%-73% in FY28 as price increases take effect (citing higher memory prices), and that FY28 (year ending Jan 2028) revenue is expected to grow ~70% (pre-release analyst average for FY28 growth: ~44%); Vera Rubin expected to be ~20% of Q3 Data Center revenue.",
+    "key_metrics": [
+      "Data Center revenue: $89.0B (+117% y/y, +18% q/q) vs $85.08B estimate (LSEG)",
+      "Next-quarter (Q3 FY27) revenue guidance: $108.0B +/-2% vs $104.19B consensus (LSEG)",
+      "Q3 FY27 gross-margin guidance: 74.0% +/-50bp (GAAP and non-GAAP) vs 74.77% consensus; Q2 actual GAAP and non-GAAP gross margin was 75.0%"
+    ],
+    "other_announcements": [
+      "Returned ~$26.0B to shareholders in Q2 (~$20.0B share repurchases, ~$6.0B dividends); ~$99.0B remained under the repurchase authorization; next quarterly dividend $0.25/share payable Oct 1, 2026 (same rate as set in May 2026)"
+    ],
+    "headline": "Nvidia Q2 FY27: revenue $96.2B vs $92.17B est; adj EPS $2.22 vs $2.10 est; data center $89.0B vs $85.08B est; guides Q3 revenue $108.0B +/-2% vs $104.19B est and Q3 gross margin 74.0% vs 74.77% est",
+    "notes": "Consensus figures are LSEG as cited by Reuters (revenue, adj EPS, Data Center, Q3 revenue; Q3 gross margin 74.77% and FY28 growth ~44% are the analyst averages Reuters cited). CoinDesk cited slightly different tallies: revenue $92.27B, EPS $2.09, Data Center $85.4B, Q3 revenue $103.9B. GAAP EPS exceeds non-GAAP mainly because of ~$7.77B of gains on equity securities that non-GAAP excludes. The release reports two segments: Data Center ($89.0B) and Edge Computing ($7.2B). Release time is the GlobeNewswire timestamp. Q4/FY28 margin and FY28 growth statements are from earnings-call transcript summaries."
+  },
+  {
+    "ticker": "AVGO",
+    "company": "Broadcom Inc.",
+    "period": "Q3 fiscal 2026 (quarter ended 2026-08-02)",
+    "release_date_et": "2026-09-02",
+    "release_time_et": "16:15",
+    "timing": "AMC",
+    "revenue_reported": "$29.59B, +86% y/y",
+    "revenue_consensus": "$29.36B (LSEG)",
+    "eps_reported": "$3.32 non-GAAP diluted (GAAP $2.68)",
+    "eps_consensus": "$3.24 (LSEG)",
+    "eps_basis": "adjusted",
+    "guidance": "Q4 FY26: revenue ~$34.8B (+93% y/y) vs $35.03B consensus (LSEG); AI semiconductor revenue $21.7B (+236% y/y) vs $21.33B estimate (Visible Alpha); consolidated gross margin ~73%; non-GAAP operating margin ~66% of revenue. On the call: FY26 AI revenue ~$58B (prior guidance $56B); FY27 AI revenue ~$115B, with supply secured (prior guidance: in excess of $100B); 'line of sight' for FY28 AI semiconductor revenue to double again to ~$230B; expects FY28 EPS to exceed $30 (LSEG FY28 EPS consensus cited at $25.86).",
+    "key_metrics": [
+      "AI semiconductor revenue: $16.7B (+221% y/y, +54% q/q) vs $15.2B average estimate (StreetAccount); the company's own guidance issued June 3, 2026 was ~$16.0B",
+      "Next-quarter (Q4 FY26) revenue guidance: ~$34.8B vs $35.03B consensus (LSEG)"
+    ],
+    "other_announcements": [],
+    "headline": "Broadcom Q3 FY26: revenue $29.59B vs $29.36B est; adj EPS $3.32 vs $3.24 est; AI semiconductor revenue $16.7B vs $15.2B est; guides Q4 revenue ~$34.8B vs $35.03B est and Q4 AI revenue $21.7B vs $21.33B est",
+    "notes": "Revenue/EPS consensus are LSEG as cited by CNBC. The StreetAccount AI estimate ($15.2B, cited by CNBC) sits below the company's own June 3 guidance (~$16.0B); some pre-release previews treated ~$16.0B as the bar. Q4 AI estimate is Visible Alpha as cited by Reuters. FY26/FY27/FY28 AI figures and the FY28 EPS target are from the earnings call; prior FY26 ($56B) and FY27 (>$100B) AI guidance are from the June 2026 call. Release time is the PRNewswire timestamp."
+  },
+  {
+    "ticker": "ORCL",
+    "company": "Oracle Corporation",
+    "period": "Q1 fiscal 2027 (quarter ended 2026-08-31)",
+    "release_date_et": "2026-09-10",
+    "release_time_et": "16:10",
+    "timing": "AMC",
+    "revenue_reported": "$19.35B, +30% y/y",
+    "revenue_consensus": "$19.14B (LSEG)",
+    "eps_reported": "$1.92 non-GAAP diluted (GAAP $1.56)",
+    "eps_consensus": "$1.74 (LSEG)",
+    "eps_basis": "adjusted",
+    "guidance": "Q2 FY27: total revenue growth 30%-34% in USD and constant currency vs $21.20B revenue consensus (the range implies ~$20.9B-$21.5B on Q2 FY26 revenue of $16.06B); total cloud revenue growth 65%-71% in USD (64%-70% cc); non-GAAP EPS $1.85-$1.93 in USD vs $1.89 consensus. FY27: total revenue 'at least $90 billion' (June 10 guidance: $90B; consensus $89.76B) and non-GAAP EPS $8.10 (June 10 guidance: $8.05; consensus $8.07). On the call: FY27 capex ~$90B-$95B gross with net cash capex of not more than ~$70B; about half of RPO expected to convert to revenue over the next 36 months; OCI revenue growth expected to keep accelerating through the rest of FY27.",
+    "key_metrics": [
+      "Remaining performance obligations (RPO): $664B (+$209B y/y, +$26B q/q) vs $630.6B consensus (StreetAccount)",
+      "OCI (Cloud Infrastructure / IaaS) revenue: $7.4B, +121% y/y in USD (+120% cc) vs $7.09B consensus estimate (another tally: $7.19B)",
+      "Full-year FY27 guidance change: revenue now 'at least $90B' (previously $90B); non-GAAP EPS raised to $8.10 from $8.05; pre-release consensus $89.76B revenue and $8.07 EPS"
+    ],
+    "other_announcements": [
+      "Completed the sale of $20B of common stock (before commissions) through an at-the-market equity program during Q1, as part of its previously disclosed capital investment program",
+      "Booked more than $30B of additional AI cloud contracts in Q1; the company said that, based on how those contracts are structured, there is no incremental impact on its plans to raise capital"
+    ],
+    "headline": "Oracle Q1 FY27: revenue $19.35B vs $19.14B est; adj EPS $1.92 vs $1.74 est; RPO $664B vs $630.6B est; OCI revenue $7.4B (+121% y/y) vs $7.09B est; FY27 guidance revenue at least $90B vs $89.76B est, adj EPS $8.10 (from $8.05) vs $8.07 est",
+    "notes": "Revenue/EPS consensus are LSEG as cited by CNBC (other tallies: revenue $19.06B-$19.13B, EPS $1.73). OCI estimate $7.09B as cited by CNBC; Bloomberg cited $7.19B. Q2 and FY27 consensus figures as cited by CNBC. Prior FY27 guidance is from the June 10, 2026 Q4 FY26 release. The implied Q2 dollar range is computed, not company-stated. Capex, RPO-conversion and OCI-acceleration statements are from earnings-call transcript summaries. Release time is the PRNewswire timestamp; the call was at 4:00 pm Central."
+  },
+  {
+    "ticker": "PLTR",
+    "company": "Palantir Technologies Inc.",
+    "period": "Q2 2026 (quarter ended 2026-06-30)",
+    "release_date_et": "2026-08-03",
+    "release_time_et": "16:05",
+    "timing": "AMC",
+    "revenue_reported": "$1.935B, +93% y/y, +19% q/q",
+    "revenue_consensus": "$1.80B (LSEG)",
+    "eps_reported": "$0.41 adjusted diluted (GAAP $0.41)",
+    "eps_consensus": "$0.35 (LSEG)",
+    "eps_basis": "adjusted",
+    "guidance": "Q3 2026: revenue $2.160B-$2.164B vs ~$2.00B consensus; adjusted operating income $1.292B-$1.296B. FY2026 (raised): revenue $8.150B-$8.158B (prior $7.650B-$7.662B; pre-release consensus ~$7.73B); U.S. commercial revenue in excess of $3.424B, at least 134% growth (prior: in excess of $3.224B, at least 120%); adjusted operating income $4.889B-$4.897B (prior $4.440B-$4.452B); adjusted free cash flow $4.5B-$4.7B (prior $4.2B-$4.4B); GAAP operating income and net income expected to be positive in each quarter.",
+    "key_metrics": [
+      "U.S. commercial revenue: $764M, +149% y/y and +28% q/q vs ~$716M (~134% y/y) pre-release estimate",
+      "Full-year 2026 revenue guidance: $8.150B-$8.158B vs prior guidance of $7.650B-$7.662B and pre-release consensus of ~$7.73B"
+    ],
+    "other_announcements": [],
+    "headline": "Palantir Q2 2026: revenue $1.935B vs $1.80B est; adj EPS $0.41 vs $0.35 est; U.S. commercial revenue $764M (+149% y/y) vs ~$716M est; FY26 revenue guidance $8.150-8.158B (prior $7.650-7.662B) vs ~$7.73B est; Q3 revenue guidance $2.160-2.164B vs ~$2.00B est",
+    "notes": "Revenue/EPS consensus are LSEG as cited by CNBC; other tallies were $1.81B and $0.34. The U.S. commercial estimate comes from a pre-release preview that did not name its data source. FY26 (~$7.73B) and Q3 (~$2.00B) consensus figures come from post-release summaries (Futurum; StockStory's guidance comparison implies ~$2.00B for Q3). GAAP and adjusted diluted EPS were both $0.41. Release time 16:05 is from StockTitan's listing of the Business Wire release; the SEC 8-K was accepted at 16:06 ET."
+  },
+  {
+    "ticker": "TSLA",
+    "company": "Tesla, Inc.",
+    "period": "Q2 2026 (quarter ended 2026-06-30)",
+    "release_date_et": "2026-07-22",
+    "release_time_et": "16:14",
+    "timing": "AMC",
+    "revenue_reported": "$28.24B, +26% y/y",
+    "revenue_consensus": "$25.71B (LSEG)",
+    "eps_reported": "$0.33 non-GAAP diluted (GAAP $0.32)",
+    "eps_consensus": "$0.51 (LSEG)",
+    "eps_basis": "adjusted",
+    "guidance": "No numeric revenue, delivery or margin guidance. Update deck outlook: focused on maximum capacity utilization, with deliveries dependent on demand, supply-chain readiness and allocation between customer sales and Tesla's own fleet; Tesla Semi and Megapack 3 on schedule for production starting in 2026; first-generation Optimus lines being installed at Fremont, with production anticipated later in 2026; over time expects hardware-related profits to be accompanied by an acceleration of AI, software and fleet-based profits. Earnings call: CFO said 2026 capex is still expected to be more than $25B (as projected in April) and will grow for the next two to three years as the robotaxi fleet expands; excluding non-recurring Q1 benefits, automotive gross margin would have been about flat q/q; energy gross margin expected to normalize long term in the low-to-mid 20% range. Musk said robotaxi miles were growing more than 10% a week and expected growth at a high rate through the rest of 2026, and self-driving on Tesla Semi around end-2026 or early 2027.",
+    "key_metrics": [
+      "Automotive gross margin: 16.9% GAAP (Q2 2025: 17.2%); 16.3% excluding regulatory credits (Q2 2025: ~15.0%) vs ~19.4% pre-release Street estimate; total GAAP gross margin 16.8% (Q2 2025: 17.2%) vs 19.5% Tesla company-compiled consensus; regulatory credit revenue $146M (Q2 2025: $439M)",
+      "Outlook/guidance statements: no numeric volume or margin guidance; 2026 capex of more than $25B reiterated, rising for the next two to three years; Semi and Megapack 3 production starting in 2026; Optimus production anticipated later in 2026; long-term energy gross margin in the low-to-mid 20% range; continued robotaxi fleet and market expansion through 2026"
+    ],
+    "other_announcements": [
+      "CFO said Tesla is securing debt facilities that will give it capacity to borrow up to $30B",
+      "Update deck: Cybercab production began at Gigafactory Texas; Robotaxi live in seven U.S. metros"
+    ],
+    "headline": "Tesla Q2 2026: revenue $28.24B vs $25.71B est; adj EPS $0.33 vs $0.51 est; automotive gross margin ex-credits 16.3% vs ~19.4% est; total GAAP gross margin 16.8% vs 19.5% company-compiled consensus; 2026 capex >$25B reiterated",
+    "notes": "Consensus differs widely by source: LSEG $25.71B / $0.51 (used); FactSet ~$26.4B / $0.53; Tesla's company-compiled consensus (23 analysts, published July 17) $27.58B revenue / $0.55 non-GAAP EPS / $0.36 GAAP EPS / 19.5% total gross margin / 5.4% operating margin; another tally $25.55B / $0.49. Automotive ex-credit margin estimate: ~19.4% ('Street', per Investing.com) vs ~18.1% (Visible Alpha, cited in a preview). Q2 2025 ex-credit margin (~15.0%) is computed from 10-Q figures. Q2 deliveries (480,126) had been published earlier in July, before this release, so some revenue estimates may predate them. Release time is the Business Wire advisory timestamp as listed by StockTitan (MarketScreener shows 16:15 EDT). Call statements are from earnings-call transcript summaries."
+  }
+]
