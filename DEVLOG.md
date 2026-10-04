@@ -1,5 +1,51 @@
 # DEVLOG — Powell Trades Bot
 
+## v0.26-diag — Can the losing coins be identified IN ADVANCE? (2026-10-04)
+
+User: "just remove what isn't working and rerun." Taken as: drop the
+losing coins (BTC and LINK lost in v0.25, and in every v0.23 analysis).
+
+**Why the literal rerun is worthless, on record.** Removing coins after
+seeing them lose and re-scoring the same data is guaranteed to improve
+the number — it is selection on the outcome. Arithmetic from v0.25's
+existing output, no rerun needed: dropping BTC and LINK takes the T1
+24 h total from +$39,443 on eight coins (avg $4,930/coin) to +$46,233 on
+six (avg $7,706/coin), +56 % per coin, with zero information about the
+future. Every reel equity curve in this project was built this way.
+
+**The two exclusions are not the same.** BTC failed v0.23's DEVELOPMENT
+stage (both BTC windows negative) before the holdout was run, and the
+v0.23 holdout universe never included it — v0.23 never claimed to work
+on BTC, so excluding it is consistent with the original validation. LINK
+was IN the holdout and lost; excluding it now is hindsight unless a
+rule using only prior information would have flagged it.
+
+**The honest test: walk-forward coin selection.** Strategy: v0.23 T1
+24 h verbatim, overlay off (one variable at a time). Universe: all eight
+perps, so the rule gets the chance to learn BTC and LINK by itself. Per
+trade, net return on notional (fees and funding included). At the start
+of each calendar quarter, a coin is traded that quarter only if the mean
+net return of its trades that CLOSED during the previous four quarters
+is above zero; coins with fewer than 50 such trades are traded (no
+evidence to drop). Using exit time, not entry time, keeps a trade whose
+24 h hold straddles the quarter boundary out of the decision —
+lookahead-free. Portfolio: equal capital per traded coin, each trade at
+20 % notional of its sleeve, re-selected quarterly; the comparison is the
+same portfolio with every coin always on. Out-of-sample window
+2021-Q1 → 2026-Q3 (2020 is burn-in only).
+
+**Pass bar, fixed before running.** Selection must raise the
+out-of-sample return per quarter AND do so in a majority of the quarters
+where it actually excluded something. Pass ⇒ per-coin performance is
+persistent enough to prune on, and a live v0.23 should re-select
+quarterly. Fail ⇒ which coins win is not knowable in advance, and the
+right live universe is "everything that passed, losers included", with
+position sizing — not hindsight pruning — absorbing the bad coins.
+Prior: per-coin strategy returns this noisy are usually NOT persistent,
+so a fail is the expected outcome. One rule, no variants.
+
+Engine: `backtest/coin_selection_walkforward.py`.
+
 ## v0.25-diag — Settlement-timing overlay on the v0.23 harvest (2026-10-04)
 
 **STATUS: KEPT as a costless entry rule, not validated. Defers 4.9 % of

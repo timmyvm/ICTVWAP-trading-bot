@@ -93,7 +93,7 @@ def settlement_schedule(path: str, index: pd.DatetimeIndex) -> tuple:
 def run_cell(signals: pd.DataFrame, df5: pd.DataFrame, a5: np.ndarray,
              fund: np.ndarray, hours: int, use_stop: bool,
              cost_mult: float = 1.0, settle: tuple | None = None,
-             overlay: str | None = None) -> dict:
+             overlay: str | None = None, return_trades: bool = False) -> dict:
     # overlay (v0.25-diag): None = v0.23 verbatim. "next"/"prev" = defer any entry
     # that would fill in the 60 min before a settlement while on the PAYING side of
     # funding (long with f >= 0.01 %, short with f < 0) to the settlement bar's
@@ -152,6 +152,10 @@ def run_cell(signals: pd.DataFrame, df5: pd.DataFrame, a5: np.ndarray,
                 "net": net, "reason": reason, "funding": p["funding"], "fees": fees,
                 "ret_pct": 100 * p["dir"] * (px / p["entry"] - 1.0),
                 "bars": i - p["bar"],
+                # v0.26: exit time (selection rules may only use CLOSED trades)
+                # and net return on notional (size-independent across coins)
+                "exit_ts": df5.index[i],
+                "net_pct": 100 * net / (p["entry"] * p["qty"]),
             })
         open_pos = still
 
@@ -190,6 +194,8 @@ def run_cell(signals: pd.DataFrame, df5: pd.DataFrame, a5: np.ndarray,
     t = pd.DataFrame(trades)
     if t.empty:
         return {"n": 0}
+    if return_trades:
+        return {"n": len(t), "trades": t}
     wins = t[t.net > 0]
     gl = -t.loc[t.net <= 0, "net"].sum()
     t["y"] = t.ts.dt.year
