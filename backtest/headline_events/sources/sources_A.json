@@ -1,0 +1,82 @@
+[
+  {
+    "ticker": "MSFT",
+    "urls": [
+      "https://www.sec.gov/Archives/edgar/data/0000789019/000119312526323632/msft-ex99_1.htm",
+      "https://www.sec.gov/Archives/edgar/data/789019/000119312526323632/0001193125-26-323632-index.htm",
+      "https://www.prnewswire.com/news-releases/microsoft-earnings-press-release-available-on-investor-relations-website-302838247.html",
+      "https://news.microsoft.com/source/2026/07/29/microsoft-cloud-and-ai-strength-fuels-fourth-quarter-results-4/",
+      "https://www.microsoft.com/en-us/investor/earnings/fy-2026-q4/press-release-webcast",
+      "https://www.microsoft.com/en-us/investor/events/fy-2026/earnings-fy-2026-q4",
+      "https://www.microsoft.com/en-us/investor/events/fy-2026/earnings-fy-2026-q3",
+      "https://finance.yahoo.com/markets/stocks/articles/microsoft-beats-wall-street-expectations-212050855.html",
+      "https://finance.yahoo.com/technology/ai/articles/microsoft-tops-quarterly-cloud-growth-200428732.html",
+      "https://www.theglobeandmail.com/business/article-microsoft-profit-earning-wall-street-cloud-growth/",
+      "https://www.investing.com/news/earnings/microsoft-beats-on-profit-and-revenue-shares-rise-after-hours-4821565",
+      "https://www.tradingkey.com/analysis/stocks/us-stocks/262060902-microsoft-msft-q4-fy2026-earnings-preview-july-29-azure-capex-tradingkey",
+      "https://futurumgroup.com/insights/microsoft-q4-fy-2026-ai-demand-accelerates-azure-and-enterprise-growth/",
+      "https://finance.yahoo.com/markets/stocks/articles/microsoft-q4-earnings-beat-estimates-160100382.html",
+      "https://www.cnbc.com/2026/07/29/microsoft-msft-q4-earnings-report-2026.html"
+    ]
+  },
+  {
+    "ticker": "GOOGL",
+    "urls": [
+      "https://www.sec.gov/Archives/edgar/data/0001652044/000165204426000066/googexhibit991q22026.htm",
+      "https://www.sec.gov/Archives/edgar/data/1652044/000165204426000066/0001652044-26-000066-index.htm",
+      "https://www.investing.com/news/transcripts/earnings-call-transcript-alphabet-beats-q2-2026-estimates-shares-fall-on-capex-surge-93CH-4807140",
+      "https://mlq.ai/news/alphabet-q2-capex-hits-record-449b-full-year-guidance-raised-to-195-205b/",
+      "https://valueaddvc.com/pulse/alphabet-google-q2-2026-cloud-earnings-capex",
+      "https://www.ig.com/en/news-and-trade-ideas/alphabet-q2-2026-earnings-preview-260716",
+      "https://finance.yahoo.com/markets/stocks/articles/alphabet-q2-2026-earnings-revenue-203058727.html",
+      "https://9to5google.com/2026/07/22/alphabet-q2-2026-earnings/",
+      "https://www.cnbc.com/2026/07/22/google-earnings-q2-goog-live-updates.html"
+    ]
+  },
+  {
+    "ticker": "META",
+    "urls": [
+      "https://www.sec.gov/Archives/edgar/data/0001326801/000162828026050596/meta-06302026xexhibit991.htm",
+      "https://www.sec.gov/Archives/edgar/data/1326801/000162828026050596/0001628280-26-050596-index.htm",
+      "https://www.prnewswire.com/news-releases/meta-reports-second-quarter-2026-results-302838214.html",
+      "https://investor.atmeta.com/investor-news/press-release-details/2026/Meta-Reports-Second-Quarter-2026-Results/default.aspx",
+      "https://www.sec.gov/Archives/edgar/data/0001326801/000162828026028364/meta-03312026xexhibit991.htm",
+      "https://www.fool.com/earnings/call-transcripts/2026/08/07/meta-meta-q2-2026-earnings-call-transcript/",
+      "https://www.investing.com/news/transcripts/earnings-call-transcript-meta-misses-eps-in-q2-2026-as-stock-sinks-after-hours-93CH-4821910",
+      "https://finance.yahoo.com/markets/stocks/articles/meta-sinks-q3-revenue-forecast-204016360.html",
+      "https://finance.yahoo.com/news/meta-misses-on-q2-earnings-stock-tumbles-121325403.html",
+      "https://finance.yahoo.com/technology/ai/articles/meta-forecast-misses-expectations-sticks-231831993.html",
+      "https://www.cnbc.com/2026/07/29/meta-q2-earnings-report-2026.html"
+    ]
+  },
+  {
+    "ticker": "AAPL",
+    "urls": [
+      "https://www.sec.gov/Archives/edgar/data/0000320193/000032019326000018/a8-kex991q3202606272026.htm",
+      "https://www.sec.gov/Archives/edgar/data/320193/000032019326000018/0000320193-26-000018-index.htm",
+      "https://www.apple.com/newsroom/2026/07/apple-reports-third-quarter-results/",
+      "https://finance.yahoo.com/markets/stocks/articles/apple-reports-third-quarter-results-203000826.html",
+      "https://wtvbam.com/2026/07/30/apple-revenue-profits-beat-expectations-on-iphone-mac-sales/",
+      "https://appleinsider.com/articles/26/07/27/what-wall-street-expects-from-apples-q3-2026-earnings-on-july-30",
+      "https://sixcolors.com/post/2026/07/one-last-time-this-is-tim-transcript-of-apples-q3-2026-financial-call/",
+      "https://www.theglobeandmail.com/investing/markets/stocks/AAPL/pressreleases/3730749/apple-aapl-q3-2026-earnings-call-transcript/",
+      "https://www.sec.gov/Archives/edgar/data/0000320193/000032019326000011/a8-kex991q2202603282026.htm",
+      "https://techcrunch.com/2026/04/20/tim-cook-stepping-down-as-apple-ceo-john-ternus-taking-over/"
+    ]
+  },
+  {
+    "ticker": "AMZN",
+    "urls": [
+      "https://www.sec.gov/Archives/edgar/data/0001018724/000101872426000024/amzn-20260630xex991.htm",
+      "https://www.sec.gov/Archives/edgar/data/1018724/000101872426000024/0001018724-26-000024-index.htm",
+      "https://finance.yahoo.com/markets/stocks/articles/amazon-com-announces-second-quarter-200100298.html",
+      "https://www.theglobeandmail.com/investing/markets/stocks/AMZN/pressreleases/3730734/amazon-amzn-q2-2026-earnings-call-transcript/",
+      "https://www.investing.com/news/transcripts/earnings-call-transcript-amazon-tops-q2-2026-estimates-as-aws-growth-accelerates-93CH-4826442",
+      "https://finance.yahoo.com/markets/stocks/articles/amazon-q2-2026-earnings-aws-204411872.html",
+      "https://finance.yahoo.com/markets/stocks/articles/amzn-stock-soars-7-hours-205158391.html",
+      "https://www.stocktitan.net/sec-filings/AMZN/8-k-amazon-com-inc-reports-material-event-8458b0d43e1c.html",
+      "https://variety.com/2026/digital/news/amazon-ad-sales-q2-profit-62-billion-anthropic-1236824567/",
+      "https://www.cnbc.com/2026/07/30/amazon-amzn-q2-earnings-report-2026.html"
+    ]
+  }
+]

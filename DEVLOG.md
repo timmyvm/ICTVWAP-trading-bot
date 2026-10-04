@@ -1,6 +1,6 @@
 # DEVLOG — Powell Trades Bot
 
-## v0.27-exp — Blind test: can headlines alone call the next-session move? (2026-10-04) — PRE-REGISTERED
+## v0.27-exp — Blind test: can headlines alone call the next-session move? (2026-10-04) — FAIL by one call (14 of 20); untradeable from the open (9 of 20)
 
 User: "can you read 20 headlines, can't see the stock at that point, then
 predict the stock movement, then see the stock after and tell me how
@@ -56,7 +56,74 @@ reproduces the two events revealed in the game: NKE 2026-10-01 AMC −3.64 %
 (gap −7.40 %, open → close +4.06 %); TSLA 2026-10-02 BMO +4.65 % (gap
 +1.69 %, open → close +2.92 %).
 
-Code: `backtest/headline_blind_test.py`. Results: pending.
+Code: `backtest/headline_blind_test.py`.
+
+**Execution trail.** Pre-registration `baec986`; predictions locked in
+`3797c59` (10), `d5249fe` (15), `0daa7be` (19), `05ef75f` (20) — every one
+pushed before the first price fetch. Leak scan: 1 flag (JPM, a false positive:
+"per share … gain" wording), reworded by a fresh reviewer agent, rescan 0 of 20.
+Disclosed contamination: XOM only — the predictor had seen Brent's late-July
+daily closes in earlier oil research (Brent +1.2 % on the reaction day); the
+call went against that hint (DOWN) and was right.
+
+**Results.**
+
+| | |
+|---|---|
+| Primary directions | **14 of 20** (70 %); one-sided p = 0.058 → **FAIL** (bar 15) |
+| Market-adjusted (vs SPY) | 14 of 20 |
+| Size buckets | 7 of 20 |
+| Naive "EPS beat → UP" / "always UP" | 12 of 20 / 9 of 20 |
+| Brier score of stated confidences | 0.199 (coin flip 0.250) |
+| **Tradeable: first open → that close** | **9 of 20**; +0.50 %/trade after 0.10 % costs, all of it PLTR (+12.0 %); the other 19 sum to −1.9 % |
+| Hypothetical instant trade at the pre-release price | +5.35 %/trade (sum +106.9 %) — the reader-first edge |
+| Share of the total move already in the opening gap | median 77 %; after the gap 9 continued, 10 reversed, 1 flat |
+
+| ticker | call | next-session move | opening gap | open → close | |
+|---|---|---|---|---|---|
+| MSFT | UP | +15.5 % | +12.1 % | +3.0 % | ✓ |
+| GOOGL | UP | −7.1 % | −6.1 % | −1.1 % | ✗ |
+| META | DOWN | −8.0 % | −10.2 % | +2.5 % | ✓ |
+| AAPL | DOWN | −7.4 % | −8.6 % | +1.3 % | ✓ |
+| AMZN | UP | +15.3 % | +12.5 % | +2.5 % | ✓ |
+| NVDA | UP | +8.7 % | +6.3 % | +2.3 % | ✓ |
+| AVGO | UP | −2.7 % | −4.2 % | +1.5 % | ✗ |
+| ORCL | UP | −1.7 % | +7.5 % | −8.6 % | ✗ |
+| PLTR | UP | +29.5 % | +15.5 % | +12.1 % | ✓ |
+| TSLA | DOWN | −14.5 % | −8.8 % | −6.2 % | ✓ |
+| JPM | UP | +2.5 % | −2.3 % | +4.9 % | ✓ |
+| V | UP | +0.6 % | −2.6 % | +3.3 % | ✓ |
+| MA | UP | +2.5 % | +2.5 % | −0.0 % | ✓ |
+| WMT | DOWN | −9.2 % | −6.9 % | −2.4 % | ✓ |
+| COST | DOWN | +2.9 % | −1.1 % | +4.0 % | ✗ |
+| LLY | UP | +4.9 % | +5.2 % | −0.4 % | ✓ |
+| JNJ | UP | −2.7 % | −1.5 % | −1.2 % | ✗ |
+| ABBV | UP | −2.5 % | −1.9 % | −0.6 % | ✗ |
+| XOM | DOWN | −1.0 % | −2.1 % | +1.1 % | ✓ |
+| NFLX | DOWN | −7.3 % | −11.9 % | +5.3 % | ✓ |
+
+**Reading.** The full release carried information beyond the headline EPS
+number (14 vs 12 of 20 for the naive rule, with calibrated confidence), but
+14 of 20 arises by luck 5.8 % of the time, so by the pre-registered bar it is
+not established. The misses were the cases where a "good" number met a bigger
+worry: GOOGL (cloud +82 % against a $15B capex raise, paused buybacks and a
+margin warning), AVGO, and ORCL — which gapped +7.5 % exactly as called and
+closed −1.7 %. The money test fails outright: from the first price a non-HFT
+trader can get, direction was right 9 of 20 times, because the median move was
+over by the open (median |gap| 6.2 % against median |open → close| 2.4 %). The
+same calls were worth ~+5 % per trade only at the pre-release price, i.e. to
+whoever reads first, in milliseconds.
+
+**Fact audit (after scoring).** Four events cross-checked against independent
+reports: MSFT +15 % ("biggest one-day gain since 2008", Azure +43 % vs ~40 %),
+PLTR +15 % after hours (revenue $1.935B, US commercial +149 %), ORCL +7 % early
+on the reaction day before reversing (RPO $664B), GOOGL −7 % (capex $195-205B,
+Cloud +82 %). Facts and moves agree. Source lists: `backtest/headline_events/sources/`.
+
+**Verdict.** Not a strategy. The user's intuition — "if I can read it, an AI can
+read it faster" — is right, and the test shows where that leads: the reading
+pays only at machine speed, and from the open onward the residual move is a
+coin flip. Slower effects (post-earnings drift over weeks) remain untested.
 
 ## v0.26-b — The real hurdle: the user's 80/20 VGS/VAS portfolio (2026-10-04)
 

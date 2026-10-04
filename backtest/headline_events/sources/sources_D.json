@@ -1,0 +1,83 @@
+[
+  {
+    "ticker": "LLY",
+    "urls": [
+      "https://www.sec.gov/Archives/edgar/data/59478/000005947826000077/q226lillysalesandearningsp.htm",
+      "https://www.prnewswire.com/news-releases/lilly-reports-second-quarter-2026-financial-results-raises-full-year-guidance-and-highlights-continued-growth-and-pipeline-progress-302843165.html",
+      "https://www.cnbc.com/2026/08/05/eli-lilly-lly-earnings-q2-2026.html",
+      "https://finance.yahoo.com/healthcare/articles/eli-lilly-raises-annual-revenue-105218805.html",
+      "https://x.com/LiveSquawk/status/2084955243020730672",
+      "https://finance.yahoo.com/healthcare/articles/mounjaro-zepbound-drive-lillys-q2-151700619.html",
+      "https://finance.yahoo.com/markets/stocks/articles/lilly-lly-q2-earnings-horizon-131503632.html",
+      "https://news.alphastreet.com/eli-lilly-and-company-lly-q2-2026-preview-eps-est-6-55-reports-august-5/amp/"
+    ]
+  },
+  {
+    "ticker": "JNJ",
+    "urls": [
+      "https://www.sec.gov/Archives/edgar/data/200406/000020040626000146/a2026q2exhibit991.htm",
+      "https://www.investor.jnj.com/investor-news/news-details/2026/Johnson--Johnson-reports-Q2-2026-results-raises-2026-outlook/default.aspx",
+      "https://www.nasdaq.com/press-release/johnson-johnson-reports-q2-2026-results-raises-2026-outlook-2026-07-15",
+      "https://baytobaynews.com/stories/johnson-johnson-reports-q2-2026-results-raises-2026-outlook,332477",
+      "https://www.theglobeandmail.com/business/international-business/us-business/article-jj-results-earnings-second-quarter-2026-outlook/",
+      "https://finance.yahoo.com/healthcare/articles/johnson-johnson-beats-q2-estimates-144200588.html",
+      "https://finance.yahoo.com/healthcare/articles/johnson-johnson-raises-2026-outlook-140000110.html",
+      "https://finance.yahoo.com/healthcare/articles/johnson-johnson-earnings-preview-expect-143210423.html",
+      "https://finance.yahoo.com/healthcare/articles/johnson-johnson-jnj-q2-2026-210102107.html",
+      "https://www.sec.gov/Archives/edgar/data/0000200406/000020040626000163/exhibit991firefly.htm"
+    ]
+  },
+  {
+    "ticker": "ABBV",
+    "urls": [
+      "https://www.sec.gov/Archives/edgar/data/1551152/000155115226000023/abbv-20260630xexhibit991.htm",
+      "https://www.prnewswire.com/news-releases/abbvie-reports-second-quarter-2026-financial-results-302839981.html",
+      "https://news.abbvie.com/2026-07-31-AbbVie-Reports-Second-Quarter-2026-Financial-Results",
+      "https://www.nasdaq.com/press-release/abbvie-reports-second-quarter-2026-financial-results-2026-07-31",
+      "https://www.tradingview.com/news/prnewswire:b2b545d939be6:0-abbvie-reports-second-quarter-2026-financial-results/",
+      "https://www.fool.com/earnings/call-transcripts/2026/08/03/abbvie-abbv-q2-2026-earnings-call-transcript/",
+      "https://finance.yahoo.com/healthcare/articles/abbvie-trims-2026-profit-forecast-115033670.html",
+      "https://finance.yahoo.com/healthcare/articles/immunology-franchise-aid-abbvies-upcoming-145000857.html",
+      "https://www.investing.com/news/transcripts/earnings-call-transcript-abbvie-q2-2026-revenue-beats-eps-misses-as-stock-slips-93CH-4828744",
+      "https://ca.investing.com/news/company-news/abbvie-inc-abbv-q2-2026-earnings-call-highlights-robust-growth-driven-by-skyrizi-and--4769251",
+      "https://www.sec.gov/Archives/edgar/data/1974640/000114036126025844/ef20076505_ex99-1.htm"
+    ]
+  },
+  {
+    "ticker": "XOM",
+    "urls": [
+      "https://www.sec.gov/Archives/edgar/data/2115436/000211543626000006/livef8k2q26991.htm",
+      "https://www.sec.gov/Archives/edgar/data/2115436/000211543626000006/livef8k2q26992.htm",
+      "https://data.sec.gov/submissions/CIK0002115436.json",
+      "https://www.sec.gov/Archives/edgar/data/2115436/000211543626000003/f8k2q991070726.htm",
+      "https://www.sec.gov/Archives/edgar/data/34088/000003408826000065/livef8k1q26991.htm",
+      "https://www.nasdaq.com/press-release/exxonmobil-announces-second-quarter-2026-results-2026-07-31",
+      "https://www.morningstar.com/news/business-wire/20260730488167/exxonmobil-announces-second-quarter-2026-results",
+      "https://investor.exxonmobil.com/earnings",
+      "https://d1io3yog0oux5.cloudfront.net/_a430827547f64a498d7fc8f80494f171/exxonmobil/db/2404/22710/pdf/2Q26+Prepared+Remarks.pdf",
+      "https://d1io3yog0oux5.cloudfront.net/_a430827547f64a498d7fc8f80494f171/exxonmobil/db/2288/22701/presentation/2Q26+Earnings+presentation+slides.pdf",
+      "https://www.investing.com/news/stock-market-news/exxonmobil-quarterly-profit-hits-fouryear-high-but-misses-analyst-estimates-4827464",
+      "https://finance.yahoo.com/energy/articles/exxonmobil-q2-2026-earnings-miss-111830231.html",
+      "https://finance.yahoo.com/markets/stocks/articles/exxon-xom-reports-q2-earnings-210001503.html",
+      "https://stockstory.org/us/stocks/nyse/xom/news/earnings/exxonmobil-nysexom-exceeds-q2-cy2026-expectations",
+      "https://site.financialmodelingprep.com/market-news/exxon-mobil-xom-q2-2026-profit-surges-eps-misses-estimates",
+      "https://www.ogj.com/general-interest/companies/news/55394938/exxonmobil-second-quarter-earnings-climb-to-145-billion-on-rising-oil-prices-record-permian-output"
+    ]
+  },
+  {
+    "ticker": "NFLX",
+    "urls": [
+      "https://www.sec.gov/Archives/edgar/data/1065280/000106528026000211/ex991_q226.htm",
+      "https://www.sec.gov/Archives/edgar/data/1065280/000106528026000211/nflx-20260716.htm",
+      "https://www.sec.gov/Archives/edgar/data/1065280/000106528026000137/ex991_q126.htm",
+      "https://data.sec.gov/submissions/CIK0001065280.json",
+      "https://www.nasdaq.com/press-release/netflix-announce-second-quarter-2026-financial-results-2026-06-15",
+      "https://s22.q4cdn.com/959853165/files/doc_financials/2026/q2/Netflix-Inc-_Earnings-Call_2026-07-16T00_00_00_English-1.pdf",
+      "https://uk.finance.yahoo.com/news/netflix-q2-earnings-results-line-200918879.html",
+      "https://finance.yahoo.com/media-advertising/articles/netflix-third-quarter-earnings-forecast-200300611.html",
+      "https://thenextweb.com/news/netflix-q3-forecast",
+      "https://finance.yahoo.com/markets/stocks/articles/netflix-gears-report-q2-earnings-145700087.html",
+      "https://www.spglobal.com/market-intelligence/en/news-insights/research/2026/07/netflix-earnings-preview-q2-2026"
+    ]
+  }
+]

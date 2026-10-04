@@ -221,6 +221,13 @@ config.py        — All tuneable parameters (TESTING_MODE, ENTRY_MODE, etc.)
   is not the bar. Short-term trading profits lose the 50 % CGT discount that long-held ETFs get, so the
   pre-tax hurdle is roughly 14-15 %/yr, not the portfolio's ~12-14 %.
 
+- A prediction that is right about the REACTION is not an edge until it is scored from the first price
+  you could actually trade at. In the v0.27 blind test, reading 20 earnings releases called 14 of 20
+  next-session moves (Brier 0.199) but only 9 of 20 from the next open: a median 77 % of each move was
+  already in the opening gap, and what followed continued or reversed at coin-flip odds. Report both
+  scores side by side. For any blind test: fix the fact template before searching, leak-scan with output
+  that prints pattern ids only, and commit the calls before the first price fetch.
+
 - Every new backtest engine must assert bracket invariants at position creation:
   `dr * (entry - stop) > 0` and `dr * (target - entry) > 0`. The v0.16 engine shipped with
   `tgt = e - dr * RR * dist` (sign flipped), which fills every "TP" as a -3R loss and produces a
