@@ -2,6 +2,10 @@
 
 ## v0.26-diag — Can the losing coins be identified IN ADVANCE? (2026-10-04)
 
+**STATUS: PASS — quarterly walk-forward selection ≈ 8.9 %/yr vs 4.6 %/yr
+always-on, beating 97 % of random same-size picks (p = 0.029). Adopted
+into the v0.23 candidate spec. Evidence moderate and front-loaded.**
+
 User: "just remove what isn't working and rerun." Taken as: drop the
 losing coins (BTC and LINK lost in v0.25, and in every v0.23 analysis).
 
@@ -45,6 +49,59 @@ Prior: per-coin strategy returns this noisy are usually NOT persistent,
 so a fail is the expected outcome. One rule, no variants.
 
 Engine: `backtest/coin_selection_walkforward.py`.
+
+**Results (2026-10-04): PASS, and the audit says skill. My prior was
+wrong.**
+
+| portfolio, OOS 2021-Q1 → 2026-Q3, equal capital per traded coin | total | ≈ per year | worst quarter |
+|---|---|---|---|
+| all eight coins, always on | +29.6 % | 4.6 % | −7.07 % |
+| rule-selected, capital redistributed | **+63.5 %** | **8.9 %** | −7.79 % |
+| rule-selected, excluded coins held in cash | +24.4 % | 3.9 % | −5.85 % |
+
+Pass bar: higher mean per quarter (+2.31 % vs +1.24 %) AND better in a
+majority of quarters with an exclusion (15 of 23) → **PASS**. The rule
+learned the two losers by itself: BTC excluded in 15 of 23 quarters,
+LINK in 18.
+
+**Audit, because a one-line filter nearly doubled the return** (the
+v0.10i rule). The red flag was the cash row scoring BELOW always-on.
+Excluded coins earned +0.41 % per quarter on average and were positive
+in 11 of 23 quarters, so the rule does NOT dodge losers; it moves
+capital toward the coins currently doing better, which raises the
+question whether the gain is just concentration. Concentration changes
+variance, not the expected mean per coin, so the fair null is RANDOM
+selection of the same number of coins each quarter with capital
+redistributed. 5,000 draws: median +28.6 % (matching always-on, as
+theory says it must), 5-95 % band +3.7 % to +57.6 %. The rule's +63.5 %
+beats **97.1 %** of them (one-sided p = 0.029). Risk-adjusted it also
+improves: quarterly volatility rises only from 4.84 % to 5.75 % while
+the mean nearly doubles (mean/vol 0.257 → 0.402).
+
+Weak points, on record: the paired t is +1.58 on its own, and a single
+quarter (2022-Q3, +10.1 points) carries much of it — without that
+quarter the mean edge is +0.66 % per quarter, t +1.17. The most recent
+11 quarters (2024-2026) still favour selection in 7, by +0.57 % per
+quarter: smaller, same sign. So: real, moderate, front-loaded evidence.
+
+**The answer to "just remove what isn't working".** The literal version
+(drop BTC and LINK forever, re-score) is worthless hindsight. The
+mechanical version works: it removes what isn't working RIGHT NOW,
+using only closed trades, and puts the capital into what is. For
+2026-Q4 it trades **all eight** — every coin's trailing year is
+positive, BTC and LINK included — so a permanent hindsight drop would
+have excluded two coins the rule currently keeps.
+
+**Adopted into the v0.23 candidate's live specification**, as the
+pre-registration directed: trade every coin that passed, re-select each
+quarter on the trailing four quarters of closed-trade net return, and
+redistribute capital among the selected coins; plus the v0.25 settlement
+deferral. Status stays CANDIDATE. Headline on this universe ≈ 8.9 %/yr
+with a −7.8 % worst quarter, against ≈ 4.6 %/yr always-on. Not directly
+comparable to v0.23's ≈ 6.7 %/yr (six holdout coins, compounding
+engine; this universe adds the two losers and sums sleeve returns
+without intra-quarter compounding). Still far below funding carry on
+risk.
 
 ## v0.25-diag — Settlement-timing overlay on the v0.23 harvest (2026-10-04)
 

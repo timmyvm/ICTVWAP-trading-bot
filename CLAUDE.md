@@ -201,6 +201,16 @@ config.py        — All tuneable parameters (TESTING_MODE, ENTRY_MODE, etc.)
   variable needs data you do not have (here, premium-index klines), fetch it before running rather
   than burning the primary on a weak proxy.
 
+- Never "drop the losers and rerun" on the same data — removing coins after seeing them lose always
+  improves the number and proves nothing (v0.26: +56 % per coin from hindsight alone). Test a
+  MECHANICAL selection rule walk-forward instead, deciding each period only from trades already
+  CLOSED (exit time, not entry time). And run every selection rule two ways: excluded capital held in
+  cash, and redistributed to the survivors. If cash scores worse than always-on, the rule is not
+  avoiding losers — it is reallocating, and the gain may be pure concentration. Then compare against
+  RANDOM selection of the same number of assets each period: concentration changes variance, not the
+  expected mean, so random same-size picks are the fair null. v0.26's rule failed the cash check
+  (+24.4 % vs +29.6 %) yet beat 97 % of random picks — skill, but not the kind it first appeared to be.
+
 - Every new backtest engine must assert bracket invariants at position creation:
   `dr * (entry - stop) > 0` and `dr * (target - entry) > 0`. The v0.16 engine shipped with
   `tgt = e - dr * RR * dist` (sign flipped), which fills every "TP" as a -3R loss and produces a

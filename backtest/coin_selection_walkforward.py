@@ -125,16 +125,95 @@ def analyse() -> None:
           "PASS" if verdict else "FAIL")
 
 
+def quarter_matrix() -> tuple:
+    """Per OOS quarter: sleeve return per coin, the rule's include mask, the active mask."""
+    trades = load_all()
+    syms = [s for s in PERP8 if s in trades]
+    first_q = {s: trades[s]["q"].min() for s in syms}
+    last_q = max(t["q"].max() for t in trades.values())
+    qs, R, INC, ACT = [], [], [], []
+    q = OOS_START
+    while q <= last_q:
+        q_start = q.start_time.tz_localize("UTC")
+        win_lo = (q - LOOKBACK_Q).start_time.tz_localize("UTC")
+        r_row, i_row, a_row = [], [], []
+        for s in syms:
+            t = trades[s]
+            act = first_q[s] <= q
+            r_row.append(NOTIONAL * t.loc[t["q"] == q, "net_pct"].sum() / 100.0 if act else 0.0)
+            past = t.loc[(t["exit_ts"] >= win_lo) & (t["exit_ts"] < q_start), "net_pct"]
+            i_row.append(act and (len(past) < MIN_TRADES or past.mean() > 0))
+            a_row.append(act)
+        qs.append(str(q)); R.append(r_row); INC.append(i_row); ACT.append(a_row)
+        q += 1
+    return qs, syms, np.array(R), np.array(INC), np.array(ACT)
+
+
+def audit(n_perm: int = 5000, seed: int = 11) -> None:
+    """
+    Separate selection SKILL from concentration and luck. Concentrating capital in
+    fewer coins does not change the expected mean return per coin, only its
+    variance, so the fair null is RANDOM selection of the same number of coins
+    each quarter, capital redistributed. The rule must beat that distribution.
+    """
+    qs, syms, R, INC, ACT = quarter_matrix()
+    k = INC.sum(axis=1)
+    r_all = np.array([R[i, ACT[i]].mean() for i in range(len(qs))])
+    r_sel = np.array([R[i, INC[i]].mean() if k[i] else 0.0 for i in range(len(qs))])
+    excl = np.array([R[i, ACT[i] & ~INC[i]].mean() if (ACT[i] & ~INC[i]).any() else np.nan
+                     for i in range(len(qs))])
+    d = r_sel - r_all
+    t = d.mean() / (d.std(ddof=1) / np.sqrt(len(d)))
+    comp = lambda x: float(np.prod(1.0 + x) - 1.0)
+    print(f"OOS quarters {len(qs)}; mean coins selected {k.mean():.1f} of {ACT.sum(axis=1).mean():.1f}")
+    print(f"mean per-coin sleeve return/quarter: selected {100 * r_sel.mean():+.2f}%  "
+          f"all {100 * r_all.mean():+.2f}%  EXCLUDED {100 * np.nanmean(excl):+.2f}%")
+    print(f"excluded coins were net positive in {int((excl > 0).sum())} of {int((~np.isnan(excl)).sum())} quarters")
+    print(f"paired (selected - all) per quarter: mean {100 * d.mean():+.2f}%  t {t:+.2f}")
+    best = int(np.argmax(d))
+    d_lo = np.delete(d, best)
+    print(f"without the single best quarter ({qs[best]}, {100 * d[best]:+.2f}%): "
+          f"mean {100 * d_lo.mean():+.2f}%  t {d_lo.mean() / (d_lo.std(ddof=1) / np.sqrt(len(d_lo))):+.2f}")
+    print(f"quarterly volatility: selected {100 * r_sel.std(ddof=1):.2f}%  all {100 * r_all.std(ddof=1):.2f}%;  "
+          f"mean/vol: selected {r_sel.mean() / r_sel.std(ddof=1):.3f}  all {r_all.mean() / r_all.std(ddof=1):.3f}")
+
+    rng = np.random.default_rng(seed)
+    perm_tot, perm_mean = np.empty(n_perm), np.empty(n_perm)
+    act_idx = [np.flatnonzero(ACT[i]) for i in range(len(qs))]
+    for b in range(n_perm):
+        rr = np.empty(len(qs))
+        for i in range(len(qs)):
+            if k[i] == 0:
+                rr[i] = 0.0
+                continue
+            pick = rng.choice(act_idx[i], size=int(k[i]), replace=False)
+            rr[i] = R[i, pick].mean()
+        perm_tot[b], perm_mean[b] = comp(rr), rr.mean()
+    rule_tot = comp(r_sel)
+    pct = float((perm_mean < r_sel.mean()).mean())
+    print(f"\nRANDOM selection of the same number of coins each quarter, {n_perm} draws:")
+    print(f"  compounded total: median {100 * np.median(perm_tot):+.1f}%  "
+          f"5-95% [{100 * np.percentile(perm_tot, 5):+.1f}%, {100 * np.percentile(perm_tot, 95):+.1f}%]  "
+          f"rule {100 * rule_tot:+.1f}%")
+    print(f"  rule's mean/quarter beats {100 * pct:.1f}% of random selections "
+          f"(one-sided p = {1 - pct:.3f})")
+    print("AUDIT VERDICT:", "SKILL (beats >= 95% of random picks)" if pct >= 0.95
+          else "NOT DISTINGUISHABLE FROM LUCK + CONCENTRATION")
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--build", default=None, help="comma list of symbols to (re)build trade lists for")
     ap.add_argument("--analyse", action="store_true")
+    ap.add_argument("--audit", action="store_true", help="skill vs luck: permutation test")
     args = ap.parse_args()
     if args.build:
         for s in args.build.split(","):
             build(s.strip())
     if args.analyse:
         analyse()
+    if args.audit:
+        audit()
 
 
 if __name__ == "__main__":
