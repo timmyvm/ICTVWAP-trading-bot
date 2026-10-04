@@ -2,6 +2,12 @@
 
 ## v0.24-exp — Funding-settlement flow: a reason-first hypothesis (2026-10-04)
 
+**STATUS: KILLED by its own pre-registered cost criterion, and never
+established on the primary. The mechanism looks real in the diagnostic
+(predicted sign in all 16 cells across eight coins, replicated out of
+sample) but is worth 1-5 basis points against a 13 bp round trip.
+Results at the end of this entry.**
+
 Source: an IG reel on how quants generate ideas, transcribed and framed
 in this session. Its method — start from someone FORCED to trade, then
 test "when X happens, is Y different from normal?" against a baseline,
@@ -77,6 +83,109 @@ independent tests, so per-coin results are primary and pooled figures
 secondary.
 
 Engine: `backtest/funding_settlement_test.py`.
+
+**Explore results (2026-10-04) — BTC and ETH perps, 7,304 settlements
+each, 2020-01 → 2026-08.** Pre-window DiD in % of price (prediction < 0):
+
+| | W | primary `f_prev` DiD (t) | diagnostic `f_next` DiD (t) | years matching, primary / diag |
+|---|---|---|---|---|
+| BTC | 30 m | −0.022 (−1.70) | −0.037 (**−2.92**) | 6/7 · 7/7 |
+| BTC | 60 m | −0.015 (−0.73) | −0.041 (**−2.02**) | 4/7 · 5/7 |
+| ETH | 30 m | −0.016 (−0.99) | −0.035 (**−2.19**) | 6/7 · 7/7 |
+| ETH | 60 m | −0.028 (−1.16) | −0.050 (**−2.07**) | 4/7 · 7/7 |
+
+The discriminating test — settlement minus baseline, split by funding
+sign, where the hypothesis predicts BUYING into settlement when funding
+is negative and a generic softening predicts selling regardless:
+negative funding +0.025 to +0.057 % (primary), +0.023 to +0.082 %
+(diagnostic, t up to 2.70); positive funding −0.013 to −0.017 %. **All
+16 sign-split cells point the predicted way.** By settlement hour the
+effect is not confined to 00:00 UTC (08:00 and 16:00 carry it too in
+most cells), so it is not simply the daily open. Post-settlement
+reversal: right sign in all four cells, never significant.
+
+**Verdict, as pre-registered.**
+- **Explore significance gate: NOT MET.** The primary conditioning
+  (`f_prev`, lookahead-free) never reaches t < −2; best is −1.70. So by
+  the rules written before running, REAL-AND-SPECIFIC is not established
+  and the holdout cannot count for adoption. It is still run below, for
+  the record.
+- **K1, dies after costs: KILLED, decisively.** The tradeable form
+  grosses +0.001 to +0.017 % per settlement against a 0.13 % round trip —
+  roughly a tenth of the toll. No horizon, coin or conditioning variant
+  comes close.
+- K2 (only one year): survives — the DiD keeps its sign in 4-7 of 7
+  years. K3 (shows up without the reason): survives — the sign-split
+  test goes the way only the funding reason predicts.
+
+**Reading.** The flow the reason predicts appears to be REAL — right
+sign in every cell, the one test a generic hour effect cannot pass, and
+stronger when conditioned on the rate actually about to be paid (which
+is economically what traders react to, and what Binance publishes live
+as the predicted rate) — but it is worth 1.5-5 basis points, an order of
+magnitude below what a taker can capture. This is the textbook Osler
+outcome RESEARCH.md describes: a real mechanism, too thin to trade at
+retail costs. The `f_next` strength is reported, not adopted: it is the
+labelled diagnostic and carries mild lookahead, so it cannot rescue the
+primary verdict after the fact.
+
+**Holdout results (2026-10-04) — BNB, XRP, ADA, DOGE, SOL, LINK perps,
+6,600-7,300 settlements each.** Every cell, both conditioning variants:
+
+| | primary `f_prev` | diagnostic `f_next` |
+|---|---|---|
+| explore DiD cells with the predicted sign | 4/4 | 4/4 |
+| explore DiD cells at t < −2 | **0/4** | 4/4 |
+| holdout DiD cells with the predicted sign | 8/12 | **12/12** |
+| holdout DiD cells at t < −2 | **0/12** (max \|t\| 1.11) | 6/12 (ADA −3.30, SOL −3.02, BNB −2.42) |
+| holdout negative-funding cells buying into settlement | 8/12 | **12/12** (6 at t > 2, ADA +4.24) |
+| tradeable gross, best cell anywhere | +0.028 % | +0.046 % (SOL, 60 m) |
+| round trip | 0.13 % | 0.13 % |
+
+BNB caveat: its funding sat at a single value so often that both
+tercile cuts land at 0.0000 %, which makes its tercile DiD weak by
+construction; its sign-split cells are the informative ones.
+
+**VERDICT: KILLED — and, as pre-registered, never established.**
+- **Primary (lookahead-free) fails at both stages.** Explore never
+  reached t < −2 and the holdout is noise (8 of 12 signs, nothing
+  significant). By the rules written before running, the effect is not
+  established.
+- **K1, dies after costs, is decisive in every variant.** The best
+  tradeable cell in the entire study grosses about a third of the round
+  trip; the typical cell grosses a tenth or less.
+- **What the diagnostic says, reported and not adopted.** Conditioned on
+  the rate actually about to be paid, the effect has the predicted sign
+  in all 16 DiD cells across eight coins and replicates out of sample
+  (12 of 12 holdout cells, 6 significant), and the one test a generic
+  hour-of-day effect cannot pass — BUYING into settlement when funding is
+  negative — goes the predicted way in all 16. The gap between the two
+  variants is itself consistent with the reason: traders react to the
+  payment they are about to make, which the last settled rate measures
+  poorly. This is the strongest "the mechanism looks real" evidence this
+  project has produced for anything — and it still cannot pay the toll.
+- **Why even the real version barely trades.** The DiD is RELATIVE: in
+  high-funding regimes, other hours carry an upward drift (bull regimes)
+  that settlement hours simply lose. Price does not actually fall into
+  settlement much, so shorting into it grosses almost nothing even before
+  costs. The negative-funding side is closer to an absolute effect, and
+  it is still 1-5 basis points.
+
+**What survives, as an execution note rather than a strategy.** When
+adding to a long perp position in a high-funding regime, the hour before
+settlement is a relatively poor time to buy and just after is relatively
+better; closing a long is the mirror. A few basis points per fill —
+worth folding into any live entry logic, not worth trading alone.
+
+Reading against the reel that prompted this: its method did exactly what
+it promised. It produced a reason-first hypothesis that looks genuinely
+real, and its own kill criterion #1 killed it in one pass. "Most ideas
+die at step 4; that's the process working." Trial ledger: 1 hypothesis,
+2 conditioning variants (one primary, one labelled diagnostic), 8 coins.
+Family closed for trading. The one follow-up that could upgrade the
+diagnostic to an established result — a lookahead-free predicted-funding
+series built from Binance's premium-index klines — cannot change K1, so
+it is not scheduled.
 
 ## v0.23-exp — Horizon harvest: the v0.22 entry, packaged for the edge it actually has (2026-09-15)
 

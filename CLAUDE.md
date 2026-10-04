@@ -192,6 +192,15 @@ config.py        — All tuneable parameters (TESTING_MODE, ENTRY_MODE, etc.)
   roughly doubles per-signal excess in 10 of 12 cells (so "zones are nonsense" is also false). Both
   halves matter; reporting only one is misleading.
 
+- Pre-register the conditioning variable that matches the MECHANISM, built lookahead-free — not
+  the most convenient lookahead-free proxy. v0.24 made the last settled funding rate primary because it
+  was knowable in advance, but traders react to the payment they are ABOUT to make, which that rate
+  measures poorly. The primary came back as noise (0 of 16 cells significant) while the diagnostic
+  conditioned on the upcoming rate replicated across eight coins (12 of 12 holdout signs) — and the
+  pre-registration correctly refused to let the diagnostic rescue the verdict. If the mechanism-true
+  variable needs data you do not have (here, premium-index klines), fetch it before running rather
+  than burning the primary on a weak proxy.
+
 - Every new backtest engine must assert bracket invariants at position creation:
   `dr * (entry - stop) > 0` and `dr * (target - entry) > 0`. The v0.16 engine shipped with
   `tgt = e - dr * RR * dist` (sign flipped), which fills every "TP" as a -3R loss and produces a
