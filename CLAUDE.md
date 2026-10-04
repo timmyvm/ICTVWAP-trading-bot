@@ -211,6 +211,16 @@ config.py        — All tuneable parameters (TESTING_MODE, ENTRY_MODE, etc.)
   expected mean, so random same-size picks are the fair null. v0.26's rule failed the cash check
   (+24.4 % vs +29.6 %) yet beat 97 % of random picks — skill, but not the kind it first appeared to be.
 
+- Sanity-check every price series over its FULL history, not just the analysis window, and cross-check
+  each benchmark against an independent source before using it. Yahoo's IVV.AX carries an unadjusted
+  unit break at 2011-01 (a fake −93 % month); the first sanity check only scanned the 2015+ window and
+  missed it. It happened to sit outside the window — next time it might not.
+
+- Judge every strategy against the user's ACTUAL alternative after tax and risk: an 80/20 VGS/VAS holding
+  (v0.26-b), measured in AUD with distributions reinvested. Beating zero, or a backtest's own baseline,
+  is not the bar. Short-term trading profits lose the 50 % CGT discount that long-held ETFs get, so the
+  pre-tax hurdle is roughly 14-15 %/yr, not the portfolio's ~12-14 %.
+
 - Every new backtest engine must assert bracket invariants at position creation:
   `dr * (entry - stop) > 0` and `dr * (target - entry) > 0`. The v0.16 engine shipped with
   `tgt = e - dr * RR * dist` (sign flipped), which fills every "TP" as a -3R loss and produces a

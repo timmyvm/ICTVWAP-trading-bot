@@ -1,5 +1,58 @@
 # DEVLOG — Powell Trades Bot
 
+## v0.26-b — The real hurdle: the user's 80/20 VGS/VAS portfolio (2026-10-04)
+
+User: "how does my long term current strategy with 80/20 VGS/VAS perform
+in the long run against the S&P 500, to see what I would have to beat to
+pull my money out of my long term."
+
+`backtest/benchmark_portfolio.py`: Yahoo monthly ADJUSTED closes
+(distributions reinvested; franking credits NOT included, so VAS is
+understated for an Australian taxpayer) for VGS.AX, VAS.AX and IVV.AX
+(the S&P 500 measured in AUD); 80/20 rebalanced each January; FRED
+DEXUSAL converts the USD-denominated strategy into AUD. Everything below
+is in AUD.
+
+Data integrity, caught before use: IVV.AX carries an UNADJUSTED unit
+break at 2011-01 (a fake −93 % month). It lies before the 2015 comparison
+window, which starts when VGS listed; the script now flags breaks over
+each series' FULL history and asserts none leak into the window. The
+in-window IVV series was cross-checked against FRED's S&P 500 divided by
+AUD/USD for 2016-11 → 2026-09: +15.94 %/yr with distributions against
++14.09 %/yr price-only, a +1.85 %/yr gap that is the dividend yield.
+
+| | 2015-01 → 2026-09, per yr | max drawdown | 2021-Q1 → 2026-Q3, per yr |
+|---|---|---|---|
+| **80/20 VGS/VAS** | **+12.1 %** | −17.1 % | **+13.8 %** |
+| VGS alone | +13.0 % | −16.4 % | +14.8 % |
+| VAS alone | +8.4 % | −26.9 % | +9.0 % |
+| S&P 500 in AUD | +15.0 % | −16.1 % | +16.7 % |
+| strategy (v0.23 + v0.26 selection), in AUD | — | −14.5 % (quarterly) | +10.7 % |
+
+**Against the S&P.** The portfolio trailed the S&P by ~2.9 %/yr since
+2015, almost entirely through VAS; VGS alone was within 2 %/yr of it.
+The decade's US mega-cap dominance is period-specific, and VGS is
+already roughly 70 % US by weight.
+
+**The hurdle.** Pre-tax, a strategy must beat ~12 %/yr long-run and
+~14 %/yr over the strategy's own window. After tax it is higher:
+illustratively, at a 30 % bracket plus the 2 % Medicare levy, long-held
+ETF gains get the 50 % CGT discount while short-term trading profits do
+not, so a strategy needs roughly 14-15 %/yr PRE-TAX to match the
+portfolio after tax — before the CGT that selling VGS/VAS to fund it
+would trigger, and before VAS's franking credits, which favour the
+portfolio further. General illustration, not tax advice; the right rate
+is personal.
+
+**Verdict.** Over the identical 23 quarters, in the same currency, the
+strategy returned +10.7 %/yr against the portfolio's +13.8 %/yr. It does
+not clear even the pre-tax hurdle. Correlation −0.09, so it could still
+diversify. **Evaluation standard from here:** a strategy in this project
+is judged against "an 80/20 VGS/VAS holding, after tax and risk" — not
+against zero and not against the S&P. Nothing tested so far clears that
+as a REPLACEMENT; anything that earns a role does so as a small
+satellite funded from new money, never by selling the core.
+
 ## v0.26-a — Benchmark: the v0.23 candidate vs the S&P 500 (2026-10-04)
 
 User: "wait so it's better [than] the S&P 500?" Measured, not recalled:
