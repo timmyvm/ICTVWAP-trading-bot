@@ -18,5 +18,15 @@
   {"ticker": "PLTR", "direction": "UP", "size": "big", "confidence": 0.70,
    "reason": "Large beat and raise: revenue +7.5% vs est, Q3 guide ~8% above, FY guide raised ~5% above consensus. Valuation is the only argument against."},
   {"ticker": "TSLA", "direction": "DOWN", "size": "big", "confidence": 0.65,
-   "reason": "EPS $0.33 vs $0.51 and margins ~3 points below estimates, no guidance, capex rising for years and a new $30B borrowing capacity; robotaxi/Cybercab news is the bull offset."}
+   "reason": "EPS $0.33 vs $0.51 and margins ~3 points below estimates, no guidance, capex rising for years and a new $30B borrowing capacity; robotaxi/Cybercab news is the bull offset."},
+  {"ticker": "LLY", "direction": "UP", "size": "big", "confidence": 0.70,
+   "reason": "Revenue 11% above consensus, Mounjaro and Zepbound both well above, revenue guide raised $2.5B and EPS guide above consensus even after $3.03 of IPR&D charges."},
+  {"ticker": "JNJ", "direction": "UP", "size": "medium", "confidence": 0.65,
+   "reason": "Clean beat and raise: sales and EPS above, Innovative Medicine above, full-year sales and EPS guidance raised with the EPS midpoint above consensus."},
+  {"ticker": "ABBV", "direction": "UP", "size": "small", "confidence": 0.55,
+   "reason": "Revenue, EPS, Skyrizi and Rinvoq all slightly above and revenue guide raised; the EPS guide trim is dilution from a deal announced in June. Near coin-flip: the headline says 'guidance lowered'."},
+  {"ticker": "XOM", "direction": "DOWN", "size": "small", "confidence": 0.55,
+   "reason": "Adjusted EPS miss, production down q/q and a weaker Q3 outlook (Guyana -100 kbd, Hormuz, damaged Qatar LNG). Contamination noted: the predictor had seen Brent's daily closes for late July (Brent +1.2% on the reaction day)."},
+  {"ticker": "NFLX", "direction": "DOWN", "size": "medium", "confidence": 0.70,
+   "reason": "Slight revenue miss, Q3 revenue and EPS guides below consensus, full-year margin guide below the ~32% expected; the record buyback is the only offset."}
 ]
