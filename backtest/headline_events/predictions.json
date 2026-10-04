@@ -28,5 +28,13 @@
   {"ticker": "XOM", "direction": "DOWN", "size": "small", "confidence": 0.55,
    "reason": "Adjusted EPS miss, production down q/q and a weaker Q3 outlook (Guyana -100 kbd, Hormuz, damaged Qatar LNG). Contamination noted: the predictor had seen Brent's daily closes for late July (Brent +1.2% on the reaction day)."},
   {"ticker": "NFLX", "direction": "DOWN", "size": "medium", "confidence": 0.70,
-   "reason": "Slight revenue miss, Q3 revenue and EPS guides below consensus, full-year margin guide below the ~32% expected; the record buyback is the only offset."}
+   "reason": "Slight revenue miss, Q3 revenue and EPS guides below consensus, full-year margin guide below the ~32% expected; the record buyback is the only offset."},
+  {"ticker": "V", "direction": "UP", "size": "small", "confidence": 0.60,
+   "reason": "Revenue +2.3% and EPS +2.8% above consensus, payments volume ahead, full-year revenue and EPS growth outlook raised, plus a ~7% job cut; Visa's moves are usually small."},
+  {"ticker": "MA", "direction": "UP", "size": "small", "confidence": 0.62,
+   "reason": "EPS 5.7% above consensus, revenue +2.4%, cross-border 12% vs 10.6% expected, now 'higher within' its full-year range. Visa's beat two days earlier may have pre-empted part of it."},
+  {"ticker": "WMT", "direction": "DOWN", "size": "medium", "confidence": 0.70,
+   "reason": "US comps 2.6% vs 3.5% expected, Q3 EPS guide $0.62-0.64 vs $0.68 and the raised full-year EPS guide still below consensus, at a rich valuation; the EPS beat is the offset."},
+  {"ticker": "COST", "direction": "DOWN", "size": "small", "confidence": 0.55,
+   "reason": "Comps were already public; the EPS beat is mostly a one-off tariff refund ($6.60 ex vs $6.54 est); fee growth +7.3% with the fee-increase lift now ending; no guidance at a rich valuation."}
 ]

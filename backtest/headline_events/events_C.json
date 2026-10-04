@@ -1,0 +1,120 @@
+[
+  {
+    "ticker": "JPM",
+    "company": "JPMorgan Chase & Co.",
+    "period": "Q2 2026 (quarter ended 2026-06-30)",
+    "release_date_et": "2026-07-14",
+    "release_time_et": "06:30",
+    "timing": "BMO",
+    "revenue_reported": "Managed net revenue $58.02B (+27% YoY); GAAP reported net revenue $57.35B. Includes significant items: $4.6B net gain related to Visa shares and $1.0B of gains on certain equity investments. Excluding them, managed revenue was ~$52.4B (+15% YoY).",
+    "revenue_consensus": "$50.19B (LSEG). Other compilations: $48.71B (Zacks, 2026-07-09); $51.39B (headline-service consensus shown at release).",
+    "eps_reported": "$6.14 excluding significant items; GAAP diluted EPS $7.70 (significant items added $1.56: Visa-share gain $1.27, equity-investment gains $0.29). Net income $21.2B GAAP; $16.9B excluding significant items.",
+    "eps_consensus": "$5.85 (LSEG). Other compilations: $5.52 (Zacks, 2026-07-09); $5.44-$5.59 in other previews.",
+    "eps_basis": "adjusted",
+    "guidance": "Full-year 2026 outlook (earnings presentation, 'market dependent'): net interest income ~$105.5B (prior outlook of 2026-04-14: ~$103B); NII excluding Markets ~$96.5B (prior ~$95B); adjusted expense ~$107.5B (prior ~$105B; company attributed the increase mainly to higher volume- and revenue-related expenses); Card Services net charge-off rate ~3.2% (prior ~3.4%). No quarterly guidance given. Pre-release consensus for these full-year items: n/a.",
+    "key_metrics": [
+      "Net interest income: $25.62B managed basis (+10% YoY; GAAP $25.51B); NII excluding Markets $23.7B (+4% YoY). Pre-release consensus: $25.64B managed (headline-service consensus shown at release); Zacks $25.61B (NII) and $25.68B (NII, FTE basis), as of 2026-07-09.",
+      "Full-year 2026 NII guidance: ~$105.5B vs ~$103B in the prior (April 2026) outlook; NII excluding Markets ~$96.5B vs ~$95B prior."
+    ],
+    "other_announcements": [
+      "Capital return in Q2: $6.2B of net common share repurchases; common dividend of $1.50 per share ($4.0B).",
+      "On the earnings call, CEO Jamie Dimon said AI had reduced jobs by 30-40% in some discrete areas of the firm (not firmwide), with most affected employees offered positions elsewhere in the firm."
+    ],
+    "headline": "JPMorgan Q2: managed revenue $58.02B (incl. ~$5.6B significant-item gains; ~$52.4B ex-items) vs $50.19B est; EPS ex-items $6.14 vs $5.85 est (GAAP $7.70); NII $25.62B vs $25.64B est; FY26 NII guide ~$105.5B (prior ~$103B); FY26 adjusted expense guide ~$107.5B (prior ~$105B)",
+    "notes": "Release time: SEC 8-K accepted 06:30:38 ET; first wire headlines with results 06:34 ET; Business Wire notice timestamped 06:38 ET; company had pre-announced release at approximately 07:00 ET. Consensus sources disagree: LSEG used for EPS and revenue (EPS consensus compared with EPS excluding significant items; revenue consensus does not include the significant-item gains). Ex-items revenue (~$52.4B) = managed revenue minus the $4.6B Visa-share gain and $1.0B equity-investment gains, consistent with the release's +15% ex-items growth figure. NII consensus basis (GAAP vs managed/FTE) is not always stated by providers; both reported bases are given."
+  },
+  {
+    "ticker": "V",
+    "company": "Visa Inc.",
+    "period": "Fiscal Q3 2026 (quarter ended 2026-06-30)",
+    "release_date_et": "2026-07-28",
+    "release_time_et": "16:05",
+    "timing": "AMC",
+    "revenue_reported": "Net revenue $11.633B (+14% YoY nominal; +13% constant-dollar).",
+    "revenue_consensus": "$11.37B (Zacks, 2026-07-23). Other compilations: $11.35B-$11.4B.",
+    "eps_reported": "$3.32 non-GAAP diluted EPS (+11% YoY); GAAP $2.97 (+10%). Non-GAAP excludes $563M of severance costs, a $237M MDL litigation provision and other items.",
+    "eps_consensus": "$3.23 (Zacks; same figure in a headline-service consensus shown at release); $3.22 in another compilation.",
+    "eps_basis": "adjusted",
+    "guidance": "Given on the 2026-07-28 call (non-GAAP, adjusted constant-dollar basis). Fiscal full-year 2026: net revenue growth 'low end of low teens' (prior outlook of 2026-04-28: 'low double-digit to low teens'); operating expense growth 'low end of low teens' (prior: 'low double-digit to low teens'); EPS growth 'low end of mid-teens' (prior: 'low teens'); non-operating expense ~$165M; tax rate 18%-18.25%. Fiscal Q4 2026: net revenue growth 'high end of low double digits, similar to Q3 on an adjusted basis'; operating expense growth 'low double digits'; EPS growth 'low end of mid-teens'; non-operating expense ~$80M; tax rate ~19%. Pre-release consensus (Zacks, nominal rather than constant-dollar): FY2026 revenue $45.37B (+13.4%), FY2026 EPS $13.13 (+14.5%); fiscal Q4 consensus n/a.",
+    "key_metrics": [
+      "Payments volume growth: +10% constant-dollar (+11% nominal); quarterly payments volume above $4 trillion for the first time. Pre-release consensus: total payments volume $3,934.73B (Zacks, 2026-07-23; implies ~+8.8% nominal vs $3,618B a year earlier); no constant-dollar consensus found.",
+      "Net revenue growth: +14% nominal ($11.633B vs $10.172B), +13% constant-dollar. Pre-release expectations: Zacks consensus $11.37B (~+11.8% YoY); company's 2026-04-28 outlook for fiscal Q3 was net revenue growth in the 'low double digits' (adjusted, constant-dollar), with Q3 EPS growth 'mid- to high single digits'.",
+      "Cross-border volume growth (constant-dollar): total +13%; excluding transactions within Europe +12%. Pre-release consensus: n/a."
+    ],
+    "other_announcements": [
+      "Workforce reduction: $563M of severance costs recorded in the quarter (excluded from non-GAAP); on the call the CEO said Visa is eliminating roles, the majority in technology and product teams. A CEO staff memo reported earlier on 2026-07-28, before the release, put the reduction at roughly 2,600 jobs (~7% of the workforce).",
+      "Capital return in the quarter: $6.2B of share repurchases and dividends, including $4.9B of buybacks (14.5M shares); $28.4B of repurchase authorization remaining at 2026-06-30; quarterly dividend of $0.670 per share declared."
+    ],
+    "headline": "Visa FQ3: net revenue $11.63B (+14%) vs $11.37B est; non-GAAP EPS $3.32 vs $3.23 est; payments volume +10% cc; cross-border volume +13% cc (+12% ex-intra-Europe); FY26 outlook: net revenue growth 'low end of low teens' (prior 'low double-digit to low teens'), EPS growth 'low end of mid-teens' (prior 'low teens'); $563M severance charge",
+    "notes": "Release time from Business Wire timestamp (20:05 UTC = 16:05 ET); 8-K accepted 16:05:26 ET; call at 17:00 ET. No LSEG consensus found; Zacks used. No published consensus found for constant-dollar payments-volume growth or cross-border growth; the payments-volume consensus is Zacks' nominal-dollar estimate. Company guidance is on an adjusted constant-dollar basis while the Zacks full-year consensus is nominal. The ~2,600 / ~7% workforce figures come from media reports of the CEO memo, not from the earnings release."
+  },
+  {
+    "ticker": "MA",
+    "company": "Mastercard Incorporated",
+    "period": "Q2 2026 (quarter ended 2026-06-30)",
+    "release_date_et": "2026-07-30",
+    "release_time_et": "08:03",
+    "timing": "BMO",
+    "revenue_reported": "Net revenue $9.277B (+14% YoY; +12% currency-neutral).",
+    "revenue_consensus": "$9.06B (Zacks, 2026-07-27); $9.08B in other compilations (including the headline-service consensus shown at release).",
+    "eps_reported": "$5.04 adjusted diluted EPS (+21% YoY); GAAP diluted EPS $4.97 (+22%). Adjusted excludes litigation-related special items.",
+    "eps_consensus": "$4.77 (LSEG; Zacks also $4.77). Other compilations: $4.71 (headline-service consensus shown at release), $4.78.",
+    "eps_basis": "adjusted",
+    "guidance": "Given on the 2026-07-30 call (currency-neutral, excluding inorganic activity). Full-year 2026: net revenue growth at the 'high end of low double digits' - the same range as the prior outlook of 2026-04-30, with management saying it now expects to be 'higher within the range than our prior expectations'; FX tailwind to net revenue ~1 ppt (prior ~1.5 ppt); operating expense growth 'low double digits' (unchanged), FX headwind 0.5-1 ppt. Q3 2026: net revenue growth at the 'high end of low double digits' (FX headwind ~0.5 ppt); operating expense growth 'low double digits'; non-GAAP tax rate 20%-21% for Q3 and Q4. Pre-release consensus for these items: n/a.",
+    "key_metrics": [
+      "Net revenue growth: +14% reported ($9.277B vs $8.133B), +12% currency-neutral. Pre-release expectations: Zacks consensus $9.06B (~+11.4% YoY); company's 2026-04-30 outlook for Q2 was net revenue growth at the 'low end of low double digits' (currency-neutral, excluding inorganic activity).",
+      "Cross-border volume growth: +12% (local currency basis). Pre-release consensus: +10.6% (headline-service consensus shown at release; provider not named)."
+    ],
+    "other_announcements": [
+      "Capital return: repurchased 9.8M shares for $4.9B in Q2 and ~1.3M shares for ~$0.7B more through 2026-07-27; $7.8B remaining under approved repurchase programs; $771M of dividends paid in Q2."
+    ],
+    "headline": "Mastercard Q2: net revenue $9.28B (+14%, +12% currency-neutral) vs $9.06B est; adj. EPS $5.04 vs $4.77 est; cross-border volume +12% vs +10.6% est; FY26 net revenue growth guide 'high end of low double digits' (same range as prior, now expected higher within it); Q3 net revenue growth guide 'high end of low double digits'",
+    "notes": "Release time from the Business Wire notice (12:03 UTC = 08:03 ET); 8-K accepted 08:07:03 ET; first headline-service post with results 08:08 ET; call at 09:00 ET. Revenue consensus differs slightly by source ($9.06B vs $9.08B). The cross-border consensus (+10.6%) comes from a headline service whose consensus provider is not named. One headline service reported Q3 operating-expense guidance as 'high single digit'; the call transcript states 'low double digits', which is used here."
+  },
+  {
+    "ticker": "WMT",
+    "company": "Walmart Inc.",
+    "period": "Q2 fiscal 2027 (quarter ended 2026-07-31)",
+    "release_date_et": "2026-08-20",
+    "release_time_et": "07:00",
+    "timing": "BMO",
+    "revenue_reported": "Total revenue $187.94B (+5.9% YoY; +5.1% constant currency).",
+    "revenue_consensus": "$186.77B (LSEG). Other compilations: $186.3B (Zacks); $186.6B-$186.8B.",
+    "eps_reported": "$0.81 adjusted EPS; GAAP EPS $0.80 (adjusted excludes a $0.12 net loss on equity and other investments and a $0.11 net benefit from a tax matter).",
+    "eps_consensus": "$0.74 (LSEG); $0.73 (Zacks).",
+    "eps_basis": "adjusted",
+    "guidance": "Q3 FY27: net sales growth (cc) +3.0% to +3.75%; operating income growth (cc) +2.0% to +4.0%; adjusted EPS $0.62-$0.64 (pre-release consensus $0.68, Fiscal.ai data as cited in press). Full-year FY27 (prior = original guidance of 2026-02-19, left unchanged on 2026-05-21): net sales growth (cc) +4.0% to +5.0% (prior +3.5% to +4.5%); adjusted operating income growth (cc) +7.0% to +8.5% (prior +6.0% to +8.0%); adjusted EPS $2.80-$2.87 (prior $2.75-$2.85; pre-release consensus ~$2.89-$2.90); capital expenditures ~4.0% of net sales (prior ~3.5%); adjusted net interest and effective tax rate (~23.5%-24.5%) unchanged. Pre-release consensus for Q3 and FY27 net sales growth: n/a.",
+    "key_metrics": [
+      "Walmart U.S. comparable sales excluding fuel: +2.6% (transactions +1.5%, average ticket +1.1%), including an ~80 bp headwind from health & wellness that the company attributed to pharmacy deflation from new maximum-fair-price drug regulation effective Jan 1; prior-year quarter +4.6%. Pre-release consensus: +3.5% (FactSet); other published estimates ranged from +3.1% to +3.8%.",
+      "Full-year FY27 guidance changed: net sales growth (cc) to +4.0%-5.0% from +3.5%-4.5%; adjusted EPS to $2.80-$2.87 from $2.75-$2.85 (pre-release consensus ~$2.89-$2.90); adjusted operating income growth (cc) to +7.0%-8.5% from +6.0%-8.0%."
+    ],
+    "other_announcements": [
+      "Share repurchases: 42.3M shares for $5.1B year-to-date; $25.1B remaining under the $30B authorization approved in February 2026."
+    ],
+    "headline": "Walmart Q2 FY27: revenue $187.94B vs $186.77B est; adj. EPS $0.81 vs $0.74 est; Walmart U.S. comps ex-fuel +2.6% vs +3.5% est; Q3 adj. EPS guide $0.62-$0.64 vs $0.68 est; FY27 adj. EPS guide $2.80-$2.87 (prior $2.75-$2.85) vs ~$2.90 est; FY27 net sales growth guide +4.0%-5.0% cc (prior +3.5%-4.5%)",
+    "notes": "Release time: company scheduled the release for 6 a.m. CDT (07:00 ET); SEC 8-K accepted 06:59:01 ET; no newswire timestamp retrieved; call at 08:00 ET. U.S. comp consensus varies by source: FactSet +3.5% used; other published figures were +3.7% (Reuters), +3.8% (a FactSet-based preview) and +3.1% (Zacks six-analyst average). Q3 EPS consensus ($0.68) is from Fiscal.ai data cited in press; FY27 EPS consensus is ~$2.89 (MarketBeat) to ~$2.90 (other compilations). The Q3 operating-income guidance row is labeled 'Operating income (cc)' in the release table."
+  },
+  {
+    "ticker": "COST",
+    "company": "Costco Wholesale Corporation",
+    "period": "Q4 fiscal 2026 (16 weeks ended 2026-08-30)",
+    "release_date_et": "2026-09-24",
+    "release_time_et": "16:15",
+    "timing": "AMC",
+    "revenue_reported": "Total revenue $95.723B (net sales $93.873B, +11.2% YoY; membership fees $1.850B).",
+    "revenue_consensus": "$94.97B (FactSet). Other compilations: $94.82B (Zacks); $94.85B.",
+    "eps_reported": "$6.75 GAAP diluted EPS (vs $5.87 a year earlier); includes a non-recurring $0.15 benefit from IEEPA tariff refunds ($6.60 excluding it). Net income $2.998B.",
+    "eps_consensus": "$6.54 (FactSet). Other compilations: $6.48 (Zacks); $6.52-$6.55.",
+    "eps_basis": "GAAP",
+    "guidance": "No formal financial guidance. On the call: fiscal 2027 capital expenditures of approximately $7.5B; plan to open 33 warehouses in fiscal 2027 (5 of them relocations), building toward a goal of 30 net new warehouses per year; capex growth expected to slow beyond fiscal 2027; Q4 is the last quarter with a year-over-year benefit from the September 2024 membership fee increase. Pre-release consensus for these items: n/a.",
+    "key_metrics": [
+      "Comparable sales, 16-week Q4: total company +9.4% reported; +6.7% adjusted for gasoline prices and FX (U.S. +10.7% / +7.2%; Canada +5.0% / +4.6%; Other International +7.0% / +6.2%; digitally-enabled +19.5% / +19.8%). These 16-week figures had already been published in Costco's August sales release on 2026-09-02. One published pre-release estimate: +6.44% adjusted.",
+      "Membership fee income: $1.850B (+7.3% YoY; +7.7% excluding FX; per the CFO the September 2024 U.S./Canada fee increase 'accounted for less than 1% of fee growth'). Pre-release consensus: n/a (not found)."
+    ],
+    "other_announcements": [
+      "IEEPA tariff refunds: received $184M in Q4 ($174M of refunds plus $10M of interest), a little more than one-third of total refunds expected; non-recurring EPS benefit of $0.15; company intends to reinvest the majority of refunds received in member value."
+    ],
+    "headline": "Costco Q4 FY26: revenue $95.72B vs $94.97B est; EPS $6.75 (incl. $0.15 tariff-refund benefit) vs $6.54 est; comparable sales +9.4%, +6.7% ex gas/FX (16-week figures published 2026-09-02); membership fee income $1.85B (+7.3%), est n/a; FY27 capex plan ~$7.5B",
+    "notes": "Release time from GlobeNewswire timestamp (16:15 ET); 8-K accepted 16:17:37 ET; call at 17:00 ET. Q4 net sales (~$93.9B) and the 16-week comparable sales (+9.4%; +6.7% ex gas/FX) were already disclosed in Costco's August sales release (2026-09-02, 16:15 ET), so the new figures in this release were chiefly membership fees and earnings. FactSet used for EPS and revenue consensus; LSEG figures not found. The +6.44% comparable-sales estimate comes from a single compilation, and its timing relative to the 2026-09-02 sales release is unknown. No pre-release membership-fee consensus was found."
+  }
+]
