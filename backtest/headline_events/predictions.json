@@ -29,6 +29,8 @@
    "reason": "Adjusted EPS miss, production down q/q and a weaker Q3 outlook (Guyana -100 kbd, Hormuz, damaged Qatar LNG). Contamination noted: the predictor had seen Brent's daily closes for late July (Brent +1.2% on the reaction day)."},
   {"ticker": "NFLX", "direction": "DOWN", "size": "medium", "confidence": 0.70,
    "reason": "Slight revenue miss, Q3 revenue and EPS guides below consensus, full-year margin guide below the ~32% expected; the record buyback is the only offset."},
+  {"ticker": "JPM", "direction": "UP", "size": "small", "confidence": 0.60,
+   "reason": "Revenue ex-items ~4% and EPS ex-items 5% above consensus, NII in line, full-year NII guide raised $2.5B and card charge-off guide lowered; the higher expense guide is volume-driven."},
   {"ticker": "V", "direction": "UP", "size": "small", "confidence": 0.60,
    "reason": "Revenue +2.3% and EPS +2.8% above consensus, payments volume ahead, full-year revenue and EPS growth outlook raised, plus a ~7% job cut; Visa's moves are usually small."},
   {"ticker": "MA", "direction": "UP", "size": "small", "confidence": 0.62,
