@@ -1,5 +1,44 @@
 # DEVLOG — Powell Trades Bot
 
+## v0.26-a — Benchmark: the v0.23 candidate vs the S&P 500 (2026-10-04)
+
+User: "wait so it's better [than] the S&P 500?" Measured, not recalled:
+`backtest/benchmark_sp500.py`, S&P from FRED series SP500 (daily price
+index; dividends added back as a flat 1.4 %/yr), over the identical
+23-quarter out-of-sample window as v0.26.
+
+| 2021-Q1 → 2026-Q3 | total | per year | max drawdown | worst quarter | quarters up |
+|---|---|---|---|---|---|
+| S&P 500 | **+120.3 %** | **+14.7 %** | −23.9 % | −16.1 % | 74 % |
+| strategy, quarterly selection | +63.5 % | +8.9 % | −11.3 % | −7.8 % | 61 % |
+| strategy, all coins always on | +29.6 % | +4.6 % | −11.9 % | −7.1 % | 52 % |
+| 50/50, rebalanced quarterly | +95.8 % | +12.4 % | **−5.3 %** | **−4.2 %** | 78 % |
+
+Per year, S&P vs strategy: 2021 +28.6 / +7.3 · **2022 −18.2 / +35.5** ·
+2023 +25.9 / −9.3 · 2024 +25.0 / +9.7 · 2025 +18.0 / +2.8 · 2026 to
+Sep +12.9 / +10.0. Correlation of quarterly returns **−0.33** (all-on
+−0.21); in the six quarters the S&P fell, it averaged −6.2 % and the
+strategy +3.9 %.
+
+**Reading.** On return the S&P wins outright — more than double the
+total gain, and every full year except 2022. The strategy's case is
+not as a replacement but as a diversifier: it moved AGAINST equities,
+and a 50/50 blend kept ~85 % of the S&P's return with ~22 % of its
+drawdown. Plausible mechanism: a direction-balanced 24 h hold profits
+from strong moves either way, and equities' worst year (2022) was a
+year of violent crypto trends — the "crisis alpha" pattern of
+trend-following funds.
+
+**Why not to lean on the blend yet.** (1) The S&P numbers are realised;
+the strategy's are a backtest that survived a selection process across
+dozens of trials, so its true expectation is lower (winner's curse).
+(2) The negative correlation rests heavily on 2022: with 23 quarters
+its standard error is ≈ 0.21, so −0.33 is ~1.6 SE from zero. (3) 2021-26
+was a strong S&P stretch, above its long-run average. (4) The index is
+nearly free to hold, needs no bot, and carries no exchange counterparty
+risk; the strategy's gains are all short-term. Status unchanged:
+CANDIDATE, paper run first.
+
 ## v0.26-diag — Can the losing coins be identified IN ADVANCE? (2026-10-04)
 
 **STATUS: PASS — quarterly walk-forward selection ≈ 8.9 %/yr vs 4.6 %/yr
