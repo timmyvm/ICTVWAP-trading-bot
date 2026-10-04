@@ -1,5 +1,63 @@
 # DEVLOG — Powell Trades Bot
 
+## v0.27-exp — Blind test: can headlines alone call the next-session move? (2026-10-04) — PRE-REGISTERED
+
+User: "can you read 20 headlines, can't see the stock at that point, then
+predict the stock movement, then see the stock after and tell me how
+accurate you were." Follows a three-headline game in which the user called
+2 of 3 directions and 0 of 3 sizes; trading those calls at the first
+realistic price (next open) would have lost about 5.8 % in total.
+
+**Event set, fixed before any search.** The most recent quarterly earnings
+release dated 2026-07-01 → 2026-10-02 of 20 large US companies: MSFT GOOGL
+META AAPL AMZN NVDA AVGO ORCL PLTR TSLA JPM V MA WMT COST LLY JNJ ABBV XOM
+NFLX — roughly the largest by market cap at end-2025 (the predictor's
+knowledge), excluding Berkshire Hathaway (Saturday releases, no guidance,
+thin consensus coverage). Every release postdates the predictor's training
+cutoff, so no outcome can be recalled from memory.
+
+**Information set.** One fixed template per event, filled by collector agents
+from the press release, that day's call and the PRE-release consensus:
+revenue and EPS vs consensus, guidance (vs consensus where published), two
+key metrics per company NAMED BEFORE THE SEARCH (so emphasis cannot follow
+the outcome), up to two other announcements, and a neutral headline. No
+price, no reaction, no analyst commentary, nothing after the release day.
+
+**Blindness protocol.**
+1. Collectors see reactions while searching; the predictor never reads raw
+   search results. Source URLs go to a separate scratchpad file that is read
+   only after scoring, for the fact audit.
+2. `--leakscan` flags reaction vocabulary per ticker and prints pattern ids
+   only, never the text. Any flagged event is cleaned by a fresh agent before
+   the predictor reads the file.
+3. Predictions (direction, size bucket, confidence, one-line reason) are
+   committed and pushed BEFORE `--score` fetches any price.
+
+**Measurement.** Primary: total return (Yahoo adjusted close) from the last
+close before the release to the close of the first regular session after it
+— AMC: next-session close / release-day close; BMO: release-day close /
+prior close; non-trading day: first close after / last close before.
+Secondary: (a) market-adjusted, minus SPY over the same window; (b)
+TRADEABLE: first post-release regular-session open → that session's close,
+i.e. what someone acting at the open captures after the first jolt (0.10 %
+round trip); (c) size bucket (small < 2 %, medium 2-5 %, big > 5 %); (d)
+Brier score of the stated confidences.
+
+**Benchmarks on the same events.** Coin flip (one-sided binomial); "EPS
+beat → UP, otherwise DOWN"; "always UP".
+
+**Pass bar.** ≥ 15 of 20 primary directions (one-sided p ≈ 0.021). 14 of 20
+is p ≈ 0.058: not distinguishable from luck. Beating the coin flip on the
+primary while losing on (b) would mean the information is real but already
+in the price by the open — not tradeable without being first.
+
+**Self-test (passed before any event was read).** The window logic
+reproduces the two events revealed in the game: NKE 2026-10-01 AMC −3.64 %
+(gap −7.40 %, open → close +4.06 %); TSLA 2026-10-02 BMO +4.65 % (gap
++1.69 %, open → close +2.92 %).
+
+Code: `backtest/headline_blind_test.py`. Results: pending.
+
 ## v0.26-b — The real hurdle: the user's 80/20 VGS/VAS portfolio (2026-10-04)
 
 User: "how does my long term current strategy with 80/20 VGS/VAS perform
