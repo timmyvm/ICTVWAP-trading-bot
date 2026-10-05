@@ -228,6 +228,14 @@ config.py        — All tuneable parameters (TESTING_MODE, ENTRY_MODE, etc.)
   scores side by side. For any blind test: fix the fact template before searching, leak-scan with output
   that prints pattern ids only, and commit the calls before the first price fetch.
 
+- Before setting a confidence threshold for a trading rule, measure the MAXIMUM honest confidence the
+  data supports. v0.28's walk-forward model on 44,208 earnings events never exceeded 61%, so a "trade at
+  70%" rule can only fire through overconfidence. Measure any selection signal against what the user
+  can actually buy (SPY), not only against the survivor baseline: the top surprise quintile beat the
+  average reporter by +0.48% but SPY by +0.32%. And a fixed-fraction overlay with many concurrent
+  positions is mostly beta: report its mean and peak exposure and a market-hedged version beside it.
+  v0.28's drift sleeve showed +13%/yr at 91% average exposure (peak 359%) while SPY alone made +12%.
+
 - Every new backtest engine must assert bracket invariants at position creation:
   `dr * (entry - stop) > 0` and `dr * (target - entry) > 0`. The v0.16 engine shipped with
   `tgt = e - dr * RR * dist` (sign flipped), which fills every "TP" as a -3R loss and produces a

@@ -1,6 +1,77 @@
 # DEVLOG — Powell Trades Bot
 
-## v0.28-exp — Post-earnings drift and the user's confidence gate (2026-10-05) — PRE-REGISTERED
+## v0.28-exp — Post-earnings drift and the user's confidence gate (2026-10-05) — FAIL (t 1.96 vs 2.0); the 70% gate never trades
+
+**Results** (run after pre-registration `a99f83c` and the harness fix `fa19840`; full output in
+`backtest/data_cache/local/pead_report.txt`, which is not committed).
+
+| | holdout 2022-01 → 2026-08 |
+|---|---|
+| **Primary: S1 top quintile vs same-quarter baseline, h = 20** | **+0.484%, t 1.964** (227 weeks, 5,403 events) → **FAIL** (t bar 2.0) |
+| S1 top-minus-bottom spread | +0.48% (bar 0.40% met) |
+| S1 bottom quintile (misses) | −0.03% (t −0.1): no extra downward drift |
+| Liquid universe | 55,898 events from 2,406 symbols (2014-2026); 26,823 in the holdout |
+
+Secondaries (labelled; they cannot rescue the primary):
+
+| | top | t | spread |
+|---|---|---|---|
+| S1 2015-2021 | +0.12% | 0.4 | +0.32% |
+| S1 2015-2026 | +0.30% | 1.6 | +0.40% |
+| S2 reaction | +0.05% | 0.2 | +0.28% |
+| S3 both agree | +0.50% | 1.3 | +0.88% |
+| h = 5 / 10 / 40 / 60 | +0.07 / +0.32 / +0.63 / +1.17% | 0.5 / 1.5 / 1.8 / 2.7 | −0.09 / +0.20 / +0.65 / +1.53% |
+| $100M tier | +0.60% | 2.0 | +0.47% |
+| without > 60% days | +0.51% | 2.1 | +0.50% |
+
+**The user's rule (model confidence, walk-forward 2018-2026, 44,208 events).**
+- The model's P(up) ranged only 0.493-0.612, so **no event reached 70% confidence and the rule made
+  0 trades**. The pre-stated verdict applies: honest confidence rarely reaches 70%; the rule barely
+  trades.
+- Calibration is good (predicted 0.532 → realised 0.533; 0.570 → 0.550), but there is no skill: the
+  model's Brier score is 0.2485 against 0.2486 for the base rate (54.5% of 20-session windows rose).
+- Diagnostic, the top 10% most confident each quarter: 4,435 trades, a 54.3% hit rate and
+  +1.12%/trade net. That is mostly market drift, because these are raw long calls.
+
+**Sleeves (1% per trade, overlay).**
+
+| | net per year | max DD | mean exposure |
+|---|---|---|---|
+| Long top quintile, holdout | +13.21% | −24.3% | 91% (peak 359%) |
+| Long top quintile, full | +9.93% | −53.4% | 75% |
+| SPY itself, holdout | +12.16% | −24.5% | 100% |
+| SPY itself, full | +13.81% | −33.7% | 100% |
+| Long-short, holdout, 0.10% / 0.30% per side | −1.93% / −10.56% | | |
+| Long-short, full, 0.10% / 0.30% per side | −0.61% / −7.86% | | |
+
+The long sleeves are leveraged market exposure, not drift. The market-neutral version loses money,
+because the spread is smaller than the four cost legs plus short financing.
+
+**Post-hoc diagnostics** (`--diagnostics`, labelled):
+- Against SPY rather than the survivor baseline, the top quintile earned +0.318% per 20 sessions
+  (t 1.00); the average reporter lagged SPY by −0.165%.
+- SPY-hedged and net of costs: +0.098% per trade (t 0.31) at 0.10% per side, and −0.30% at 0.30%.
+  At 1,159 trades/yr and 1% each, that is about +1.1% of the portfolio a year at best, and
+  indistinguishable from zero.
+
+**Pilot** (v0.27 calls scored on the 20-session drift): 8 of 18 right; calls at ≥ 70% confidence
+were right 2 of 6 (mean −0.23%).
+
+**Reading.**
+- Post-earnings drift is present but small in the recent era: about +0.5% a month for the biggest
+  positive surprises against the average reporter, building to +1.2% by 60 sessions.
+- It sits on the upside only; misses show none, possibly because survivorship removes the failures.
+- Against an index the user can buy, it nearly vanishes. After costs, at any realistic size, it is
+  noise.
+- The 70% rule cannot be met honestly from the numbers in a headline: the best calibrated model
+  never passed 61%. Any 70%+ call has to come from information beyond EPS surprise and the reaction,
+  which is what v0.29-live tests.
+
+**Final model** (all 54,298 events with complete exits) saved to `backtest/live_earnings/model.json`
+for the live comparison: intercept 0.011; coefficients 0.159 (surprise), 0.205 (reaction), −0.052
+(product).
+
+## v0.28-exp (pre-registration, kept verbatim below)
 
 User: "yes test the drift. Also set up an accuracy prediction, so read the news headline, see the
 confidence of the up or down, mark it at 50% default. if the confidence is 70%+ make the trade, if its

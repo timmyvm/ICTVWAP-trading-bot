@@ -486,11 +486,44 @@ def report() -> None:
     print(f"\nfinal model (all events with exits to {m['train_last_exit']}, n {m['n_train']}) -> {MODEL_OUT}")
 
 
+def diagnostics() -> None:
+    """POST-HOC (after --report; labelled in DEVLOG, cannot change the verdict): exact primary t, the
+    drift against SPY rather than against the survivor baseline, a SPY-hedged long sleeve, and the
+    market return over the same span, so the overlay sleeves' beta can be separated from drift."""
+    d = prepare(load_event_table())
+    p = drift(d, "q1", H, HOLDOUT)
+    print(f"primary exact: top {100 * p['top']:+.3f}%  t {p['t_top']:+.3f}  spread {100 * p['spread']:+.3f}%  "
+          f"weeks {p['weeks']}")
+    s = d[(d.d0 >= HOLDOUT[0]) & (d.d0 <= HOLDOUT[1]) & d.abn20.notna()]
+    top = s[s.q1 == 5]
+    m, t, n, _ = cluster_t(top.abn20.values, top.week.values)
+    print(f"holdout top quintile vs SPY (not vs baseline): mean abnormal {100 * m:+.3f}% (t {t:+.2f}, n {n}); "
+          f"all-events baseline vs SPY {100 * s.abn20.mean():+.3f}%")
+    hedged = top.abn20 - 2 * COST_SIDE - 2 * 0.0001          # stock round trip + a liquid SPY hedge
+    mh, th, _, _ = cluster_t(hedged.values, top.week.values)
+    print(f"SPY-hedged long top quintile, net of costs: {100 * mh:+.3f}% per 20-session trade (t {th:+.2f}); "
+          f"at {COST_SIDE_HI * 100:.2f}%/side: {100 * (top.abn20 - 2 * COST_SIDE_HI - 0.0002).mean():+.3f}%")
+    per_year = len(top) / ((HOLDOUT[1] - HOLDOUT[0]).days / 365.25)
+    print(f"  {per_year:.0f} trades/yr at 1% each -> {100 * per_year * 0.01 * mh:+.2f}% of portfolio per year "
+          f"(simple sum, before compounding)")
+    spy = load_daily("SPY")
+    a = spy.adjclose
+    seg = a[(a.index >= HOLDOUT[0]) & (a.index <= HOLDOUT[1])]
+    yrs = (seg.index[-1] - seg.index[0]).days / 365.25
+    print(f"SPY over the holdout {seg.index[0].date()} -> {seg.index[-1].date()}: {100 * ((seg.iloc[-1] / seg.iloc[0]) ** (1 / yrs) - 1):+.2f}%/yr "
+          f"(total return); max DD {100 * (seg / seg.cummax() - 1).min():.1f}%")
+    seg = a[(a.index >= FULL[0]) & (a.index <= FULL[1])]
+    yrs = (seg.index[-1] - seg.index[0]).days / 365.25
+    print(f"SPY over the full span: {100 * ((seg.iloc[-1] / seg.iloc[0]) ** (1 / yrs) - 1):+.2f}%/yr; "
+          f"max DD {100 * (seg / seg.cummax() - 1).min():.1f}%")
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--build", action="store_true")
     ap.add_argument("--selftest", action="store_true")
     ap.add_argument("--report", action="store_true")
+    ap.add_argument("--diagnostics", action="store_true", help="post-hoc, labelled; run after --report")
     a = ap.parse_args()
     if a.build:
         build_events()
@@ -498,6 +531,8 @@ def main() -> None:
         selftest()
     if a.report:
         report()
+    if a.diagnostics:
+        diagnostics()
 
 
 if __name__ == "__main__":
