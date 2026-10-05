@@ -94,7 +94,11 @@ def consolidate() -> pd.DataFrame:
     rows = []
     for path in sorted(glob.glob(f"{CACHE}/*.json")):
         d = os.path.basename(path)[:-5]
-        data = (json.load(open(path)) or {}).get("data") or {}
+        try:
+            data = (json.load(open(path)) or {}).get("data") or {}
+        except ValueError:
+            print(f"  skipping unreadable {path} (being written?)")
+            continue
         for r in data.get("rows") or []:
             rows.append({
                 "date": d, "symbol": str(r.get("symbol", "")).strip().upper(), "name": r.get("name", ""),
