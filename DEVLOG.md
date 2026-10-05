@@ -1,5 +1,90 @@
 # DEVLOG — Powell Trades Bot
 
+## v0.28-exp — Post-earnings drift and the user's confidence gate (2026-10-05) — PRE-REGISTERED
+
+User: "yes test the drift. Also set up an accuracy prediction, so read the news headline, see the
+confidence of the up or down, mark it at 50% default. if the confidence is 70%+ make the trade, if its
+90+ make the trade at 2% portfolio instead of 1%." Asked and answered: the confidence comes from
+**both** a model (this backtest) and live Claude reading (v0.29-live); 1%/2% means **position size**
+(the share of the portfolio put into the trade); the live universe is the **S&P 500**. Plan approved
+in plan mode before any code was written.
+
+**Data.**
+- Nasdaq earnings calendar, 2014-07 → 2026-10 (`backtest/fetch_earnings_calendar.py`): actual EPS,
+  consensus and % surprise for every reporter, every day. Three caveats found by probing:
+  - Past dates carry no release time.
+  - The market cap is TODAY's value, so it is never used.
+  - Delisted companies are absent, so this is a survivor universe.
+- Yahoo daily bars (`backtest/fetch_yahoo_daily.py`) with split history. Yahoo's close is adjusted
+  for later splits, but as-reported EPS needs the price that actually traded. The fetcher rebuilds
+  it: AAPL 2014-06-06 $645.57 and NVDA 2024-06-07 $1,208.88 both verified.
+
+**Events and trades.**
+- Day 0 is the report date. The reaction window runs from the close of day −1 to the close of day +1,
+  which covers both before-open and after-close releases without needing the release time.
+- **Entry is at the open of day +2**, the first price after the reaction is fully known (adjusted:
+  open × adjclose ÷ close).
+- Exit is at the close after h sessions, with h ∈ {5, 10, 20, 40, 60}. **Primary h = 20.**
+- Abnormal return = stock − SPY over the identical span.
+- Universe at each event, lookahead-free: traded close(−1) ≥ $5 and median dollar volume over days
+  −21..−2 ≥ $20M (tier 2: ≥ $100M). When one company appears twice on a day (share classes), the
+  higher dollar volume is kept.
+- Survivorship is netted by measuring every signal against the **same-quarter all-events baseline**,
+  plus the top-minus-bottom spread.
+
+**Signals.**
+- **S1 (PRIMARY): surprise-to-price** = (EPS − consensus) ÷ traded close(−1).
+- S2: the reaction (abnormal close(−1) → close(+1)).
+- S3: S1 and S2 in the same extreme quintile.
+- Quintile breakpoints come from the PREVIOUS quarter's events.
+
+**Primary test.** Holdout: events 2022-01 → 2026-08, the freshest era. The statistic is the mean h=20
+abnormal return of the S1 top quintile minus the same-quarter all-events mean, with t-stats clustered
+by report week. **Pass: > 0 with t ≥ 2.0 AND a top-minus-bottom spread ≥ 0.40%** (four legs at 0.10%).
+Secondaries (labelled; they cannot rescue the primary): S2, S3, the other horizons, the $100M tier,
+2015-2021, and a run without events that had a > 60% one-day move.
+
+**Confidence gate (the user's rule).**
+- Model: logistic regression on S1 and S2 percentiles (from 99 training quantiles) plus their product.
+- Target: the stock is UP over the 20 sessions (raw direction, as asked).
+- Walk-forward: each test year 2018-2026 is trained only on events whose EXIT precedes that year
+  (asserted in code).
+- Direction = sign(p − 0.5); confidence = max(p, 1 − p); no information = 50%.
+- **Trade 1% of equity at ≥ 70%, 2% at ≥ 90%.** Costs: 0.10% per side, plus 3%/yr financing on shorts.
+- **Stated in advance:** fewer than 30 gated trades means "honest confidence rarely reaches 70%; the
+  rule barely trades".
+- Also reported: calibration table, model Brier vs the base-rate Brier, and a labelled diagnostic
+  (the top 10% most confident each quarter, using the prior quarter's threshold).
+
+**Sleeves.** Calendar-time, marked daily, framed as an overlay on the 80/20 core with positions at 1%/2%
+of equity:
+- the gated rule;
+- all S1 top-quintile longs;
+- top-minus-bottom long-short;
+- each at 0.10% and at 0.30% per side (retail FX costs).
+Each reports % of portfolio per year, max drawdown, worst month and exposure.
+
+**Pilot (labelled).** v0.27's 20 calls, scored on the 20-session drift from the day +2 open.
+
+**Live hand-off.** The final model (all events with complete exits) is saved to
+`backtest/live_earnings/model.json`, so v0.29-live can compare Claude's reading with the model on the
+same events. `backtest/live_earnings/RUBRIC.md` (the live reading rules) is prepared here and
+registered in v0.29-live.
+
+**Self-tests at pre-registration (synthetic, all pass).**
+- A planted +1% drift is recovered at +0.79% (the baseline absorbs a fifth of it), t 4.6.
+- The null stays inside |t| < 2 in 19 of 20 seeds.
+- The logistic fit recovers known coefficients.
+- Gate thresholds are correct.
+- Quintiles use only the prior quarter's breakpoints.
+
+The real-data checks run after the build and BEFORE `--report`: known events MSFT 2026-07-29 (reaction
+> +12%) and NKE 2026-10-01 (≈ −4.3%), entry strictly after the window, and a planted drift on the real
+event structure.
+
+Code: `backtest/fetch_earnings_calendar.py`, `backtest/fetch_yahoo_daily.py`,
+`backtest/pead_drift_test.py`. Results: pending.
+
 ## v0.27-exp — Blind test: can headlines alone call the next-session move? (2026-10-04) — FAIL by one call (14 of 20); untradeable from the open (9 of 20)
 
 User: "can you read 20 headlines, can't see the stock at that point, then

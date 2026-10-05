@@ -5,3 +5,5 @@ __pycache__/
 logs/
 backtest/results*/
 backtest/data_cache/local/
+backtest/live_earnings/queue/
+backtest/live_earnings/queue_dryrun/
