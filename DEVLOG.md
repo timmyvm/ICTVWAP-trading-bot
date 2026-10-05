@@ -1,5 +1,54 @@
 # DEVLOG — Powell Trades Bot
 
+## v0.29-live — Live earnings reading with the user's 70/90 rule, S&P 500 paper trades (2026-10-05) — PRE-REGISTERED
+
+The forward half of the user's request: Claude reads each S&P 500 earnings release and sets a
+confidence for the direction over the following 20 sessions. The user's rule is: 50% default, trade
+1% of the paper portfolio at ≥ 70%, 2% at ≥ 90%. No backtest is possible (the reader has seen past
+outcomes), so this runs forward only.
+
+**Universe.** S&P 500 from Wikipedia's constituents table (`backtest/live_earnings/sp500.csv`, 503 rows,
+2026-10-05; the reader warns once it is more than 35 days old).
+
+**Packets.** `live_earnings_reader.py --prepare` runs on decision date T for releases on the
+previous trading day. Each packet holds:
+- Nasdaq EPS against the pre-release consensus, and the surprise-to-price s1;
+- the two-day reaction close(T−2) → close(T) against SPY, already in the price;
+- the first 2,500 words of the SEC 8-K exhibit 99.1 press release, with its acceptance time;
+- one packet per company: share classes are merged by CIK.
+
+**Reading rules.** `backtest/live_earnings/RUBRIC.md`, as committed here. It uses the packet only
+(no web, no later prices), starts at 0.50, and includes the v0.28 anchor: the numbers alone justify
+about 0.60 at most.
+
+**Trades.**
+- Entry at the first session's open after T (adjusted).
+- Exit at the 20th session's adjusted close.
+- Costs: 0.10% per side, plus 3%/yr financing on DOWN calls.
+- Paper only.
+
+**Integrity checks in code.**
+- `--record` timestamps every call and refuses after 09:30 New York time on the next weekday.
+- `--score` asserts that each call was recorded before its entry open.
+- `--prepare` refuses to rebuild a queue that already has recorded calls.
+- Packets are gitignored; calls (`predictions.jsonl`), trades (`ledger.csv`) and `results.md` are
+  committed.
+
+**Schedule.** A Routine runs each US weekday at 17:54 New York time in a fresh session: pull, prepare,
+read per RUBRIC.md (subagents in batches of ≤ 10), record, score, commit, push. Usage is roughly
+500 releases a quarter at about 6-10k tokens each.
+
+**First run, done in this session.** T = 2026-10-02: the 1 Oct reporters ACN, NKE and MKC, recorded
+before the 2026-10-05 open.
+
+**Evaluation, pre-registered.** Once there are ≥ 100 gated trades:
+- **Primary:** mean net return per gated trade > 0, with t ≥ 2.0 clustered by decision week.
+- **Secondary:**
+  - calibration: the ≥ 0.70 bucket must hit at least 60% over its calls, or the reading is declared
+    overconfident;
+  - reading vs model: Claude's hit rate against `model.json`'s on the same events.
+- Every call above 0.50 is scored for calibration, traded or not.
+
 ## v0.28-exp — Post-earnings drift and the user's confidence gate (2026-10-05) — FAIL (t 1.96 vs 2.0); the 70% gate never trades
 
 **Results** (run after pre-registration `a99f83c` and the harness fix `fa19840`; full output in

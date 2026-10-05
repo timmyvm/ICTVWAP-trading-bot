@@ -59,8 +59,13 @@ Start every packet at 0.50. Move away only for reasons you can state, and keep t
 4. **News and reaction disagree.** A strong release that fell, or a weak one that rose, means the
    market saw something the headline did not show. Lower your confidence toward 0.50 instead of
    arguing with the tape.
-5. **Base rate.** Stocks rose in about 55-57% of 20-session windows in the training data, so a
-   bare "UP at 0.55" restates the base rate. It is not a view.
+5. **Base rate.** Stocks rose in 54.5% of 20-session windows in the v0.28 data, so a bare
+   "UP at 0.55" restates the base rate. It is not a view.
+6. **What the numbers alone can justify.** On 44,208 events (2018-2026), a calibrated model using
+   only the EPS surprise and the reaction never went above 0.61. If your case rests on those two
+   numbers, the honest ceiling is about 0.60. Reaching 0.70 needs specific information in the
+   release that the model cannot see: a guidance change, one-offs, segment detail, or a change in
+   capital allocation. Name it in the reason.
 
 ## Rules
 
