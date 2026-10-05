@@ -85,6 +85,22 @@ event structure.
 Code: `backtest/fetch_earnings_calendar.py`, `backtest/fetch_yahoo_daily.py`,
 `backtest/pead_drift_test.py`. Results: pending.
 
+**Amendment before `--report` (test harness only; no rule changed).** The pre-registered NKE 2026-10-01
+known-event check was mis-specified. That release has no entry session yet (prices end 2026-10-02),
+so the pipeline correctly leaves it out. It is replaced by two checks:
+- NKE 2026-10-01 is excluded until its entry session exists;
+- the before-open event WMT 2026-08-20 has a reaction below −6% (measured −9.1%; v0.27 recorded
+  −9.2% on the day).
+
+Real-data self-tests on the full build then all pass:
+- MSFT reaction +14.7%;
+- every entry falls strictly after its reaction window;
+- a planted +1% drift on the real event structure is recovered at +0.91%, t 8.1.
+
+Data: 172,812 calendar rows (133,982 with EPS and a forecast), 5,109 symbols, zero failed days;
+130,308 events with prices from 4,376 symbols. 12 symbols had no or < 40 sessions of Yahoo
+history, and 2 were unknown to Yahoo.
+
 ## v0.27-exp — Blind test: can headlines alone call the next-session move? (2026-10-04) — FAIL by one call (14 of 20); untradeable from the open (9 of 20)
 
 User: "can you read 20 headlines, can't see the stock at that point, then

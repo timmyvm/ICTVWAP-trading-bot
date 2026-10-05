@@ -108,8 +108,8 @@ def build_events() -> pd.DataFrame:
     df.to_csv(EVENTS_CACHE, index=False, compression="gzip")
     back = load_event_table()
     assert len(back) == len(df), "event table did not re-load to the same length"
-    print(f"{len(df)} events from {ev.symbol.nunique()} symbols; {no_prices} symbols without Yahoo data "
-          f"(delisted or renamed: the survivor gap)")
+    print(f"{len(df)} events from {ev.symbol.nunique()} symbols; {no_prices} symbols with no or < 40 sessions of Yahoo history "
+          f"(delisted, renamed or newly listed)")
     return back
 
 
@@ -355,9 +355,14 @@ def selftest() -> None:
         msft = d[(d.symbol == "MSFT") & (d.date == "2026-07-29")]
         check("known event MSFT 2026-07-29 reaction > +12%", len(msft) == 1 and msft.react.iloc[0] > 0.12,
               f"({100 * msft.react.iloc[0]:+.1f}%)" if len(msft) else "(missing)")
+        # Replaces the pre-registered NKE 2026-10-01 check (DEVLOG v0.28-exp): that release has no entry
+        # session yet (prices end 2026-10-02), so the correct behaviour is to EXCLUDE it.
         nke = d[(d.symbol == "NKE") & (d.date == "2026-10-01")]
-        check("known event NKE 2026-10-01 reaction about -4.3%", len(nke) == 1 and abs(nke.react.iloc[0] + 0.043) < 0.006,
-              f"({100 * nke.react.iloc[0]:+.1f}%)" if len(nke) else "(missing)")
+        check("NKE 2026-10-01 excluded until its entry session exists", len(nke) == 0)
+        wmt = d[(d.symbol == "WMT") & (d.date == "2026-08-20")]
+        check("known before-open event WMT 2026-08-20 reaction < -6% (v0.27: -9.2% on the day)",
+              len(wmt) == 1 and wmt.react.iloc[0] < -0.06,
+              f"({100 * wmt.react.iloc[0]:+.1f}%)" if len(wmt) else "(missing)")
         check("entry is strictly after the reaction window", bool((d.entry_date > d.d0).all()))
         rng = np.random.default_rng(9)
         planted = d.copy()
