@@ -120,12 +120,40 @@ def verdict(res: dict) -> None:
         print(f"    -> {'PASS on 1,2,3,5' if all(x for x in c if x is not None) else 'FAIL'}")
 
 
+COST_LEVELS = (  # multiplier on (taker 0.055% + slip 0.01%) per side; funding is never scaled
+    (0.0, "no fees, no slippage (impossible floor; funding still paid)"),
+    (0.02 / 0.065, "maker both legs: 0.02%/side, no slippage (optimistic: assumes every limit fills)"),
+    ((0.02 + 0.065) / 2 / 0.065, "maker entry, taker exit: 0.085% round trip"),
+    (1.0, "base: Bybit VIP0 taker 0.055% + 0.01% slippage per side (pre-registered)"),
+    (1.5, "stress 1.5x (pre-registered criterion 5)"),
+)
+
+
+def cost_sweep() -> None:
+    """DIAGNOSTIC (user: "extreme costs are not realistic"): the corrected v0.23 holdout at several
+    execution-cost levels. It cannot change the v0.23 verdict; it shows whether cheaper execution
+    would be worth a fresh, pre-registered maker-entry test on untouched data."""
+    mults = tuple(m for m, _ in COST_LEVELS)
+    res = run_holdout("close", mults)
+    print("\nCORRECTED v0.23 holdout, 24h cells, by execution cost:")
+    for m, label in COST_LEVELS:
+        print(f"  x{m:.3f}  {label}")
+        for cell in CELLS:
+            net, pf, pos = pooled(res, cell, 24, m)
+            meets = net > 0 and pos >= 4 and pf >= 1.05
+            print(f"     {cell} 24h: pooled net {net:+9,.0f}  PF {pf:.3f}  coins+ {pos}/6"
+                  f"  {'(would meet criteria 1-3)' if meets else ''}")
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--selftest", action="store_true")
     ap.add_argument("--repro", action="store_true")
     ap.add_argument("--corrected", action="store_true")
+    ap.add_argument("--cost-sweep", action="store_true", help="diagnostic only; see cost_sweep()")
     a = ap.parse_args()
+    if a.cost_sweep:
+        cost_sweep()
     if a.selftest:
         selftest()
     if a.repro:

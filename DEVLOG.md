@@ -70,6 +70,29 @@ The 1 h "information" was entirely lookahead. A residual at 24 h survives on ave
 ADA, DOGE and SOL (and negative for BTC and LINK), with only 3 of 32 cells significant. That is too
 weak and too concentrated to call a validated signal.
 
+**Diagnostic: execution cost** (user: "extreme costs are not realistic"; `v030_audit.py --cost-sweep`,
+labelled, it cannot reinstate any verdict). Corrected v0.23 holdout, 24 h. Funding is always charged
+at the real historical rates.
+
+| per-side cost | T1 pooled net | PF | coins + | ≈ per coin per yr |
+|---|---|---|---|---|
+| none (impossible floor) | +46,487 | 1.125 | 5/6 | |
+| maker both legs, 0.02% (assumes every limit fills) | +34,237 | 1.096 | 4/6 | ≈ 8.3% |
+| maker entry, taker exit (0.085% round trip) | +22,132 | 1.065 | 4/6 | ≈ 5.7% |
+| **Bybit VIP0 taker 0.055% + 0.01% slippage (pre-registered)** | +11,581 | 1.036 | 3/6 | ≈ 3.2% |
+| 1.5× stress | −1,316 | 0.996 | 3/6 | |
+
+**Reading.**
+- The base cost is the exchange's standard taker fee, not an extreme assumption.
+- With limit-order entries, the corrected strategy would clear criteria 1-3 on this holdout. That
+  does not reinstate the verdict: the holdout is spent, and the cost model was chosen after seeing
+  it.
+- "Every limit fills at the open" ignores adverse selection on a breakout-style entry: limits fill
+  on the trades that come back against you and miss the ones that run.
+- Even the optimistic row is ≈ 8%/yr per coin, below the 80/20's ≈ 14%.
+- The fair test is a new pre-registered maker-entry variant on untouched coins, with a realistic
+  fill rule: fill only if price trades through the limit within a fixed window, and record misses.
+
 **What changes.**
 - The project has **no validated strategy**.
 - The earlier claims that the v0.22 entry "carries real information" (12/12 cells) and that the
