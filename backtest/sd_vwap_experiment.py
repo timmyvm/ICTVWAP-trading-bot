@@ -129,6 +129,23 @@ def build_zones(df30: pd.DataFrame) -> list:
     return zones
 
 
+def closed_htf_index(htf_index: pd.DatetimeIndex, width: pd.Timedelta,
+                     ltf_index: pd.DatetimeIndex, ltf_width: pd.Timedelta) -> np.ndarray:
+    """
+    For each lower-timeframe bar, the index of the last higher-timeframe bar that has CLOSED by
+    the time that lower-timeframe bar closes; -1 where none has. Bars are labelled by OPEN time
+    (resample label="left"), so an HTF bar is usable only once open + width <= the LTF bar's close.
+    (v0.30-audit: the previous `htf_index.searchsorted(ltf_index, side="right") - 1` picked the
+    bar that was still forming and leaked up to one HTF bar of future prices.)
+    """
+    ltf_close = ltf_index + ltf_width
+    pos = (htf_index + width).searchsorted(ltf_close, side="right") - 1
+    ok = pos >= 0
+    if not ((htf_index[pos[ok]] + width) <= ltf_close[ok]).all():
+        raise AssertionError("a higher-timeframe bar was used before it closed")
+    return pos
+
+
 def session_vwap(df5: pd.DataFrame) -> np.ndarray:
     """Session VWAP matching strategy/vwap.py: typical price, cumulative, 00:00 NY reset."""
     tp = (df5["high"] + df5["low"] + df5["close"]) / 3.0
@@ -142,7 +159,11 @@ def session_vwap(df5: pd.DataFrame) -> np.ndarray:
 def simulate(df1m: pd.DataFrame, start_bal: float = 10_000.0,
              taker_pct: float = TAKER, slip_pct: float = SLIP,
              target: str = "vwap", signals_only: bool = False,
-             require_zone: bool = True, base: str = "1m") -> dict:
+             require_zone: bool = True, base: str = "1m", htf_match: str = "close") -> dict:
+    # htf_match: "close" (correct, default since v0.30-audit) uses only 4H/30m bars that have closed
+    # by each 5m bar's close. "open" is the v0.22-v0.26 LOOKAHEAD (it reads the still-forming bar)
+    # and exists ONLY so backtest/v030_audit.py can reproduce the published numbers.
+    assert htf_match in ("close", "open")
     # base: timeframe of the input frame. "1m" resamples 5m/30m/4h from it as
     # usual; "5m" takes the frame AS the 5m series (for venues where only 5m
     # history is practical to fetch) and builds 30m/4h from it. The rule is
@@ -176,9 +197,14 @@ def simulate(df1m: pd.DataFrame, start_bal: float = 10_000.0,
     day5 = i5.normalize()
     hi5_idx, hi5_px, lo5_idx, lo5_px = confirmed_swings(df5)
 
-    # map each 5m bar to the most recent CLOSED 4H / 30m bar
-    p4 = df4.index.searchsorted(i5, side="right") - 1
-    p30 = df30.index.searchsorted(i5, side="right") - 1
+    # map each 5m bar to the most recent 4H / 30m bar CLOSED by that 5m bar's close
+    if htf_match == "close":
+        five = pd.Timedelta(minutes=5)
+        p4 = closed_htf_index(df4.index, pd.Timedelta(hours=4), i5, five)
+        p30 = closed_htf_index(df30.index, pd.Timedelta(minutes=30), i5, five)
+    else:                                            # LEGACY LOOKAHEAD — audit reproduction only
+        p4 = df4.index.searchsorted(i5, side="right") - 1
+        p30 = df30.index.searchsorted(i5, side="right") - 1
 
     slip = slip_pct / 100.0
     cost = (taker_pct + slip_pct) / 100.0

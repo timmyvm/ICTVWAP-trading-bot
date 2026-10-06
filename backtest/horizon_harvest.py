@@ -41,8 +41,9 @@ STOP_SIGMAS = 2.0
 BARS_PER_HOUR = 12                 # 5m bars
 
 
-def get_signals(df_base: pd.DataFrame, base: str) -> tuple:
-    out = simulate(df_base, signals_only=True, base=base)
+def get_signals(df_base: pd.DataFrame, base: str, htf_match: str = "close") -> tuple:
+    # htf_match="open" reproduces the v0.22-v0.26 lookahead for the v0.30 audit only
+    out = simulate(df_base, signals_only=True, base=base, htf_match=htf_match)
     return out["signals"], out["df5"]
 
 

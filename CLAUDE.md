@@ -185,12 +185,15 @@ config.py        — All tuneable parameters (TESTING_MODE, ENTRY_MODE, etc.)
   round-trip cost as an excess/cost ratio (backtest/sd_signal_information.py). v0.22 looked dead at
   PF 0.31-0.62 and its entry turned out to be positive in 12 of 12 cells, worth 2.9x the fee on ETH at
   24 h. The edge was real and the stop/target/horizon were wrong. Run this BEFORE writing a family off.
+  (v0.30-audit: that example came from a lookahead engine. Corrected, only 3 of 32 cells were significant
+  and the 1 h excess vanished. The method stands; the example does not.)
 
 - When a signal survives an information test, immediately ablate the stage the user believes in most,
   or you will invite the wrong update. v0.22's zone ablation showed the bare structure shift already
   carries about half the edge (so "supply and demand is everything" is false) while the zone still
   roughly doubles per-signal excess in 10 of 12 cells (so "zones are nonsense" is also false). Both
-  halves matter; reporting only one is misleading.
+  halves matter; reporting only one is misleading. (v0.30-audit: the v0.22 numbers in this example were
+  inflated by a lookahead.)
 
 - Pre-register the conditioning variable that matches the MECHANISM, built lookahead-free — not
   the most convenient lookahead-free proxy. v0.24 made the last settled funding rate primary because it
@@ -210,6 +213,8 @@ config.py        — All tuneable parameters (TESTING_MODE, ENTRY_MODE, etc.)
   RANDOM selection of the same number of assets each period: concentration changes variance, not the
   expected mean, so random same-size picks are the fair null. v0.26's rule failed the cash check
   (+24.4 % vs +29.6 %) yet beat 97 % of random picks — skill, but not the kind it first appeared to be.
+  (v0.30-audit: once a lookahead was corrected it beat only 93.6 % of random picks, which is not
+  distinguishable from luck.)
 
 - Sanity-check every price series over its FULL history, not just the analysis window, and cross-check
   each benchmark against an independent source before using it. Yahoo's IVV.AX carries an unadjusted
@@ -235,6 +240,18 @@ config.py        — All tuneable parameters (TESTING_MODE, ENTRY_MODE, etc.)
   average reporter by +0.48% but SPY by +0.32%. And a fixed-fraction overlay with many concurrent
   positions is mostly beta: report its mean and peak exposure and a market-hedged version beside it.
   v0.28's drift sleeve showed +13%/yr at 91% average exposure (peak 359%) while SPY alone made +12%.
+
+- Match higher-timeframe bars to lower-timeframe decisions by CLOSE time, never by open-time
+  `searchsorted`. Resampled bars are labelled by their OPEN (`label="left"`), so
+  `htf.index.searchsorted(t, side="right") - 1` returns the bar still FORMING at t. Anything read from
+  it (its close, a bias "known at the close") is future data, up to one full HTF bar ahead. In the S/D
+  engine this inflated v0.22-v0.26. The "first pre-registered holdout pass" (v0.23) and the selection
+  "skill" (v0.26) both disappeared once corrected, and the 1 h "information" went from +0.053% to
+  +0.001% (v0.30-audit). Use `closed_htf_index()` (`sd_vwap_experiment.py`) or `engine._window`, and
+  assert `htf_open + width <= ltf_close` for every mapped bar. Pre-registration does not protect
+  against an engine bug: every new multi-timeframe engine needs this assertion before its first
+  result is read, and a re-run of the unchanged code must reproduce the published numbers before a
+  fix is judged.
 
 - Every new backtest engine must assert bracket invariants at position creation:
   `dr * (entry - stop) > 0` and `dr * (target - entry) > 0`. The v0.16 engine shipped with

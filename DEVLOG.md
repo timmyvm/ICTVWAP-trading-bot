@@ -1,6 +1,85 @@
 # DEVLOG — Powell Trades Bot
 
-## v0.30-audit — Lookahead in the S/D engine: 4H/30m bars matched by OPEN time (2026-10-06) — PRE-REGISTERED CORRECTION
+## v0.30-audit — Lookahead in the S/D engine: 4H/30m bars matched by OPEN time (2026-10-06) — v0.23 PASS WITHDRAWN; v0.26 "skill" WITHDRAWN
+
+**Results** (code fixed in `backtest/sd_vwap_experiment.py:closed_htf_index`, audit driver
+`backtest/v030_audit.py`; the self-test passes and the legacy line fails it, mapping 97.9% of 5m
+bars to an unclosed 4H bar).
+
+**1. Reproduction is exact.** The unchanged (lookahead) matching on the published window
+(2021-01 → 2026-08) reproduces every v0.23 holdout number to the dollar: all six pooled cells and
+all six T1 24 h per-coin figures, with the same signal counts (BNB 1,360 …). So old and new differ
+ONLY by the fix.
+
+**2. v0.23 holdout, corrected** (same six coins, window, costs and criteria):
+
+| cell | published (lookahead) | corrected | coins + | PF | at 1.5× costs |
+|---|---|---|---|---|---|
+| T1 4 h | −1,712 | **−17,145** | 0/6 | 0.830 | −24,853 |
+| T1 12 h | +8,829 | **−7,068** | 2/6 | 0.963 | −16,597 |
+| **T1 24 h** | **+26,547 (5/6, PF 1.085)** | **+11,581** | **3/6** | **1.036** | **−1,316** |
+| T2 24 h | +24,960 (5/6, PF 1.081) | +9,059 | 3/6 | 1.029 | −3,342 |
+
+The five original criteria for the 24 h cells:
+- (1) pooled net > 0: met;
+- (2) at least 4 of 6 coins: **fails** (3/6);
+- (3) PF ≥ 1.05: **fails** (1.036 / 1.029);
+- (4) development: not re-checked (the data is gone), and it cannot rescue the result;
+- (5) net > 0 at 1.5× costs: **fails** (−1,316 / −3,342).
+
+**→ v0.23's "first pre-registered holdout pass" is WITHDRAWN.** The shorter horizons collapsed most,
+as expected from a bias that could see up to 4 hours ahead.
+
+**3. v0.26 coin selection, corrected** (trade lists rebuilt; OOS 2021-Q1 → 2026-Q3):
+
+| | published | corrected |
+|---|---|---|
+| all eight coins, always on | +29.6% (4.6%/yr) | **−1.3% (−0.2%/yr)** |
+| rule-selected, redistributed | +63.5% (8.9%/yr) | **+23.1% (3.7%/yr)** |
+| rule-selected, excluded in cash | +24.4% (3.9%/yr) | +10.7% (1.8%/yr) |
+| v0.26 pass bar (mean/quarter, majority) | PASS (15/23) | PASS (14/23) |
+| **audit vs random same-size picks** | **beats 97% (p 0.029) → SKILL** | **beats 93.6% (p 0.064) → NOT DISTINGUISHABLE FROM LUCK + CONCENTRATION** |
+
+**→ The selection "skill" verdict is WITHDRAWN.** The rule still passes its own weaker bar, but the
+audit that decided it was skill no longer clears 95%.
+
+**4. Benchmarks, corrected** (2021-Q1 → 2026-Q3):
+- the strategy with quarterly selection: +3.7%/yr, max DD −17.3% (quarterly);
+- the S&P 500: +14.7%/yr;
+- correlation with the S&P: −0.22;
+- in AUD, against the 80/20 VGS/VAS: **+5.4%/yr** for the strategy (was +10.7%) vs +13.8%/yr.
+
+**5. v0.25 overlay, corrected** (8 perps 2020-2026, 24 h):
+- the base T1 is +10,704 (3/8 coins positive, PF 1.024), from +39,443;
+- the overlay still adds a little (prev +394, next +664), since it only shifts fill timing.
+
+It does not change anything, because its base is withdrawn.
+
+**6. v0.22 information test (D2), old vs new on the same data.** The original D2 cells are gone, so
+it was run on the 8 perps 2021-2026 at 5m (`sd_signal_information.py --base 5m --htf-match`):
+
+| | lookahead | corrected |
+|---|---|---|
+| cells with positive excess | 31/32 | 21/32 |
+| cells with t(indep) ≥ 2 | 16/32 | **3/32** |
+| mean excess, 1 h | +0.053% | **+0.001%** |
+| mean excess, 4 h | +0.141% | +0.040% |
+| mean excess, 24 h | +0.272% | +0.169% (cost 0.130%) |
+
+The 1 h "information" was entirely lookahead. A residual at 24 h survives on average, carried by
+ADA, DOGE and SOL (and negative for BTC and LINK), with only 3 of 32 cells significant. That is too
+weak and too concentrated to call a validated signal.
+
+**What changes.**
+- The project has **no validated strategy**.
+- The earlier claims that the v0.22 entry "carries real information" (12/12 cells) and that the
+  zones "double" it rested on lookahead and are withdrawn.
+- The CLAUDE.md lessons that used them as examples are annotated.
+- Not affected: v0.24, v0.27-v0.29, the live bot, and the earlier families (ORB, EMA, funding
+  carry). Those used other engines, which were checked: `engine.py` matches by close time, and the
+  other `searchsorted` calls are timestamp lookups, not bar matching.
+
+## v0.30-audit (pre-registration, kept verbatim below)
 
 **Found by a code-mapping agent during planning, confirmed by reading the code.**
 `backtest/sd_vwap_experiment.py:180-181` maps each 5m bar to its higher-timeframe bars with
@@ -385,6 +464,8 @@ coin flip. Slower effects (post-earnings drift over weeks) remain untested.
 
 ## v0.26-b — The real hurdle: the user's 80/20 VGS/VAS portfolio (2026-10-04)
 
+> **CORRECTED by v0.30-audit (2026-10-06):** this entry's numbers came from an engine that read the still-forming 4H/30m bar (lookahead). the strategy's +10.7 %/yr in AUD is **+5.4 %/yr** corrected, against the 80/20's +13.8 %/yr.
+
 User: "how does my long term current strategy with 80/20 VGS/VAS perform
 in the long run against the S&P 500, to see what I would have to beat to
 pull my money out of my long term."
@@ -438,6 +519,8 @@ satellite funded from new money, never by selling the core.
 
 ## v0.26-a — Benchmark: the v0.23 candidate vs the S&P 500 (2026-10-04)
 
+> **CORRECTED by v0.30-audit (2026-10-06):** this entry's numbers came from an engine that read the still-forming 4H/30m bar (lookahead). the quarterly-selection strategy is **+3.7 %/yr** corrected (published ≈ 8.9 %/yr), against the S&P's +14.7 %/yr.
+
 User: "wait so it's better [than] the S&P 500?" Measured, not recalled:
 `backtest/benchmark_sp500.py`, S&P from FRED series SP500 (daily price
 index; dividends added back as a flat 1.4 %/yr), over the identical
@@ -476,6 +559,8 @@ risk; the strategy's gains are all short-term. Status unchanged:
 CANDIDATE, paper run first.
 
 ## v0.26-diag — Can the losing coins be identified IN ADVANCE? (2026-10-04)
+
+> **CORRECTED by v0.30-audit (2026-10-06):** this entry's numbers came from an engine that read the still-forming 4H/30m bar (lookahead). the audit now beats only 93.6 % of random picks (p 0.064), so the **skill verdict is withdrawn**. Always-on is −1.3 % (was +29.6 %).
 
 **STATUS: PASS — quarterly walk-forward selection ≈ 8.9 %/yr vs 4.6 %/yr
 always-on, beating 97 % of random same-size picks (p = 0.029). Adopted
@@ -579,6 +664,8 @@ without intra-quarter compounding). Still far below funding carry on
 risk.
 
 ## v0.25-diag — Settlement-timing overlay on the v0.23 harvest (2026-10-04)
+
+> **CORRECTED by v0.30-audit (2026-10-06):** this entry's numbers came from an engine that read the still-forming 4H/30m bar (lookahead). the base T1 24 h is **+10,704** corrected (was +39,443). The overlay delta is still small and positive, and its base is withdrawn.
 
 **STATUS: KEPT as a costless entry rule, not validated. Defers 4.9 % of
 entries, adds +$687 to +$1,817 across eight $10k coin runs (positive in
@@ -864,6 +951,8 @@ it is not scheduled.
 
 ## v0.23-exp — Horizon harvest: the v0.22 entry, packaged for the edge it actually has (2026-09-15)
 
+> **CORRECTED by v0.30-audit (2026-10-06):** this entry's numbers came from an engine that read the still-forming 4H/30m bar (lookahead). **the holdout PASS is withdrawn.** Corrected T1 24 h: +11,581, 3/6 coins, PF 1.036, and −1,316 at 1.5× costs. It fails criteria 2, 3 and 5.
+
 v0.22's entry carries real information (D2: 12/12 cells positive, up to
 2.91× the fee on ETH at 24 h; D3: the zone roughly doubles per-signal
 excess) but the packaging destroyed it — a ~1 %-of-price structural stop
@@ -1079,6 +1168,8 @@ that does not depend on hindsight. Trial ledger, this family: 1 rule
 cell (v0.22) + 3 diagnostics + 6 packaging cells here.
 
 ## v0.22-exp — HTF bias / LTF pullback / supply-demand / 5m shift → VWAP (2026-09-14)
+
+> **CORRECTED by v0.30-audit (2026-10-06):** this entry's numbers came from an engine that read the still-forming 4H/30m bar (lookahead). the D2/D3 "real information" findings rested on lookahead. Corrected D2 on 8 perps: 3/32 cells significant (was 16/32), and the 1 h excess is +0.001 % (was +0.053 %).
 
 **STATUS: FAIL. Explore gate not met (PF 0.59), both holdouts negative
 (PF 0.31 / 0.62), 0 of 17 calendar years positive. Diagnostic D1 shows

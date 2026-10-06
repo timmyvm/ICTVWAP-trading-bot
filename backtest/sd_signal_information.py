@@ -33,8 +33,10 @@ HORIZONS = {"1h": 12, "4h": 48, "12h": 144, "24h": 288}   # in 5m bars
 ROUND_TRIP_PCT = 2 * (0.055 + 0.01)                        # Bybit retail, both legs
 
 
-def analyse(df1m: pd.DataFrame, label: str, require_zone: bool = True) -> None:
-    out = simulate(df1m, signals_only=True, require_zone=require_zone)
+def analyse(df1m: pd.DataFrame, label: str, require_zone: bool = True, base: str = "1m",
+            htf_match: str = "close") -> None:
+    # htf_match="open" reproduces the v0.22-v0.26 lookahead for the v0.30 audit only
+    out = simulate(df1m, signals_only=True, require_zone=require_zone, base=base, htf_match=htf_match)
     sig, df5 = out["signals"], out["df5"]
     if sig.empty:
         print(f"[{label}] no signals")
@@ -87,12 +89,15 @@ def main() -> None:
     ap.add_argument("--label", default="")
     ap.add_argument("--no-zones", action="store_true",
                     help="D3 ablation: drop the supply/demand stage entirely")
+    ap.add_argument("--base", default="1m", choices=("1m", "5m"), help="timeframe of the --cache file")
+    ap.add_argument("--htf-match", default="close", choices=("close", "open"),
+                    help="'open' = the v0.22-v0.26 lookahead, for the v0.30 audit only")
     args = ap.parse_args()
     df = load_cached_1m(args.cache)
     if args.start:
         df = df[df.index >= pd.Timestamp(args.start, tz="America/New_York")]
     label = (args.label or args.cache) + (" NO-ZONES" if args.no_zones else "")
-    analyse(df, label, require_zone=not args.no_zones)
+    analyse(df, label, require_zone=not args.no_zones, base=args.base, htf_match=args.htf_match)
     print("Overlapping windows inflate t(overlap); t(indep) uses signals spaced "
           "at least one horizon apart. Excess/cost < 1 means the average move is "
           "smaller than the round trip that would capture it.")
