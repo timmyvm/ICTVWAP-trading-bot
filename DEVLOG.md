@@ -1,5 +1,42 @@
 # DEVLOG — Powell Trades Bot
 
+## v0.30-audit — Lookahead in the S/D engine: 4H/30m bars matched by OPEN time (2026-10-06) — PRE-REGISTERED CORRECTION
+
+**Found by a code-mapping agent during planning, confirmed by reading the code.**
+`backtest/sd_vwap_experiment.py:180-181` maps each 5m bar to its higher-timeframe bars with
+`df4.index.searchsorted(i5, side="right") - 1` (and the same for 30m). `resample_ohlcv` and
+`resample_30m` label bars by their OPEN time (`label="left"`), so this selects the bar that is
+**still forming**. `structure_bias` is "known at each bar's CLOSE", so:
+- every 5m decision read a 4H bias that includes up to ~4 hours of future prices (≈ 98% of 5m bars);
+- the 30m bias and zone availability looked up to 30 minutes ahead (≈ 83%).
+
+The comment above the line says "most recent CLOSED", and the code does not do that.
+
+**Affected:**
+- v0.22 and its D1-D3 diagnostics (`sd_signal_information.py` calls `simulate`);
+- v0.23 and v0.25 (`horizon_harvest.get_signals`);
+- v0.26 (`coin_selection_walkforward.build`);
+- through v0.26, the v0.26-a/b benchmarks.
+
+**Not affected:** v0.24 (its own event code), v0.27-v0.29 (daily data), and the live bot, whose feed
+drops the forming candle. `engine.py` already matches by close time.
+
+**Correction protocol, fixed before any corrected number is seen:**
+1. **Reproduce first.** Re-run the UNCHANGED code on the v0.23 holdout. It must reproduce the
+   published T1 24 h pooled net (+26,547) to within rounding, so that old and new differ only by the
+   fix.
+2. **Fix.** At the close of 5m bar j, use the last higher-timeframe bar whose CLOSE is at or before
+   it, with an in-code assert on every mapped bar. A self-test must pass and the old line must fail it.
+3. **Re-run.** Same scripts, data, constants and pass bars, with no re-tuning of anything.
+4. **Verdict rule.** Each earlier verdict stands only if the corrected run passes its ORIGINAL
+   pre-registered bar. Otherwise it is withdrawn here and flagged in its own entry. This includes:
+   - v0.23's "first pre-registered holdout pass" (five criteria);
+   - v0.25's overlay result;
+   - v0.26's selection skill (beats 95% of random picks);
+   - the v0.26-a/b comparisons.
+5. **Development data.** The BTC/ETH 1m development sets are no longer on disk. They are refetched
+   if possible; otherwise v0.23 criterion 4 is reported as not re-checked.
+
 ## v0.29-live — Live earnings reading with the user's 70/90 rule, S&P 500 paper trades (2026-10-05) — PRE-REGISTERED
 
 The forward half of the user's request: Claude reads each S&P 500 earnings release and sets a
