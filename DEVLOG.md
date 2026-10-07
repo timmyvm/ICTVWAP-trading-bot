@@ -1,6 +1,56 @@
 # DEVLOG — Powell Trades Bot
 
-## v0.33-audit — A Telegram signal channel ("TSA 🚀 FREE TRADES") checked against real prices (2026-10-07)
+## v0.33-audit — A Telegram signal channel ("TSA 🚀 FREE TRADES") checked against real prices (2026-10-07) — 86% "win rate", PF 0.80 at TP1
+
+**Full history (added the same day).**
+- **Access.** The user's channel is private (an invite link with 15,896 subscribers). Two public
+  channels with the same branding post the same messages to the second (the 6 Oct 4168 buy is at
+  19:50:53 UTC in both), so their history stands in for it:
+  - @tradesmartacademy, 6,794 messages, Jan → Oct 2026;
+  - @tsafreetrades, 3,475 messages, May → Oct 2026.
+- **Collection and parsing.**
+  - `backtest/fetch_tg_channel.py` scrapes the public t.me/s preview (1.5 s per page, cached).
+  - `signal_audit.py --channel` parses every setup, every "move SL to X / to entry" and every close
+    instruction from the posts.
+  - The extraction is committed as `backtest/signal_audits/tsa_channel_{signals,instructions}.csv`.
+    The raw messages stay in `data_cache/local/tg/`.
+- **Replay rules** (set before the full run).
+  - Each repost is folded into its first post (1,510 reposts).
+  - 8 garbled signals are set aside: a stop on the wrong side of entry or more than $80 away.
+  - Instructions apply only to signals posted in the previous 48 hours, and a stop move counts only
+    if a broker would accept it.
+  - A market signal whose price was already past TP1 at the follower's fill is "stale" and skipped.
+  - A breakeven exit is not counted as a loss.
+- **Prices.**
+  - BID is HistData through 30 Sep. It is Dukascopy's bid: 99.97% of 71,788 overlapping minutes are
+    identical.
+  - ASK is Dukascopy's own ask where cached (28 Dec → 8 May and 30 Sep → 7 Oct), and BID plus
+    Dukascopy's median spread for that hour elsewhere (median $0.73).
+  - A tight-ECN variant uses BID + $0.30.
+- **Checks.** `--selftest` runs 5 checks (the parsers on real phrases and the traps, ask fills, close
+  instructions, rejected stop moves), and all pass. Two random trades were recomputed independently
+  from the raw candles and matched to the minute.
+
+| @tradesmartacademy, 674 signals (641 closed) | win rate | PF | net $/oz | mean R/trade (week-clustered t) |
+|---|---|---|---|---|
+| all out at TP1 (how he counts wins) | **86%** | **0.80** | −504 | −0.039 (t −2.2) |
+| all out at TP4 | 60% | 1.13 | +893 | +0.036 (t +0.8) |
+| a quarter at each TP | 63% | 0.99 | −31 | −0.012 (t −0.5) |
+| same three at a $0.30 ECN spread | 87% / 61% / 65% | 0.90 / 1.18 / 1.07 | −237 / +1,188 / +238 | −0.021 (t −1.2) / +0.058 (t +1.3) / +0.007 (t +0.3) |
+
+- **The second mirror agrees.** @tsafreetrades (May → Oct, 308 closed) gives TP1 84%, PF 0.81;
+  TP4 PF 1.31; a quarter each PF 1.08.
+- **Why TP1 loses.** TP1 averages $4.0 and the stop $26.2, so TP1 must hit 87% of the time to break
+  even, and it hit 86%. That makes the advertised win rate real but unprofitable.
+- **Holding to TP4 is not an edge.** It is mildly positive, but not distinguishable from luck: a
+  random walk reaches +$20 before −$26 about 57% of the time, and he did 60%. It also has a 14-trade
+  losing streak and a 26R maximum drawdown.
+- **Edits and deletions.** Over the 5-month overlap, 316 signals are identical in both mirrors. The
+  rest are edits in one mirror (typo-level: 4542 vs 4642, a stop of 4490 vs 4590, a BUY label on
+  sell levels) or a handful present in only one, all winners. So there is no sign of deleted losers.
+- **His claims.** His own "VIP RESULTS" posts claim 86% wins on trades that are not visible.
+- **His business.** The mirrors also sell a "100% Guaranteed Pass" funded-account deal (£297) and a
+  "free VIP" sign-up.
 
 **What.** The user sent 8 screenshots of the channel (15,871 subscribers). They contain 8 XAU/USD
 signals from 2–7 Oct 2026, each with an entry, four targets (TP1–TP4) and a stop, plus two
