@@ -1,6 +1,54 @@
 # DEVLOG — Powell Trades Bot
 
-## v0.32-exp — ForexFactory news surprises: is any of the move still tradeable after the release? (2026-10-07) — PRE-REGISTERED
+## v0.32-exp — ForexFactory news surprises: is any of the move still tradeable after the release? (2026-10-07) — FAIL: the surprise is priced in the first minute
+
+**Results.** `python3 backtest/ff_surprise_test.py --report`, run on the code as pre-registered in
+`f9f0da7`. The log is `backtest/data_cache/local/v032_report.txt` (not committed).
+
+**Primary.** EURUSD, |S| ≥ 1, trading the surprise direction from 1 minute after the release and
+holding 60 minutes, at 2 pips, in the holdout 2021-01 → 2025-04:
+- **n 132, mean net +1.09 bp, date-clustered t +0.60, hit 49.2% → FAIL** (needs t ≥ 2.0).
+- Gross: +2.92 bp (t 1.60).
+- Development 2015–2020: −1.67 bp net (t −1.34, hit 43%).
+- 132 of the 140 counted releases had prices.
+
+**The calendar does predict the market, but only in the first minute.** The reaction from one minute
+before to one minute after the release, in the surprise direction:
+
+| | holdout 2021–25 | development 2015–20 |
+|---|---|---|
+| EURUSD | +9.2 bp (t 7.4) | +5.3 bp (t 10.0) |
+| USDJPY | +12.8 bp (t 8.3) | +6.8 bp (t 12.5) |
+| XAUUSD | +13.5 bp (t 8.6) | +8.7 bp (t 12.1) |
+
+From the first price a trader can get (1 minute after), what is left is a coin flip.
+- **Surprise direction, net** (holdout):
+  - EURUSD: +0.4 / +1.1 / −1.4 bp to +15 m / +60 m / the 16:00 close;
+  - USDJPY: +0.5 / +2.2 / +2.7 bp (t ≤ 1.1);
+  - XAUUSD: −1.8 / −1.4 / −10.3 bp. It fades the surprise into the close (t −1.94; −2.41 from a +5 m
+    entry).
+- **Momentum** (the first minute's direction): EURUSD ≈ 0. NQ is +5.1 bp to +15 m (t 1.92), one of
+  about 30 secondary cells, which is not significant after multiple comparisons.
+- **Fade** (EURUSD): −3.8 / −3.5 / −0.3 bp.
+- **EURUSD primary cell by subgroup:**
+  - |S| 1–2: +2.0 bp (t 0.9). |S| ≥ 2: −1.9 bp (n 30). Bigger surprises do not drift more.
+  - Jobs +3.1 bp (t 0.9), inflation +3.6 bp (t 0.9), growth −1.0 bp.
+  - Years 2015–2025 range from −15.9 bp to +8.5 bp, and none reaches |t| 2.
+
+**Verdict.** The ForexFactory actual-vs-forecast surprise strongly predicts the direction of the move
+in the minute of the release (t 7–12 in both eras). By one minute after the release the move is
+finished, and the next hour is 49% hits. This is v0.27 again: the news is priced before a retail
+trader can act. Trading inside the first seconds would need sub-second data and execution (and the
+spread is widest exactly then), which HistData M1 cannot test and a retail seat cannot do.
+
+**Lessons (CLAUDE.md).**
+- A scraped event calendar can lose times silently: the timeless rows were stamped 00:00, and a stale
+  DST offset hid as a one-hour error. Check release times per event and per year against the public
+  schedule and the market's spike before using it.
+- Scale surprises with a robust, windowed estimate. An all-history standard deviation was
+  permanently inflated by the 2020 outliers.
+
+### Pre-registration (verbatim, committed in `f9f0da7` before any return was read)
 
 **Status: pre-registered.** The rules and the pass bar below are committed before any post-release
 return is read.

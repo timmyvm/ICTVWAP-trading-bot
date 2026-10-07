@@ -265,3 +265,15 @@ config.py        — All tuneable parameters (TESTING_MODE, ENTRY_MODE, etc.)
   v0.31's SMT+IFVG primary made 28-37 trades in its verdict era against a bar of 60 (about 10 a
   year at H4 → M15), so the count, not the edge, decided two verdicts. Pick the timeframe or the era
   length so the funnel can clear the bar, or the pre-registration is wasted.
+
+- A scraped event calendar is guilty until proven innocent. The Hugging Face ForexFactory archive
+  stamped every row that shared a release minute with the row above it as 00:00 local (payrolls, the
+  unemployment rate, CPI y/y, ~1,100 rows), and kept a +04:30 Tehran offset after Iran abolished DST
+  in Sep 2022 (a silent one-hour error). Before using any event calendar, check each event's times
+  by year against the public release schedule AND against the market's release-minute spike, with
+  the minute one hour off as the control (v0.32-exp).
+- Scale surprises with a robust, windowed estimate (e.g. Q80 of |prior surprises| / 1.2816 over the
+  last 36 releases), never an all-history standard deviation: the April 2020 payrolls miss (millions
+  of jobs) would shrink every later jobs z towards zero for good. Check the qualifying-event counts
+  by family (outcome-blind) to catch it.
+
