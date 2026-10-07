@@ -1,5 +1,139 @@
 # DEVLOG — Powell Trades Bot
 
+## v0.31-exp — Divergence trades: the reel's gold-vs-DXY and the friend's SMT + IFVG (2026-10-07) — PRE-REGISTERED
+
+**Status: pre-registered.** The rules, costs and pass bar below are fixed and committed before the
+first result is read.
+- Code: `backtest/divergence_experiment.py`. `--selftest` runs 22 checks and all pass.
+- Planted long and short setups for both cells are reproduced exactly: entry, stop, target and exit.
+- Mutation checks: a malformed bracket is rejected, and when the partner also sweeps there is no
+  SMT trade.
+- Lookahead guard: truncating the data right after the entry bar leaves every entry, stop and
+  target unchanged in both cells.
+- The z denominator ignores the current day.
+- The crypto fees and funding sign are checked.
+- Before this commit, one crash-only smoke run was made on Jan–Mar 2019 and Feb–Apr 2020 with all
+  output suppressed. It printed only "OK", the timings and the section headers reached. No result
+  was read.
+
+**Why.** Two user-supplied methods from the same family.
+- **The reel** (itstomtrades, 2 Sep 2026): gold and the dollar index (DXY) move inversely. When DXY
+  makes a big push but gold barely moves, a small DXY pullback is said to give gold a large move.
+  - It is shown on a TradingView DXY 1-minute chart.
+  - The evidence offered is a self-reported trade journal ("SUM 176.28"), not a broker statement.
+- **The user's friend**: an HTF bias, then an LTF SMT divergence, then an inversion FVG, then the
+  retrace entry, with the target at resting liquidity and 1:2–1:3 RR. The user chose the pairs
+  BTC/ETH and NQ/ES.
+
+**Data and clock check (done before any result).**
+- **HistData M1** with `--tz-mode eu`: XAUUSD, UDXUSD (the dollar index), NSXUSD (NQ) and SPXUSD
+  (ES), 2019-01 → 2026-09.
+- **Binance UM 5m** BTCUSDT/ETHUSDT perpetuals, 2020-01 → 2026-08, with the committed funding.
+- **News-minute scan.** For each month, the NY minute with the largest mean |1m return| is 08:30
+  in 53/93 months for gold and 61/93 for DXY. The indices peak at 09:30, the equity open.
+- **Events inside the US/EU daylight-saving mismatch windows** (where a one-hour error would show):
+  - CPI (08:30 ET) peaks at 08:30–08:32 for gold and DXY on 2024-03-12 and 2025-03-12, and for DXY on
+    2026-03-11.
+  - FOMC (14:00 ET) peaks at 14:00–14:02 on 2019-10-30, 2023-03-22, 2023-11-01 and 2025-03-19.
+  - NFP peaks at 08:30–08:36 on 2019-11-01, 2021-11-05, 2022-11-04, 2023-11-03 and 2024-11-01.
+  - No event shows a one-hour offset.
+- **Gold vs DXY alignment.** The correlation of 1m returns peaks at lag 0 in every month (median
+  −0.41). 2022-03 is near zero: both were safe havens that month, so its lag estimate is noise.
+- **2023 gaps.** HistData's 2023 gold/DXY files have about 13% fewer bars. The engine handles gaps;
+  this is noted.
+
+**Cell B — gold vs DXY (the reel), M1, all hours.**
+- **z for each market.** The 30-minute log return, measured from the last close at or before t−30 min
+  (within 5 min). It is divided by the RMS of the same returns over the prior 20 trading days.
+  - The FX day rolls at 17:00 NY, and a day counts if it has ≥ 300 valid returns.
+  - The current day never contributes.
+- **Push.** At a bar's close: long gold when z_DXY ≥ +2 and z_gold ≥ −0.5; short gold when
+  z_DXY ≤ −2 and z_gold ≤ +0.5.
+- **Trigger ("a small DXY pullback").** Within the next 30 minutes, the first DXY M1 close below the
+  lows of its prior 3 contiguous bars (above the highs for shorts).
+- **Entry.** The next gold M1 open. If that bar opens more than 5 minutes after the trigger, the setup
+  is skipped.
+- **Stop.** Gold's lowest low over the 30 minutes ending at the trigger bar, minus 0.1 × ATR(14) on
+  gold M1. For shorts, the highest high plus the buffer.
+- **Exit.**
+  - Target 2R.
+  - Time exit at the open of the first bar ≥ 120 min after entry.
+  - Before any data gap longer than 15 min, exit at the last bar's close.
+- **One position at a time.** After an expired watch or a closed trade, the next push bar re-arms.
+- **Fills.**
+  - Stops fill on touch (a gapped open fills at the open).
+  - The target needs a trade through it.
+  - When a bar touches both, the stop wins.
+  - The target never fills on the entry bar.
+- **Costs.** 0.01% of price per side: half of a 0.01% spread plus 0.005% slippage. That is about
+  $0.20–0.42/oz per side at 2024–2026 prices.
+  - Secondaries: a quiet-market ECN floor of 0.004% and a 0.02% stress level.
+  - The break-even cost per side is printed beside them.
+
+**Cell A — SMT + IFVG (the friend), pairs BTC/ETH and NQ/ES.**
+- **Timeframes and window.** Primary H4 → M15. Window 08:30–11:00 NY on weekdays; flat at 16:00 NY.
+- **Bias.** `structure_bias` (k = 2) on the traded market's own closed H4 bars, as known at the close
+  of the 08:15 M15 bar. HTF bars are matched with `closed_htf_index`, which asserts that every bar
+  used has closed. Trades go only in the bias direction; a neutral bias means no trade.
+- **Reference levels.**
+  - Each market's last confirmed M15 swing (k = 2) as of 08:30, which must still be untaken at 08:30.
+  - The partner's corresponding level is its extreme over the same bars (the swing bar ± 2), also
+    untaken before 08:30.
+- **SMT.**
+  - Inside the window, market A trades beyond its reference while the partner has not traded beyond
+    the corresponding level by that bar. Only A's first sweep counts.
+  - The first SMT is the day's only setup (one per pair per day).
+- **IFVG.**
+  - Eligible gaps: an FVG on A whose first candle is at or after the leg start (A's most extreme
+    opposite price between the reference swing and the sweep) and whose middle candle is not after the
+    running sweep extreme.
+  - Trigger: the first later A close through its far edge, with no earlier close through it since it
+    formed. If several qualify, the most recent is used.
+- **Entry.** A limit at the IFVG's near edge, placed after the inversion bar closes.
+  - It fills when price trades through the edge, or at a gapped open, before 11:00.
+  - It is cancelled if the target is reached first.
+- **Stop.** A's extreme from the sweep through the inversion bar ± 0.1 × ATR(14, M15).
+- **Target.** 2R from the limit price.
+- **Costs.**
+  - Crypto: maker 0.02% on limit fills (entry, target); taker 0.055% plus 0.01% slippage on stops and
+    time exits; plus any funding settlement held through.
+  - NQ/ES CFDs: a 0.005% half-spread on every fill, plus 0.01% slippage on market fills (stop, time).
+
+**Pass bar.** Each primary is judged alone, and secondaries cannot rescue it.
+- **Era.** The freshest era, 2024-01-01 → data end (gold/NQ/ES 2026-09-30, BTC/ETH 2026-08-31),
+  assigned by entry time. Earlier years are shown for context only.
+- **Criteria for each primary**, on net R:
+  - trade count: n ≥ 100 for gold, and n ≥ 60 for each pair, pooled over both markets;
+  - profit factor ≥ 1.2;
+  - mean > 0, with a week-clustered t ≥ 2.39 (Bonferroni over the three primaries).
+
+**Secondaries (labelled; they cannot rescue a primary).**
+- **Gold:**
+  - the cost sweep and the break-even cost;
+  - long and short separately (gold roughly doubled in the verdict era);
+  - sessions, per year;
+  - 3R;
+  - no divergence filter (any DXY push);
+  - a null with DXY shifted one week;
+  - drift-adjusted information at 15/60/240 min.
+- **Pairs:**
+  - per market, long/short, per year;
+  - 3R, and the nearest liquidity ≥ 2R;
+  - ablations: no SMT (partner ignored), no IFVG (market entry after the SMT bar), no bias;
+  - a null with the partner shifted one week;
+  - timeframes D → H1 (03:00–12:00), H1 → M5, and M15 → M1 (NQ/ES only);
+  - information at 60/240 min.
+- **Both:**
+  - equity at 1% risk per trade, simple by year and compounded;
+  - a Dukascopy two-vendor check, only if something passes.
+
+**Pre-stated readings.**
+- If gold passes but the no-divergence ablation does as well, the edge is "fade DXY pushes", not the
+  divergence.
+- If gold passes only on longs, it is gold's bull run.
+- For the pairs, the shifted-partner null shows what SMT adds. If the null is as good as the
+  primary, the "divergence" is decoration.
+
 ## v0.30-audit — Lookahead in the S/D engine: 4H/30m bars matched by OPEN time (2026-10-06) — v0.23 PASS WITHDRAWN; v0.26 "skill" WITHDRAWN
 
 **Results** (code fixed in `backtest/sd_vwap_experiment.py:closed_htf_index`, audit driver
