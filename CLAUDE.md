@@ -259,3 +259,9 @@ config.py        — All tuneable parameters (TESTING_MODE, ENTRY_MODE, etc.)
   plausible-looking -100% that could have passed as a strategy verdict. Read the first run's output for
   impossibilities (TP exits with 0% wins) before believing it — and read the sign of every
   `entry ± dr * …` line against the four engines that already have it right.
+
+- Before pre-registering a minimum trade count, count the setup funnel OUTCOME-BLIND: window days →
+  each stage → fills. Counts reveal no P&L, so this is allowed before the pre-registration commit.
+  v0.31's SMT+IFVG primary made 28-37 trades in its verdict era against a bar of 60 (about 10 a
+  year at H4 → M15), so the count, not the edge, decided two verdicts. Pick the timeframe or the era
+  length so the funnel can clear the bar, or the pre-registration is wasted.

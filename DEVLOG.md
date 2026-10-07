@@ -1,6 +1,95 @@
 # DEVLOG — Powell Trades Bot
 
-## v0.31-exp — Divergence trades: the reel's gold-vs-DXY and the friend's SMT + IFVG (2026-10-07) — PRE-REGISTERED
+## v0.31-exp — Divergence trades: the reel's gold-vs-DXY and the friend's SMT + IFVG (2026-10-07) — ALL THREE PRIMARIES FAIL
+
+**Results.** `python3 backtest/divergence_experiment.py --report`, run on the code exactly as
+pre-registered in `6c8ab18`. The full log is `backtest/data_cache/local/v031_report.txt` (not
+committed).
+
+| primary, fresh era 2024-01 → data end | n | win | PF | mean net R | t (week) | verdict |
+|---|---|---|---|---|---|---|
+| gold vs DXY, M1, 2R (the reel) | 1,719 | 35.7% | 0.60 | −0.319 | −9.07 | **FAIL** |
+| SMT + IFVG, BTC/ETH, H4 → M15, 2R | 37 | 35.1% | 0.73 | −0.205 | −0.96 | **FAIL** (also n < 60) |
+| SMT + IFVG, NQ/ES, H4 → M15, 2R | 28 | 39.3% | 0.98 | −0.015 | −0.06 | **FAIL** (also n < 60) |
+
+**Audit of the first run.**
+- Every target exit is exactly +2.000R and every stop −1.000R. A few gapped stops reach −1.006R, and
+  a few NQ/ES limits filled at a better gapped open reach +2.002R.
+- Time exits fall in between. All brackets point the right way.
+- The no-IFVG ablation (−0.98R / −1.05R) is costs, not a bug:
+  - market entry right after the sweep bar puts the stop just beyond it, at a median of 0.085% of
+    price on NQ/ES;
+  - costs are therefore 0.55–0.67R per trade, against gross results of −0.33R / −0.14R.
+
+**Cell B, the reel: gold vs DXY.** This is not a cost problem.
+- **Costs don't explain it.**
+  - With zero costs it still loses: PF 0.94, −0.034R, t −1.15. The break-even cost per side is
+    negative.
+  - At the cheapest quiet-market ECN cost (0.004%/side): PF 0.78, −0.148R.
+  - At base: the median stop is $4.74/oz (0.14% of price) and costs 0.14R per trade.
+- **Every split loses.**
+  - Long gold −0.287R (n 846), short gold −0.350R (n 873).
+  - Asia −0.31R, London −0.37R, NY AM −0.31R, NY PM −0.25R.
+  - Every year 2019-2026, between −0.18R and −0.38R.
+- **No information.** The forward return in the trade's direction, minus gold's drift over the era:
+  - 15 min: +0.3 / −0.3 bp (long / short);
+  - 60 min: +0.1 / +0.6 bp;
+  - 240 min: −1.9 / +0.4 bp;
+  - every |t| < 1.
+  After a dollar push that gold "ignored", gold's next move is a coin flip.
+- **The divergence adds nothing.**
+  - No divergence filter (any DXY push): −0.287R, n 3,410.
+  - DXY from the wrong week (null): −0.421R.
+  - 3R target: −0.303R.
+- **Why the reel can look right.** On a 2σ dollar push, gold moved WITH the dollar 44% of the time.
+  The 30-minute correlation is only about −0.4, so "gold barely moved" is common, not rare. The
+  setups remembered are the ones that worked.
+- **Exits.** 56% stop, 24% target, 20% time.
+- **At 1% risk per trade:** −171% (2024), −274% (2025) and −104% (2026, Jan–Sep) as simple sums;
+  −99.7% compounded.
+
+**Cell A, the friend: SMT + IFVG.**
+- **Mechanical, the setup is rare.**
+  - NQ/ES at M15 over 7.7 years: 1,898 window days → 492 SMT days → 157 IFVGs → 74 trades. Of the
+    rest, 83 limits never filled and 27 were cancelled because the target came first. That is about 10
+    trades a year.
+  - BTC/ETH 2020-2026: 1,738 → 382 → 115 → 72.
+- **Too few trades, and the edge is flat or negative.** The 60-trade bar could not be met at
+  H4 → M15, but the point estimates are flat to negative, so more trades would not have helped.
+  - NQ/ES: gross +0.06R (t 0.24), net −0.015R.
+  - BTC/ETH: gross −0.054R, net −0.205R.
+  - Both are negative before 2024 too: −0.044R and −0.340R.
+- **Other timeframes** (secondary, fresh era):
+  - NQ/ES: H1 → M5 n 131, −0.019R (t −0.16); M15 → M1 n 220, −0.222R (t −2.26); D → H1 n 29, −0.42R.
+  - BTC/ETH: H1 → M5 n 142, −0.321R (t −3.00); D → H1 n 32, −0.046R.
+  - None shows an edge, and the two fastest are significantly negative.
+- **Ablations on the same days** (NQ/ES / BTC/ETH; primary −0.015R / −0.205R).
+  - **SMT stage.** No SMT (partner ignored): −0.150R (n 71) / −0.080R (n 83). Partner shifted one week
+    (null): −0.134R / −0.035R. SMT beats its null on NQ/ES and loses to it on crypto, all within noise.
+  - **IFVG stage.** No IFVG: −0.98R / −1.05R, almost all cost (see the audit above). The IFVG retrace
+    keeps the stop wide enough to survive costs; it does not create an edge.
+  - **Bias.** No HTF bias: −0.066R / −0.185R.
+- **Targets.** 3R: NQ/ES PF 1.20, +0.125R, t 0.42 at n 28 (noise); BTC/ETH −0.068R. Nearest
+  liquidity: +0.003R / −0.156R.
+- **At 1% risk per trade, compounded over the fresh era:** NQ/ES −0.7% (max DD 7.7%); BTC/ETH −7.6%
+  (max DD 9.6%).
+
+**Verdict.** Neither the reel's gold/DXY divergence nor the friend's SMT + IFVG shows a measurable
+edge, and the project still has no validated strategy. The only positive cell is a secondary
+(NQ/ES 3R, n 28, t 0.42). That is noise and cannot be promoted. No two-vendor check is needed
+because nothing passed.
+
+**Limits.**
+- HistData quotes are bid-side CFD prices, not futures.
+- The friend's discretion (which swing, which gap, when to skip) is approximated by fixed rules.
+- The reel's rule is fully specified by its own description, and it fails before costs.
+- HistData's 2023 gaps thin out 2023.
+
+**Lesson (CLAUDE.md).** Before setting a minimum trade count, count the setup funnel
+outcome-blind. Counts show no P&L, so this is allowed before pre-registering. Here the count decided
+two verdicts on its own, at 28 and 37 trades against a bar of 60.
+
+### Pre-registration (verbatim, committed in `6c8ab18` before the first result)
 
 **Status: pre-registered.** The rules, costs and pass bar below are fixed and committed before the
 first result is read.
@@ -313,6 +402,12 @@ read per RUBRIC.md (subagents in batches of ≤ 10), record, score, commit, push
 
 **First run, done in this session.** T = 2026-10-02: the 1 Oct reporters ACN, NKE and MKC, recorded
 before the 2026-10-05 open.
+
+**Operations log (2026-10-07).** The Routine `trig_019f4HV3kS8g9NvP2tpPuoCB` was created on 6 Oct.
+- The 2 Oct reporters (decision date 5 Oct) were therefore never read.
+- Its first scheduled run (6 Oct 17:54 NY, T = 2026-10-06) found no S&P 500 reporters for 5 Oct, so
+  there was nothing to record.
+- It runs every weekday at 17:54 NY.
 
 **Evaluation, pre-registered.** Once there are ≥ 100 gated trades:
 - **Primary:** mean net return per gated trade > 0, with t ≥ 2.0 clustered by decision week.
