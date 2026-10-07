@@ -1,5 +1,87 @@
 # DEVLOG — Powell Trades Bot
 
+## v0.32-exp — ForexFactory news surprises: is any of the move still tradeable after the release? (2026-10-07) — PRE-REGISTERED
+
+**Status: pre-registered.** The rules and the pass bar below are committed before any post-release
+return is read.
+- Code: `backtest/fetch_ff_calendar.py` (cleans the calendar) and `backtest/ff_surprise_test.py`
+  (the test). `--selftest` runs 10 checks and all pass.
+- A planted 20 bp post-entry drift is recovered (+19.9 bp).
+- A planted 30 bp first-minute jump shows in the reaction (+30.0 bp) but not in the trade (−0.12 bp).
+- z uses prior releases only, and one 1000-σ outlier does not shrink later z-scores.
+- The value parsing, the Tehran-offset repair and the schedule fill are checked.
+- One crash-only smoke run was made on Jan–Apr 2015 with all output suppressed. Only "OK" and the
+  section names were read.
+
+**Why.** The user asked to "use forex factory for prediction model" and to "test forex factory past
+like a backtest". The v0.27 lesson applies: being right about the reaction is not an edge until it is
+scored from the first price a trader could actually get.
+
+**Data and the two calendar defects** (found and repaired before any result).
+- **The archive.** Hugging Face `Ehsanrs2/Forex_Factory_Calendar`, `forex_factory_cache.csv`: 83,427
+  rows, 2007-01 → 2025-04-07.
+- **Defect 1: lost times.** Rows that share a release minute with the row above them on ForexFactory
+  lost their time and are stamped 00:00 local. This hits payrolls, the unemployment rate, CPI y/y,
+  headline retail sales, claims on many weeks, and others.
+  - They are repaired with the official US release schedule (`SCHEDULE_ET`).
+  - On rows whose time survived (2015+), the table matches 97–100% of the time for every major event.
+    Crude oil is at 84% (11:00 holiday-week releases) and core PCE at 87%.
+  - Philly Fed is not repaired, because it moved from 10:00 to 08:30 inside the window.
+- **Defect 2: wrong offsets.** The archive uses Tehran offsets. After Iran abolished daylight saving
+  (Sep 2022) it still labels summer rows +04:30, while the wall clock is +03:30. From 2022-09-22 every
+  row is read at +03:30.
+- **Market check of the event times** (no post-release return involved).
+  - EURUSD's largest 1m move within ±30 min sits on the bar opening at the release minute for 63% of
+    payrolls, 57% of core CPI and 53% of Fed decisions. It sits on the minute before for only 0–3%,
+    so bars are stamped by their opening minute.
+  - By year, 17–54% of release minutes hold the ±30-min maximum, against 0–9% for the minute one hour
+    earlier or later. There is no hour error.
+- **HistData M1** (`--tz-mode eu`): EURUSD, USDJPY, XAUUSD and NAS100, 2015-01 → 2026-09. 08:30 NY is
+  the peak minute in every year for EURUSD and USDJPY, except 2020 (COVID).
+
+**Events.**
+- USD high-impact rows with a numeric actual and forecast and a usual-effect sign: greater-is-good
+  +1, less-is-good −1, more-hawkish-is-good +1.
+- **Surprise z.** (actual − forecast) divided by a robust scale of the same event's last 36 prior
+  surprises: the 80th percentile of |surprise| / 1.2816, with at least 12 prior. z is undefined when
+  the scale is 0. That excludes Fed rate decisions, which almost never differ from the forecast.
+- **A change from the plan, made before any return was read.** The plan's standard deviation over
+  all prior releases would let the 2020 outliers (payrolls missed by millions) shrink every later jobs
+  z. Only 7 jobs releases qualified in 2021–2025; this was seen in release counts only.
+- **Combining releases.** Releases at the same minute are combined as S = mean of usual-effect × z.
+  S > 0 means the news is good for the dollar.
+- **Counts, made before any return was read.** |S| ≥ 1 on 283 release minutes in 2015–2020 and 140 in
+  2021-01 → 2025-04 (jobs 30, inflation 40, growth 68, mixed 2).
+
+**Primary (one cell).**
+- EURUSD, releases with |S| ≥ 1 in the holdout 2021-01-01 → 2025-04-07.
+- Short EURUSD when S > 0 (good for the dollar), long when S < 0.
+- Entry at the price 1 minute after the release (the open of the bar starting at t0+1). Exit 60
+  minutes later (the open of the bar at t0+61).
+- The price at t is the open of the bar starting at t, else the last close within 5 minutes before
+  t; otherwise the release is skipped.
+- Cost: 2 pips round trip.
+- **Pass: mean net return > 0 with a date-clustered t ≥ 2.0.**
+
+**Secondaries (labelled; they cannot rescue the primary).**
+- The first-minute reaction (t0−1 → t0+1) in the surprise direction, per market. This is a data check
+  and should be strongly positive.
+- The grid: entry +1 / +5 min × hold 15 min / 60 min / to 16:00 NY.
+  - EURUSD (2 pips), USDJPY (dollar-good means up, 2 pips), XAUUSD (dollar-good means down, $0.60).
+- Momentum, with the direction set by the first-minute reaction, for all four markets including NQ
+  (2 points). Fade, against the reaction, for EURUSD.
+- The EURUSD primary cell:
+  - by |S| bucket (1–2, ≥ 2);
+  - by family (jobs, inflation, growth, Fed, oil, mixed);
+  - by year 2015–2025;
+  - in the development era 2015–2020.
+
+**Pre-stated readings.**
+- A strong reaction with ≈ 0 drift after the entry means the news is priced within the first
+  minute: ForexFactory numbers cannot be traded from a retail seat.
+- If momentum works but the surprise direction does not, the first price move carries information
+  that the calendar numbers do not.
+
 ## v0.31-exp — Divergence trades: the reel's gold-vs-DXY and the friend's SMT + IFVG (2026-10-07) — ALL THREE PRIMARIES FAIL
 
 **Results.** `python3 backtest/divergence_experiment.py --report`, run on the code exactly as
