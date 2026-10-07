@@ -1,0 +1,9 @@
+id,posted_local,utc_offset_h,symbol,side,order,entry,tp1,tp2,tp3,tp4,sl,note
+S1,2026-10-02 23:16,10,XAUUSD,buy,market,4194,4198,4200,4203,4214,4170,"OPEN GOLD BUYS NOW" (23:15) then the setup; 46 min after US payrolls
+S2,2026-10-03 03:58,10,XAUUSD,buy,market,4135,4139,4141,4144,4155,4120,"BUY Opportunity" posted after an MT5 profit screenshot
+S3,2026-10-05 22:47,11,XAUUSD,buy,limit,4150,4154,4156,4159,4170,4130,"Do you want a gold trade? Show me the likes" (21:04) then BUY LIMIT
+S4,2026-10-06 04:56,11,XAUUSD,sell,limit,4144,4140,4138,4135,4124,4165,SELL LIMIT after a voice note (04:09)
+S5,2026-10-07 00:44,11,XAUUSD,buy,market,4156,4160,4162,4165,4176,4135,"OPEN GOLD BUYS" (00:42); message edited at 00:44
+S6,2026-10-07 01:26,11,XAUUSD,buy,market,4145,4149,4151,4154,4165,4130,"Open extra gold buys"
+S7,2026-10-07 06:50,11,XAUUSD,buy,market,4168,4172,4174,4177,4188,4145,followed by "Move your stoploss to 4140"
+S8,2026-10-07 07:39,11,XAUUSD,buy,limit,4156,4160,4162,4165,4175,4140,"Let's place a buy limit. Expecting price to push up"

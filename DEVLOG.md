@@ -1,5 +1,47 @@
 # DEVLOG — Powell Trades Bot
 
+## v0.33-audit — A Telegram signal channel ("TSA 🚀 FREE TRADES") checked against real prices (2026-10-07)
+
+**What.** The user sent 8 screenshots of the channel (15,871 subscribers). They contain 8 XAU/USD
+signals from 2–7 Oct 2026, each with an entry, four targets (TP1–TP4) and a stop, plus two
+"move your stop loss" instructions. The question: what are his win rate and profit factor?
+- The signals were transcribed into `backtest/signal_audits/tsa_free_trades.csv` (stop moves in
+  `..._stop_moves.csv`).
+- `backtest/signal_audit.py` replays them on Dukascopy BID/ASK 1m candles, plus hourly ticks for the
+  current day.
+- Buys fill at the ask and exit at the bid. A market signal fills at the next minute's open. Limits
+  fill when traded through. The stop wins a minute that touches both. Stop moves are applied when
+  posted.
+
+**Checks.**
+- **Clock.** The user's phone is on Sydney time: screenshots at 6:15 pm local = 07:15 UTC, so UTC+10
+  before the 4 Oct DST switch and UTC+11 after. With that, every market signal's stated entry matches
+  the price at its post minute (4194 vs 4193.9, 4145 vs 4145.7, 4168 vs 4166.6). The one-hour-off
+  alternative does not.
+- **Data.**
+  - Dukascopy BID equals the HistData bar on 30 Sep (13:30 UTC) to the cent.
+  - S4's fill was traded through several times, not only in the 22:00 reopen spike.
+  - The S7/S8 stop touch (bid 4139.92 at 02:07 UTC) was later exceeded (low 4126.69), so it is not
+    a marginal artefact.
+
+**Results** ($/oz; follower fills, spread paid):
+
+| management | win rate | profit factor | net | at his stated entries |
+|---|---|---|---|---|
+| all out at TP1 (how channels count "wins") | **75%** (6/8) | **0.39** | −26.2 | PF 0.55, −20.0 |
+| all out at TP4 | 50% | 0.84 | −14.2 | PF 0.91, −8.0 |
+| a quarter at each TP | 50% | 0.49 | −34.7 | PF 0.58, −28.5 |
+
+- **Why 75% wins still loses.** TP1 is $4 away and the stop is $15–25 away. So TP1 needs about 85%
+  hits to break even before the spread (~$0.6 here).
+- **The stop move made it worse.** He told followers to widen S7's stop from 4145 to 4140, which
+  turned a −22.3 loss into −27.3.
+- **The losses came after the results post.** S7 and S8 both stopped out on 7 Oct at 02:07 UTC, after
+  his "TODAY'S VIP RESULTS" post for 6 Oct.
+- **Limits.** Eight trades is far too few to judge him. The point is the structure (a high
+  TP1-counted win rate with a negative profit factor), and a longer sample needs the channel link or
+  an export.
+
 ## v0.32-exp — ForexFactory news surprises: is any of the move still tradeable after the release? (2026-10-07) — FAIL: the surprise is priced in the first minute
 
 **Results.** `python3 backtest/ff_surprise_test.py --report`, run on the code as pre-registered in
