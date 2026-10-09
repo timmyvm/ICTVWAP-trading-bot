@@ -1,5 +1,15 @@
 # Powell Trades Bot — CLAUDE.md
 
+> **New session? Read `docs/HANDOFF.md` before anything else.** It covers:
+> - where the research stands (nothing has passed), and who the user is;
+> - the test protocol and cost models;
+> - the ledger of every experiment (v0.1 → v0.34);
+> - data re-fetch commands, since `backtest/data_cache/local/` does not survive a container reset;
+> - the live earnings routine, which must be checked first;
+> - the open threads.
+>
+> Keep it current: when a session ends or a verdict changes, update HANDOFF.md along with the DEVLOG.
+
 ## Stack
 - Python (no TypeScript, no React, no frontend)
 - Bybit API (via `pybit`) for market data and order execution
@@ -19,6 +29,10 @@ execution/
   risk.py        — Daily/weekly trade limits, re-entry logic, news blackouts
 main.py          — Main loop, ATR mode switching, position monitoring
 config.py        — All tuneable parameters (TESTING_MODE, ENTRY_MODE, etc.)
+backtest/        — research engines (one script per experiment), data fetchers, live_earnings/,
+                   signal_audits/, reel_tools/; data_cache/local/ is gitignored (re-fetch: HANDOFF §6)
+docs/            — HANDOFF.md (start here), failure_path.md, ict/distilled_rules.md
+scripts/, deploy/ — paper-run dashboard/stats, VPS setup
 ```
 
 ## Core Rules

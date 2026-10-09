@@ -1,5 +1,45 @@
 # DEVLOG — Powell Trades Bot
 
+## docs — HANDOFF.md: everything a new session needs (2026-10-09)
+
+The user asked: "push all u know to docs. im starting a new session." Until now the project's working
+knowledge was spread across this DEVLOG, CLAUDE.md and the session's own memory. Some of it was in
+neither file:
+- the answers given in chat (krypt.cc, KryTrader's agent council, the Roadster bets, the
+  buy-or-sell-a-strategy questions);
+- the data re-fetch commands;
+- the reel tooling, which lived only in a scratchpad that would not survive the container.
+
+**What changed:**
+- **`docs/HANDOFF.md` (new).** It covers:
+  - where the research stands, the user, and the standing rules;
+  - the test protocol and the cost models, with their constants checked against the code;
+  - a ledger of every version from v0.1 to v0.34 with verdicts and key numbers;
+  - the chat answers;
+  - a data inventory with re-fetch commands and validation notes;
+  - the live routine's state, a script catalogue, how to handle each kind of material the user
+    sends, environment gotchas, and the open threads.
+- **`backtest/reel_tools/` (new).**
+  - `transcribe.py` (faster-whisper) and `frames.py` (PyAV, a frame every N s): the scratchpad
+    tools used for v0.31 and v0.34, now with argparse.
+  - `README.md`: the Instagram download recipe (`yt-dlp --impersonate chrome`, which needs
+    `curl_cffi`, because plain yt-dlp gets HTTP 429) and the untrusted-content rules. No
+    transcripts are committed.
+- **`backtest/fetch_nq_hf.py` (new).** Nothing committed could rebuild the v0.34 NQ futures cache
+  (`nq_hf_1m.pkl`): the download and the parquet → pickle step had been one-off shell commands. The
+  script now downloads the missing years, builds the pickle and re-loads it; `--check` reprints the
+  clock and alignment checks. Run on 9 Oct, its output is **identical** to the v0.34 cache
+  (`assert_frame_equal`, 3,666,547 rows), so the v0.34 results stand.
+- **`CLAUDE.md`.** A "read docs/HANDOFF.md first" pointer at the top, and the project layout now
+  lists `backtest/`, `docs/`, `scripts/` and `deploy/`.
+- **v0.29-live operations log.** The 7 Oct routine run missed STZ, the only S&P 500 reporter so far
+  after the routine was created. The Routine has never pushed a commit (details in that entry).
+- **v0.34-exp addendum.** Three pre-registered secondaries (break within 3 candles, wick ≥ 2/3, the
+  planned R:R and unwinnable share) were in the local report but not in the DEVLOG. They are copied
+  in now, before the local report disappears with the container.
+
+No strategy code changed and no result changed.
+
 ## v0.34-exp — "EMT / Exhaustion Mean Theory" (reel DeM8kyVCdKz) on NQ futures and BTC/ETH (2026-10-09) — FAIL on both
 
 **Results.** `python3 backtest/emt_experiment.py --report`, run on the code as pre-registered in
@@ -34,6 +74,20 @@ target lies beyond the entry.
 **His "one rule" is real but small.** Entering on the exhaustion candle instead of waiting for the
 break: NQ −0.105R (t −2.5), BTC/ETH −0.637R. Waiting turns a loser into roughly breakeven on NQ, not
 into a winner.
+
+**Pre-registered secondaries missing from the first write-up** (added 2026-10-09 from the run's local
+report `v034_report.txt`; same run, nothing re-run):
+
+| Secondary | NQ | BTC/ETH |
+|---|---|---|
+| Break allowed within 3 candles | n 1,170, PF 1.01, +0.007R (t 0.18) | n 4,883, PF 0.56, −0.386R |
+| Wick ≥ 2/3 of the candle | n 504, PF 1.09, +0.058R (t 0.76) | n 2,193, PF 0.57, −0.400R |
+| Planned R:R (median) | 2.26 | 2.07 |
+| Share with planned R:R ≤ 1 | 18 % | 19 % |
+| Unwinnable share (reward ≤ cost) | 0.6 % | 4.8 % |
+
+None changes the verdict. The VWAP target is not the cost-floor trap of v0.22: few trades are
+unwinnable even on crypto.
 
 **Verdict.** EMT has no measurable edge on the market he trades (NQ). It is breakeven in 2024–25
 and significantly negative over 2015–2023. On crypto it loses to fees. The project still has no
@@ -764,6 +818,16 @@ before the 2026-10-05 open.
 - Its first scheduled run (6 Oct 17:54 NY, T = 2026-10-06) found no S&P 500 reporters for 5 Oct, so
   there was nothing to record.
 - It runs every weekday at 17:54 NY.
+
+**Operations log (2026-10-09).** One real event has been missed.
+- **Run of 7 Oct (T = 2026-10-07): STZ was missed.** Constellation Brands reported on 6 Oct, and a
+  `--prepare --date 2026-10-07 --dry-run` on 9 Oct rebuilds its packet. Nothing reached the remote:
+  no commit, no other branch. The `--record` deadline (09:30 NY on 8 Oct) has passed, so the call is
+  lost. The cause is unknown: the run's log was not visible from the research session.
+- **Run of 8 Oct (T = 2026-10-08):** no S&P 500 reporters for 7 Oct. The trigger reports SUCCEEDED
+  after 68 s.
+- **The Routine has never pushed a commit, so its push path is unproven.** The next session checks
+  the 9 Oct run first (`docs/HANDOFF.md` §7).
 
 **Evaluation, pre-registered.** Once there are ≥ 100 gated trades:
 - **Primary:** mean net return per gated trade > 0, with t ≥ 2.0 clustered by decision week.
