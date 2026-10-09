@@ -1,5 +1,98 @@
 # DEVLOG — Powell Trades Bot
 
+## v0.34-exp — "EMT / Exhaustion Mean Theory" (reel DeM8kyVCdKz) on NQ futures and BTC/ETH (2026-10-09) — PRE-REGISTERED
+
+**Status: pre-registered.** The rules, costs and pass bar below are committed before any trade result
+is read.
+- Code: `backtest/emt_experiment.py`. `--selftest` runs 9 checks and all pass:
+  - planted short and long setups (exhaustion bar, break entry, stop beyond the wick, exit at the
+    previous bar's VWAP);
+  - no trade when the next candle doesn't break;
+  - VWAP starts and resets at each session's anchor;
+  - a truncation guard (cutting the data after the entry bar changes nothing);
+  - the bracket mutation; the "enter on the exhaustion candle" ablation; futures costs.
+- One crash-only smoke run (NQ Jan–Mar 2015, crypto Jan–Mar 2020, output hidden) printed only "OK"
+  and the section counts.
+
+**The reel.** Cody G (@gstreettradesofficial, a "futures trading coach"; the reel shows his Apex
+Trader Funding certificates), 7 Oct 2026, "The BEST traders in the world are hiding this STRATEGY".
+- 5-minute chart, with VWAP and the 9 EMA.
+- When price stretches away from the 9 EMA and VWAP, wait for a candle that "wicks hard and then
+  stalls out" (the exhaustion candle). When the NEXT candle breaks its low, go short. After a dump,
+  a break of the high, go long.
+- Stop just above the wick, target back at VWAP.
+- "Do not enter on the exhaustion candle itself. Wait for the break. That one rule will save you a
+  ton of money."
+- Claimed: "passed over 60 prop firm evals". The "5-step EMT checklist" is a comment-for-DM lead
+  magnet, so the reel is the whole public method.
+
+**Data** (validated before any result).
+- **NQ futures 1m with real volume:** Hugging Face `mdelcristo/NQ-F_1min_OHLCV_Parquet` (MIT),
+  2015-01-01 → 2025-07-25, UTC stamps.
+  - Clock: volume peaks at 15:59 NY in every year, the 09:30 bar carries 25–65× the median minute's
+    volume and 08:30 4–11×, against ~1.5× at 07:30.
+  - Alignment: 1m returns correlate 0.88–0.99 with HistData NSXUSD at lag 0, and ≈ 0 at ±1 min.
+  - Excluded: 105 of 2,729 Globex sessions with a one-minute move that differs from the CFD by more
+    than 0.5% (roll switches such as +445 pts at 09:42 on 20 Jun 2025, or CFD glitches). Excluded on
+    data grounds only.
+- **BTC/ETH:** Binance UM 5m perps, 2020-01 → 2026-08, real volume, committed funding.
+- Gold and ES have no volume in the local data, so they are not tested.
+
+**Rules** (the numbers his words leave open, fixed here).
+- **Bars and indicators.** 5m bars (NQ resampled from 1m in UTC).
+  - VWAP = session-cumulative hlc3 × volume ÷ volume. The anchor is TradingView's default "Session":
+    18:00 NY for CME futures, 00:00 UTC for crypto.
+  - EMA(9) of closes; ATR(14) of 5m bars.
+- **Stretched.** The exhaustion candle's extreme is beyond VWAP's **2σ band** (σ = the session's
+  volume-weighted standard deviation of hlc3 around VWAP, as TradingView draws its VWAP bands) and at
+  least 1.0 ATR beyond the 9 EMA.
+  - Changed before any outcome from a draft of "2 ATR from VWAP". An outcome-blind check showed the
+    median NQ bar is already 2.4 ATR from session VWAP, so "2 ATR" is not a stretch.
+- **Exhaustion candle.** The wick on the stretched side is at least half the candle's range and at
+  least 0.4 ATR, and the candle makes the most extreme price of the previous 6 bars.
+- **Entry.** A stop order at the exhaustion candle's low (high), live for the NEXT candle only. A
+  gapped open fills at the open. If that candle first takes out the wick's extreme, there is no
+  entry.
+- **Stop.** The wick's extreme ± 0.1 ATR.
+- **Target.** VWAP as of the previous bar's close, worked as a resting limit. It needs a trade through
+  by one tick on NQ and never fills on the entry bar. A trade with no room to VWAP at entry is
+  skipped.
+- **Positions and hours.** One position at a time per market.
+  - NQ: setups need an hour of session first (from 19:00 NY); no entries 16:00–19:00 NY; flat at
+    16:55 NY.
+  - Crypto: entries 01:00–23:00 UTC; flat at 23:55 UTC.
+- **Stops first.** When a bar touches both the stop and the target, the stop wins, including on the
+  entry bar.
+- **Costs.**
+  - NQ: $2.50/side commission (0.125 pt per side) plus one tick of slippage on stop-type fills (the
+    entry, the stop, the session exit). Target fills pay no slippage.
+  - Crypto (Bybit VIP0): taker 0.055% + 0.01% on the entry and stop exits, maker 0.02% on target
+    exits, plus funding settlements held through.
+- **Funnel** (outcome-blind). Exhaustion candles per session: about 5.4 (NQ) and 4.6 (BTC, ETH) at
+  2σ; about 2.0 / 1.8 at 2.5σ; about 0.5 / 0.45 at 3σ.
+
+**Pass bar.** Each primary is judged alone; secondaries cannot rescue it.
+- Primaries: NQ, and BTC/ETH pooled.
+- Era: 2024-01-01 → data end (NQ 2025-07-25, crypto 2026-08-31). Earlier years are context only.
+- Criteria on net R:
+  - n ≥ 100;
+  - profit factor ≥ 1.2;
+  - mean > 0 with a week-clustered t ≥ 2.24 (Bonferroni over the two primaries).
+
+**Secondaries (labelled).**
+- longs vs shorts; per year; NQ in RTH (09:30–16:00) vs overnight;
+- his "don't" rule tested directly: enter at the exhaustion candle's close instead of waiting for the
+  break;
+- the break allowed within 3 candles; no stretch filter; a fixed 1.5R target instead of VWAP;
+- stretch at 2.5σ, 3σ, or ≥ 2 ATR from VWAP; a wick of at least 2/3 of the candle;
+- cost as a share of R, the planned R:R distribution and the unwinnable share.
+
+**Pre-stated readings.**
+- If entering on the exhaustion candle does as well as waiting for the break, his "one rule" adds
+  nothing.
+- If no stretch filter does as well, the stretch is decoration.
+- If a fixed 1.5R target does as well as VWAP, the "mean" is not the edge.
+
 ## v0.33-audit — A Telegram signal channel ("TSA 🚀 FREE TRADES") checked against real prices (2026-10-07) — 86% "win rate", PF 0.80 at TP1
 
 **Full history (added the same day).**
