@@ -168,6 +168,9 @@ artifact. Numbers are net of costs unless marked gross. R = multiples of the sto
 
 | Version · date | What was tested (source) | Verdict | Key numbers | Script |
 |---|---|---|---|---|
+| v0.35-gate1 · 10-10 | **Edge lab batch 1, H001 tail-funding carry rotation and H010 post-flush reversal** (scout cards, not user ideas). | **Shelved, untestable** (no verdict era opened) | H001: explore half-life > 21 days at 7 bp over 768 episodes, but 69 % in 2021 and only ~8 of 82 verdict-era episodes have a spot hedge (93 % of 2026 tail episodes are perp-only). H010: ~15 verdict-era coin-days on 5 dates; needs ~517 independent events, history has ~100-150. | `research/data_reports/`, `fetch_edge_data_*.py` |
+| v0.35-gate0 · 10-10 | **Edge lab batch 1 scouting**: 7 cards (carry, forced flow, cross-sectional momentum), written blind. | 5 shelved on power at card stage (H002, H011, H020, H021; H012 folded into H010), 2 advanced | Predicted gross 50-110 bp, minimum detectable edge 79-200 bp. | `research/hypotheses/` |
+| v0.35-infra · 10-10 | Edge lab harness and agent team (chair + 5). | infra | 8 self-tests pass; planted 30 bp edge recovered as 30.5 bp. | `backtest/edge_lab/`, `.claude/agents/` |
 | v0.34-exp · 10-09 | **EMT "Exhaustion Mean Theory"** (reel, Cody G). 5m: price stretched beyond the VWAP 2σ band and ≥1 ATR from the 9 EMA, an exhaustion wick, entry on the next candle's break, stop beyond the wick, target VWAP. NQ futures and BTC/ETH. | **FAIL** both | NQ 2024+: n 1,000, PF 1.03, +0.018R, t 0.39. NQ 2015-23: PF 0.87, t −4.45. BTC/ETH: n 4,099, PF 0.56, −0.402R; a gross +0.064R (t 2.48) eaten by 0.36R of fees. | `emt_experiment.py` |
 | v0.33-audit · 10-07 | **TSA Telegram gold signals** (the user's private channel, read through 2 public mirrors). 674 signals from Jan-Oct 2026 replayed on real bid/ask, following every "move SL / close" message. | Win rate real, **loses** | TP1 (as advertised): 86 % win, PF 0.80, t −2.2. TP4: 60 %, PF 1.13, t 0.8, against a 57 % random null. A quarter off at each TP: PF 0.99. At a $0.30 spread: 0.90 / 1.18 / 1.07. | `signal_audit.py`, `fetch_tg_channel.py` |
 | v0.32-exp · 10-07 | **ForexFactory surprises** (user idea). EURUSD traded in the surprise direction from release +1 min to +60 min, \|S\| ≥ 1. | **FAIL** | Holdout 2021-25: n 132, +1.09 bp, t 0.60, hit 49.2 %. The first-minute reaction is t 7-12, so the news is priced before a retail fill. | `ff_surprise_test.py`, `fetch_ff_calendar.py` |
@@ -340,6 +343,7 @@ the earnings calendar and Yahoo. Only these are committed:
 | Yahoo daily bars for every event symbol plus SPY | `yahoo_daily/` | `python3 backtest/fetch_yahoo_daily.py --pause 0.1` (run twice; the second pass fills gaps) | The close is adjusted for later splits; the script handles it. **IVV.AX has a fake −93 % month at 2011-01**, so check every series over its full history. |
 | PEAD event table | `pead_events.csv.gz` | `python3 backtest/pead_drift_test.py --build` | |
 | VGS/VAS/IVV benchmark series, FRED SP500 | `benchmark/`, `sp500_fred.csv` | `backtest/benchmark_portfolio.py`, `backtest/benchmark_sp500.py` | AUD, distributions reinvested. |
+| **Edge lab (v0.35)**: PIT universe (700 symbols), funding (418 symbols, 756,648 settlements), spot coverage and perp-to-spot mapping, Bybit listing dates, 1h klines + 5-min OI for 10 symbols | `edge/` under `data_cache/local/` | `pip install pytz`, then the commands in `research/data_reports/H001_carry_data.md` and `H010_flow_data.md` (`fetch_edge_data_funding.py`, `fetch_edge_data_oi.py`) | Archive keeps zombie rows after delistings (146 symbols); OI starts 2021-12 except BTC; OI stamp convention changes 2024-03-04; Bybit archive has no funding or USDT premium history. ~865 MB. |
 | Telegram TSA mirrors (@tradesmartacademy, @tsafreetrades) | `tg/*_messages.csv`, `tg_raw/` | `python3 backtest/fetch_tg_channel.py <channel> --out backtest/data_cache/local/tg/<channel>_messages.csv` | Public preview only. Gaps in message ids are deletions or service messages, counted in the summary. |
 
 **Older caches that the pre-v0.22 scripts expect** were lost in earlier container resets and are not
@@ -575,3 +579,7 @@ Each was offered to the user and **not yet accepted**. Don't start any of them u
    only. Carry came close to the S&P with a fraction of its drawdown in backtest; its real risk is
    the exchange failing.
 5. **Monitor the earnings routine** (§7). This one is ongoing, not optional.
+6. **A forward paper tracker for tail-funding episodes** (H001): log every perp episode with
+   trailing-24h funding >= 7 bp, whether a Bybit/Binance spot hedge exists, the funding actually
+   paid and the basis. New data accrues out of sample, so it resolves what the archive cannot.
+   Offered 2026-10-10, not accepted. Builds on thread 4.

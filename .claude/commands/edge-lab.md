@@ -23,11 +23,19 @@ different sub-families; scouts only read). Keep only cards that pass the five-po
 and say why. If all cards fail, stop and report; zero hypotheses is a valid outcome. After
 three consecutive families produce nothing, stop the batch and tell the user.
 
-**Gate 1, testable and pre-registered.** For each surviving card, in parallel:
-`data-engineer` produces the outcome-blind data report; `edge-statistician` runs the power
-check and drafts `research/prereg/<id>.md`. If the power check says the test cannot resolve
-the predicted edge, shelve the card. Otherwise **you** review the pre-registration, commit
-it, push it, then `ledger.register(path, family=..., n_cells=..., primaries=..., require_pushed=True)`.
+**Gate 1a, can the test resolve the claim? (before any download).** `edge-statistician` runs
+the power check on the card's own numbers, using DATE-CLUSTERED independent events (one crash day
+yields many coin entries, so coin-entries are not independent samples), not coin-entries, and
+using only the USABLE history (check when each required archive actually starts). If the minimum
+detectable edge exceeds the predicted edge, shelve the card. This costs minutes; the v0.35 batch
+spent hours of downloads on cards this check would have shelved.
+
+**Gate 1b, data and pre-registration.** For each card that passed 1a: `data-engineer` produces
+the outcome-blind data report (cap the download scope up front and say what is cut);
+`edge-statistician` drafts `research/prereg/<id>.md`. If the counts then show the verdict era
+cannot resolve the claim, shelve it rather than open it. Otherwise **you** review the
+pre-registration, commit it, push it, then
+`ledger.register(path, family=..., n_cells=..., primaries=..., require_pushed=True)`.
 Nothing past this line runs until it succeeds.
 
 **Gate 2, engine.** `quant-builder` writes the engine and the self-tests, outcome-blind

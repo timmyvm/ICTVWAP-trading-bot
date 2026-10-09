@@ -57,7 +57,8 @@ model exists.
 
 ```
 Gate 0  scout cards ──► chair screen (failure_path 5 points; predicted edge >= ~40 bp)
-Gate 1  data report + power check + pre-registration  ──► commit, push, ledger.register
+Gate 1a power check on DATE-CLUSTERED events and usable history, before any download ──► shelve if MDE > claim
+Gate 1b data report + pre-registration  ──► commit, push, ledger.register
 Gate 2  engine + self-tests, outcome-blind
 Gate 3  auditor stage A  ──► ledger.mark_audited
 Gate 4  --report (open_holdout, once) ──► statistician verdict ──► auditor stage B on a pass

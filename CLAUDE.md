@@ -299,3 +299,26 @@ scripts/, deploy/ — paper-run dashboard/stats, VPS setup
   outcome-blind before pre-registering). Check the indicator's unconditional distribution before
   choosing any threshold on it.
 
+- Run the power check BEFORE the expensive download, on DATE-CLUSTERED independent events and the
+  USABLE history. v0.35's H010 card computed power from 400-800 coin entries; the date-independent
+  count was 90-180 over the whole archive and about 21 in the usable window (open interest only
+  starts 2021-12 for every coin except BTC), so the minimum detectable edge was 3-5x the claim and
+  hours of downloads were spent on a card that could never be resolved. A market-wide move yields
+  many coin entries on one day: they are one sample, not many.
+- A file existing in the Binance archive does not mean the symbol was alive: for 146 delisted
+  symbols the archive keeps publishing zero-volume, frozen-price bars (and a constant 1 bp funding
+  rate) for years. Judge liveness from volume, and check no zombie rows enter a universe.
+- Never screen a download universe on a proxy (trade count instead of turnover) without checking
+  the worst-ranked coin the screen would drop: a rank-58 coin had trade-count rank 318. Download
+  unscreened, or screen on the real quantity.
+- Binance `metrics` (open interest) files change meaning inside the archive: a row stamp is the
+  END of the 5-minute snapshot before 2024-03-04 00:00 UTC and the START from then on. Measure the
+  stamp convention per era (e.g. against the 5m klines' taker ratio) and use the corrected
+  `snap_ts`. A feed outage then ramps OI up from near zero over 20-30 minutes, which looks exactly
+  like a flush if you read it raw; filter with a backward-looking `oi_ok`.
+- Check what a ticker is before excluding it by name: SPXUSDT is the SPX6900 meme coin, not the
+  S&P 500. Bybit's MT4 kline files are stamped UTC+3 all year; re-stamp before comparing.
+- A tail state that pays a premium can be one nobody can hedge: in 2026, 93 % of tail-funding
+  episodes were on coins with no spot market (only ~8 of 82 verdict-era episodes at 7 bp were
+  hedgeable on Binance). Count how much of a state is actually tradable as designed before
+  pre-registering it.

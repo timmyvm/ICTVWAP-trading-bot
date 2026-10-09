@@ -1,5 +1,71 @@
 # DEVLOG — Powell Trades Bot
 
+## v0.35-gate1 — Edge lab, first batch: both advancing cards shelved on testability (2026-10-10)
+
+No verdict era was opened, no pre-registration was registered, and no return or P&L was computed
+by any agent. Trials spent: 3 exploratory persistence cells (ledger: 71 total including the 68
+legacy). Data work ran on Opus; the scouts and the chair's screen ran earlier (v0.35-gate0).
+
+**H001, tail-funding cash-and-carry rotation: shelved as a hedged test; the explore-era mechanism
+holds but cannot be harvested today.**
+- Explore era (2020-09 to 2024-12), ranks 3-50, de-clustered at a 2 bp exit: 768 episodes at an
+  entry of 7 bp over 25 months (1,182 at 5 bp, 450 at 10 bp). The half-life of excess funding after
+  entry is over 21 days at 5 and 7 bp (bootstrap median 14.3 days at 7 bp; interval 3.1 to over 21
+  days) and 7.6 days at 10 bp (interval 2.9 to over 21): the card's falsifier 1 does not fire.
+- But 69 % of episodes are in 2021 and the top five months hold 54 %, so this describes one bull
+  market. Episodes by year at 7 bp: 2020: 112, 2021: 533, 2022: 0, 2023: 21, 2024: 102, 2025: 10,
+  2026: 72.
+- Verdict era (2025-01 on): 82 episodes at 7 bp, but only **8** have a Binance spot market to
+  hedge with (9 on Bybit). In 2026, 93 % of tail episodes are perp-only coins. With sd 150-300 bp
+  the minimum detectable edge on 8 episodes is 151-301 bp against a predicted net of 75 bp.
+- Bybit and Binance basis differ by 2-7 bp a day in tail states (hourly correlation 0.14-0.76), the
+  same size as the excess being harvested, and Bybit's archive has no funding history, so Binance
+  funding is a noisy proxy for what Bybit pays. Funding intervals of 4h/1h are 36 % of settlements
+  in 2024, 55 % in 2025, 64 % in 2026.
+- Reading: the premium is paid where it cannot be arbitraged, which is why it persists, and also
+  why a retail hedged position cannot take it. The unhedged version is a directional short (H002),
+  whose noise is ~15x the carry. Forward paper tracking is the only honest way to resolve it
+  (HANDOFF open thread 4).
+
+**H010, post-flush reversal: shelved, unresolvable with this data.**
+- Held: 10 symbols (BTC, ETH, SOL, XRP, DOGE, BNB, ADA, LINK, AVAX, DOT), 1h klines with taker
+  volume and 5-minute OI metrics. Not held: the other 222 symbols that were ever in ranks 3-40
+  (3-5 hours more download at the archive's ~10 files/s).
+- OI history starts 2021-12-01 for every symbol except BTC, so the alt explore era is about
+  2022-03 to 2024-12 (22.3 coin-years), not 2020-09.
+- Verdict era events (k = 3, q ~ 4 coin-days a coin-year, completion on): 15 coin-days on 5 dates
+  (10 on 2 dates on the long side). Minimum detectable edge at sd 800 bp: 1,017 bp (5 dates), 496 bp
+  (all 21 dates), 286 bp even if all 63 coin-days were independent, 144 bp for a hypothetical full
+  universe with 250 independent dates. 517 independent events are needed to resolve +100 bp.
+  The card's own 400-800 "entries" were not independent.
+- Data defects: the OI stamp convention changed at 2024-03-04 00:00 UTC (END to START of the
+  snapshot); outages ramp OI from near zero (looks like a flush); an OI flicker on 2024-06-22/23;
+  BTC files duplicated for 2020-09 to 2021-05; taker ratio missing 2021-12-31 to 2022-05-11; SOL
+  and XRP monthly 1h zips truncated on 2022-02-26..28 and 2022-04-01..02. OI exceeding traded
+  volume is rare (at most 0.23 % of hours per symbol-year).
+- A collapsing coin does not show an OI collapse (LUNA's coin-unit OI rose 86M to 256M as it died),
+  so the worst crashes fall in the placebo group, and the completion condition removed only 10-20 %
+  of events, not half. Bybit's SOL perp traded 8-13 % below Binance's at eight hourly closes in the
+  FTX week: the flush is exactly where the vendors disagree.
+
+**Process change (the lesson).** The power check should have preceded the downloads. It would have
+shelved H010 in minutes, since the card itself said date-independent events were 90-180. Gate 1 is
+now split: 1a power on date-clustered events and usable history before any download, 1b data and
+pre-registration. Edited `.claude/commands/edge-lab.md`, `.claude/agents/edge-statistician.md`,
+`docs/EDGE_LAB.md`, and six CLAUDE.md lessons added (power before download, zombie archive rows,
+proxy screening, OI stamp change, ticker names, untradable tail states).
+
+**What this says about the earlier 34 strategies.** The harness and the team reach, by a different
+route, the same place the ledger did: with about six years of data, thirteen basis points of cost
+and noise of several hundred bp per trade, a retail-sized edge below roughly 150-300 bp per
+independent event cannot be told from zero. Breakeven results are what that looks like.
+
+**Data now held locally (gitignored; rebuild commands are in the two reports):** universe_pit.csv
+(700 symbols, 2020-02 to 2026-09), funding for 418 symbols (756,648 settlements), spot coverage and
+perp-to-spot mapping (333 pairs), Bybit listing dates (848 perps), 1h klines and 5-minute OI for 10
+symbols. Fetchers: `backtest/fetch_edge_data_funding.py`, `backtest/fetch_edge_data_oi.py`
+(`pip install pytz` first). Reports: `research/data_reports/H001_carry_data.md`, `H010_flow_data.md`.
+
 ## v0.35-gate0 — Edge lab, first batch: scouts' cards and the chair's screen (2026-10-10)
 
 Three `mechanism-scout` runs (carry, forced-flow states, cross-sectional momentum), each blind to

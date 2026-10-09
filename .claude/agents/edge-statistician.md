@@ -18,6 +18,11 @@ Take the hypothesis card and the data report. With the card's predicted edge, th
 noise `sd_trade_bps` (estimate it from a *different*, non-verdict era or a similar instrument,
 or state it as an assumption), and the funnel count:
 
+- Count INDEPENDENT events, not entries: cluster by date (a market-wide move produces many
+  coin entries on one day) and use only the history the required data actually covers (check the
+  archive's start date for every field, e.g. open interest begins 2021-12 for all coins but BTC).
+  v0.35's H010 counted 400-800 coin entries as independent; the date-independent count was 90-180
+  in total and about 21 in the usable window, so the real minimum detectable edge was 3-5x higher.
 - `power.feasible(edge_bps, sd_bps, trades_per_year, years)` must say `ok`. If the verdict era
   cannot resolve the predicted edge, say so and recommend a longer horizon, a wider universe,
   or shelving. v0.31 lost two verdicts to trade count; do not repeat that.
