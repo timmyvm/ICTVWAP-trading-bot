@@ -421,6 +421,12 @@ Each script's module docstring holds the full rule and its DEVLOG pointer, and `
 flags. Most engines from v0.24 on have a `--selftest`, and the table lists each one's modes. Older
 ones take `--cache/--explore-end`-style arguments and default to the `local/` cache paths in §6.
 
+**Edge lab (v0.35).** `docs/EDGE_LAB.md` is the protocol for the chair + five-agent team
+(`/edge-lab <family|next>`, agents in `.claude/agents/`, artifacts in `research/`). The shared
+harness is `backtest/edge_lab/` (`python3 -m backtest.edge_lab.selftest`): `measure.py` (information
+test, nulls, hedged alpha, truncation guard), `power.py`, `ledger.py` (pre-registration check,
+one-shot holdout, total trial count, deflated Sharpe). Nothing has been run through it yet.
+
 **Current research engines (v0.22+).**
 
 | Script | What it does |

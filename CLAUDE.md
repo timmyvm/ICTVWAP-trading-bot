@@ -29,6 +29,8 @@ execution/
   risk.py        — Daily/weekly trade limits, re-entry logic, news blackouts
 main.py          — Main loop, ATR mode switching, position monitoring
 config.py        — All tuneable parameters (TESTING_MODE, ENTRY_MODE, etc.)
+backtest/edge_lab/ — shared measurement harness, trial ledger, one-shot holdout (docs/EDGE_LAB.md);
+                   `/edge-lab <family|next>` runs the chair + five-agent team (.claude/agents/, research/)
 backtest/        — research engines (one script per experiment), data fetchers, live_earnings/,
                    signal_audits/, reel_tools/; data_cache/local/ is gitignored (re-fetch: HANDOFF §6)
 docs/            — HANDOFF.md (start here), failure_path.md, ict/distilled_rules.md

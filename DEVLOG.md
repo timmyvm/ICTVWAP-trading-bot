@@ -1,5 +1,40 @@
 # DEVLOG — Powell Trades Bot
 
+## v0.35-infra — Edge lab: a chair and five agents, with a shared measurement harness (2026-10-10)
+
+The user asked for a team of agents (a chair plus five) to look for an edge, after 34 tested
+strategies with about twice as many variants all came back breakeven or negative, and for
+published strategies to be treated as likely duds because everyone trades them. Costs and fees
+must be fully counted; adverse selection is set aside for now.
+
+**What changed (infrastructure only; no strategy code, no result):**
+- **`backtest/edge_lab/` (new).** `measure.py` (drift-matched information test with the repo's
+  13 bp round-trip cost, week-clustered t, de-overlapped trades, hedged alpha, circular-shift
+  null, cross-sectional long-short, plateau score, `truncation_guard`); `power.py`;
+  `ledger.py` (append-only `ledger.jsonl`, pre-registration must be committed, pushed and
+  unmodified, one-shot holdout, `total_trials()` starting from 68 legacy tests, Bonferroni bar,
+  deflated Sharpe). `python3 -m backtest.edge_lab.selftest`: 8 tests, all pass. Checked by
+  mutation: a planted 30 bp edge is recovered as 30.5 bp (t 7.8); random signals give a 8.7 %
+  false-positive rate at |t| > 2 over 150 draws (expect ~5 %); a signal that peeks at the outcome
+  scores t = 61 in the information test, which is why `truncation_guard` is a separate mandatory
+  gate (its test catches shift(-1) lookahead and full-sample normalisation).
+- **`.claude/agents/` (new):** `mechanism-scout`, `data-engineer`, `quant-builder`,
+  `edge-auditor`, `edge-statistician`. **`.claude/commands/edge-lab.md`:** the chair protocol.
+  Subagents cannot start subagents, so the chair is the main session.
+- **`docs/EDGE_LAB.md` (new):** why the roles are split, the measurement battery, the gates, and a
+  starting backlog of six untested families. **`research/`:** hypotheses, prereg, audits, verdicts,
+  data_reports.
+- **Data reachability, checked 2026-10-10 from the cloud container:** the Bybit and Binance live
+  APIs are blocked (403 / 451). `data.binance.vision` and `public.bybit.com` work. Binance USDT-M
+  has `metrics` (open interest, long/short ratios, taker volume; 5 min, from 2020-09),
+  `premiumIndexKlines` and `fundingRate` (from 2020-01), `bookDepth` (from 2023-01). BTCUSDT
+  `liquidationSnapshot` is empty.
+
+**Limits.** The legacy trial count (68) is the user's estimate of 34 strategies doubled by
+variants; refine it from this DEVLOG. The harness assumes taker fills, so it cannot rank
+maker-based ideas. The ledger's checks are enforced by code but an agent can bypass them; the
+bypass would be visible in git. Nothing has been run through the team yet.
+
 ## docs — HANDOFF.md: everything a new session needs (2026-10-09)
 
 The user asked: "push all u know to docs. im starting a new session." Until now the project's working
