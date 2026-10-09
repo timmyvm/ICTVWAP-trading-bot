@@ -1,6 +1,47 @@
 # DEVLOG — Powell Trades Bot
 
-## v0.34-exp — "EMT / Exhaustion Mean Theory" (reel DeM8kyVCdKz) on NQ futures and BTC/ETH (2026-10-09) — PRE-REGISTERED
+## v0.34-exp — "EMT / Exhaustion Mean Theory" (reel DeM8kyVCdKz) on NQ futures and BTC/ETH (2026-10-09) — FAIL on both
+
+**Results.** `python3 backtest/emt_experiment.py --report`, run on the code as pre-registered in
+`0839386`. The log is `backtest/data_cache/local/v034_report.txt` (not committed).
+
+| primary, 2024-01 → data end | n | win | PF | mean net R | week-clustered t | verdict |
+|---|---|---|---|---|---|---|
+| NQ futures (to 2025-07-25) | 1,000 | 38.8% | 1.03 | +0.018 | +0.39 | **FAIL** |
+| BTC/ETH (to 2026-08-31) | 4,099 | 37.7% | 0.56 | −0.402 | −14.60 | **FAIL** |
+
+**Audit of the first run.** Every stop exit is exactly −1.00R. Target exits average +1.76R (median
++1.45R, minimum 0.00 where VWAP had drifted to the entry). All brackets are valid and every planned
+target lies beyond the entry.
+
+**NQ: no edge, and a reliable loser over the longer history.**
+- **Before 2024** (2015–2023): n 6,001, PF 0.87, −0.090R, t −4.45. 2015–2018 lose every year
+  (−0.11 to −0.22R); 2019–2024 are about zero; 2025 (Jan–Jul) is +0.077R (t 0.93).
+- **Costs are not the problem.** Futures are cheap (median 0.046R per trade), and gross 2024+ is only
+  PF 1.12 (+0.073R, t 1.59).
+- **The stretch adds nothing.**
+  - No stretch filter: 0.000R (n 2,667).
+  - 2.5σ: −0.007R. 3σ: −0.082R (n 95). ≥ 2 ATR from VWAP instead of bands: +0.013R.
+- **The VWAP target adds nothing.** A fixed 1.5R target gives +0.007R.
+- **Hours and sides don't matter.** RTH +0.011R, overnight +0.020R. Longs +0.082R (t 1.35), shorts
+  −0.051R.
+
+**BTC/ETH: a small gross signal that fees destroy.**
+- Gross: +0.064R (PF 1.11, t 2.48).
+- Costs: the stop sits a median 0.31% of price away, so a taker round trip costs 0.36R per trade.
+- Every year from 2020 to 2026 is between −0.29R and −0.51R net.
+
+**His "one rule" is real but small.** Entering on the exhaustion candle instead of waiting for the
+break: NQ −0.105R (t −2.5), BTC/ETH −0.637R. Waiting turns a loser into roughly breakeven on NQ, not
+into a winner.
+
+**Verdict.** EMT has no measurable edge on the market he trades (NQ). It is breakeven in 2024–25
+and significantly negative over 2015–2023. On crypto it loses to fees. The project still has no
+validated strategy.
+
+**Lesson (CLAUDE.md).** Measure "stretch from VWAP" in VWAP σ-band units, not ATR.
+
+### Pre-registration (verbatim, committed in `0839386` before any trade result)
 
 **Status: pre-registered.** The rules, costs and pass bar below are committed before any trade result
 is read.

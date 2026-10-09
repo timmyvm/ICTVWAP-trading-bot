@@ -277,3 +277,9 @@ config.py        — All tuneable parameters (TESTING_MODE, ENTRY_MODE, etc.)
   of jobs) would shrink every later jobs z towards zero for good. Check the qualifying-event counts
   by family (outcome-blind) to catch it.
 
+- Measure "stretched from VWAP" in the session's VWAP sigma bands, never in ATR multiples. Distance
+  from a session-anchored VWAP grows with time since the anchor, so the median NQ 5m bar is already
+  2.4 ATR(14) from VWAP and "2 ATR" is the typical state, not a stretch (v0.34-exp, found
+  outcome-blind before pre-registering). Check the indicator's unconditional distribution before
+  choosing any threshold on it.
+
