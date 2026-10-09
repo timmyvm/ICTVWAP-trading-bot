@@ -1,5 +1,40 @@
 # DEVLOG — Powell Trades Bot
 
+## v0.35-gate0 — Edge lab, first batch: scouts' cards and the chair's screen (2026-10-10)
+
+Three `mechanism-scout` runs (carry, forced-flow states, cross-sectional momentum), each blind to
+all data and results, wrote 7 cards to `research/hypotheses/`. No data was opened and no trial was
+spent (the ledger is unchanged at 68 legacy trials). Every predicted edge below is the scout's
+ASSUMPTION, flagged as such in its card; none is a measurement.
+
+| Card | Claim | Predicted gross | Scout's own power arithmetic | Chair decision |
+|---|---|---|---|---|
+| H001 | Long spot / short perp on alts whose trailing-24h funding is >= ~7 bp/8h, exit near 2 bp | ~110 bp per episode, cost 35 bp (spot leg is 0.10% a side), ratio 3.1 | ~150 independent episodes, MDE 34-69 bp vs predicted net 75: feasible at the low-noise end, because funding is a near-deterministic cash flow | **Advance.** Gate 1 kill: tail half-life under ~3 days (breakeven ~2.5), or under ~60 episodes |
+| H010 | After an alt's open interest collapses in a >=5% move and the collapse has stopped, the next 24h partly reverse | ~100 bp, claim for liquid alts only | 240-480 entries but 90-180 date-independent; MDE 79-112 bp vs predicted 100: marginal | **Advance** to a power check; shelve if the verdict era cannot resolve it |
+| H012 | On broad-drop days, long flushed / short unflushed alts | ~100 bp spread, ratio 3.8 | 90-200 decision days, MDE ~126 bp | **Folded into H010** as its placebo comparison (same mechanism, correlated trial) |
+| H002 | Perp-vs-perp relative funding pairs | ~80 bp per pair | needs ~1,760 independent pairs, has 180-360: "FAIL or UNRESOLVED, never PASS" | **Shelved** (untestable) |
+| H011 | Fade crowded leverage before the unwind | ~50 bp + 30 bp funding | MDE ~200 bp vs 50 | **Shelved** (under-powered by construction) |
+| H020 | 14-day residual momentum, top-40 perps, dollar neutral | ~55 bp, below the ~80 bp bar | MDE ~105 bp; ~30% power even if right; scout's own odds ~1 in 10 | **Shelved.** Tradable-universe literature is null (Arefev 2026 preprint, Han-Kang-Ryu) |
+| H021 | Same, restricted to continuous-information coins | ~80 bp | MDE ~137 bp | **Shelved** (same) |
+
+Findings that change the next gates:
+- **Funding is censored.** Binance and Bybit both set F = 1 bp whenever the 8h premium is between
+  -4 and +6 bp, so a rank sort over the whole universe compares mostly ties. The paid carry exists
+  only in the tails; the premium index is the informative continuous state.
+- **H001's spot leg costs 0.10% a side** at Bybit VIP0, so its ratio is 3.1, not the ~8 the perp leg
+  alone would suggest. Its portfolio-level yield lands near 12-15%/yr, around the user's hurdle,
+  not clearly above it.
+- **Open interest is symmetric** (every long has a short), so which side was liquidated is inferred
+  from price direction. That inference is the weakest link in H010. OI is also reported to
+  exceed traded volume at times on Binance (Giagkiozis and Said, 2024), so it is noisy.
+- **Funding intervals vary** (8h, 4h, 1h per symbol and period); per-8h-equivalent rates are needed.
+- The flat 13 bp cost is a BTC-grade number. Alt costs after a flush are several times wider.
+- Sign trap for H001: positive funding is RECEIVED by the short perp; the engine needs a mutation
+  test that flips it.
+
+Eras proposed for both advancing cards: explore 2020-09 to 2024-12, verdict 2025-01 to data end.
+Data engineers report coverage and outcome-blind counts only; nothing in the verdict era is read.
+
 ## v0.35-infra — Edge lab: a chair and five agents, with a shared measurement harness (2026-10-10)
 
 The user asked for a team of agents (a chair plus five) to look for an edge, after 34 tested
