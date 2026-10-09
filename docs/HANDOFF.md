@@ -1,8 +1,9 @@
 # HANDOFF: read this first
 
 Everything the previous sessions knew, written down for the next one. Last updated **2026-10-09**,
-at the end of the session that ran v0.22 → v0.34. Every fact here can also be found in `DEVLOG.md`
-(newest first, full detail) or `CLAUDE.md` (rules and lessons). This file is the map.
+at the end of the long session that ran v0.16d → v0.34. Everything here is also in `DEVLOG.md`
+(newest first, full detail) or `CLAUDE.md` (rules and lessons). Three things live only here: the chat
+answers (§5), the data re-fetch commands (§6) and the environment notes (§10). This file is the map.
 
 Reading order for a new session:
 1. `CLAUDE.md`, which loads automatically: its rules and lessons are binding.
@@ -16,8 +17,9 @@ Reading order for a new session:
 - **What the repo is.** It started as an ICT/VWAP trading bot for Bybit (`main.py`, `strategy/`,
   `execution/`). Since August 2026 it has mostly been a **pre-registered research pipeline**. It tests
   the user's trading ideas against the one thing that matters: the user's real alternative, an
-  **80/20 VGS/VAS ETF holding** that returned **+13.8 %/yr in AUD**. Short-term trading gains lose the
-  50 % CGT discount, so the **pre-tax hurdle is ~14-15 %/yr**.
+  **80/20 VGS/VAS ETF holding**. In AUD it returned **+12.1 %/yr over 2015-2026** and **+13.8 %/yr
+  over 2021-Q1 → 2026-Q3** (v0.26-b). Short-term trading gains lose the 50 % CGT discount, so the
+  **pre-tax hurdle is ~14-15 %/yr**.
 - **What the ideas were.** Instagram reels, a friend's method, Telegram signal channels, news,
   earnings, and websites selling bots.
 - **The result.** 34 versions in, **no trading signal has passed**. Every directional strategy failed
@@ -71,12 +73,14 @@ python3 backtest/live_earnings_reader.py --selftest
   the index is normal (SPIVA: ~84 % of large-cap managers over 10 years, ~90 % over 15); they lost
   no money; and they can now test anything a reel claims. Be honest and constructive. Never inflate
   a result to cheer them up.
-- **Recurring hopes.**
-  - "just remove what isn't working and rerun" (answer: hindsight selection; see the v0.26 lesson);
-  - "combine the best parts of the failed strategies";
-  - "it's simple, it works, what am I missing";
-  - "people back this with such confidence, there must be some truth".
-  - Each has a DEVLOG answer: v0.10i, v0.22 D2/D3, v0.26, v0.27.
+- **Recurring hopes, and where the DEVLOG answers each:**
+  - "just remove what isn't working and rerun": hindsight selection, v0.26-diag and its CLAUDE.md
+    lesson;
+  - "combine it with all the best parts of the failed strategy": v0.25-diag;
+  - "it's simple, it works, what am I missing" (about the ORB "hidden gem"): the era, v0.16d;
+  - "people back this with such confidence, there must be some truth": the v0.22 D2/D3 information
+    test, later withdrawn by v0.30;
+  - "news is so predictable": v0.27 and v0.32, where the move is priced before you can trade.
 
 ### Standing rules from the user and the environment
 
@@ -168,7 +172,17 @@ artifact. Numbers are net of costs unless marked gross. R = multiples of the sto
 | v0.33-audit · 10-07 | **TSA Telegram gold signals** (the user's private channel, read through 2 public mirrors). 674 signals from Jan-Oct 2026 replayed on real bid/ask, following every "move SL / close" message. | Win rate real, **loses** | TP1 (as advertised): 86 % win, PF 0.80, t −2.2. TP4: 60 %, PF 1.13, t 0.8, against a 57 % random null. A quarter off at each TP: PF 0.99. At a $0.30 spread: 0.90 / 1.18 / 1.07. | `signal_audit.py`, `fetch_tg_channel.py` |
 | v0.32-exp · 10-07 | **ForexFactory surprises** (user idea). EURUSD traded in the surprise direction from release +1 min to +60 min, \|S\| ≥ 1. | **FAIL** | Holdout 2021-25: n 132, +1.09 bp, t 0.60, hit 49.2 %. The first-minute reaction is t 7-12, so the news is priced before a retail fill. | `ff_surprise_test.py`, `fetch_ff_calendar.py` |
 | v0.31-exp · 10-07 | **(B) gold-vs-DXY reel** (itstomtrades): a DXY 2σ push that gold ignores, then trade gold on the DXY pullback; M1, 2R. **(A) The friend's SMT + IFVG**: H4 → M15 on BTC/ETH and NQ/ES. | **FAIL** ×3 | Gold: n 1,719, PF 0.60, −0.319R, t −9.07, and PF 0.94 even at zero cost. BTC/ETH: n 37, PF 0.73. NQ/ES: n 28, PF 0.98. Both pairs fall under the n 60 bar at about 10 setups a year. | `divergence_experiment.py` |
-| v0.22 → v0.30 · 09-14 → 10-06 | The user's S/D strategy and its follow-ups (v0.22-v0.26), the blind headline test (v0.27), earnings drift (v0.28), the live routine (v0.29), and the lookahead audit (v0.30). | see DEVLOG | Summary in §1 (v0.28 is the closest to real; v0.23 and v0.26 were withdrawn by v0.30). Rows are being added. | see DEVLOG |
+| v0.30-audit · 10-06 | **Lookahead audit of the S/D engine.** 4H/30m bars were matched by OPEN time, so 97.9 % of 5m decisions read a still-forming 4H bar. Fixed with `closed_htf_index` plus an assert, then v0.22-D2, v0.23, v0.25 and v0.26 were re-run unchanged against their original bars. | **audit: v0.23 PASS and v0.26 "skill" WITHDRAWN** | v0.23 T1 24 h: +$26,547 (5/6 coins, PF 1.085) became +$11,581 (3/6, PF 1.036, −$1,316 at 1.5× costs). v0.26: always-on +29.6 % became −1.3 %, and selection beats only 93.6 % of random picks (p 0.064). D2: significant cells fell from 16/32 to 3/32. In AUD the strategy is +5.4 %/yr against the 80/20's +13.8 %. Cost sweep: even maker fills on both legs give ≈ 8 %/yr per coin. | `v030_audit.py`, `sd_vwap_experiment.py` |
+| v0.29-live · 10-05 | **Live earnings reading** with the user's 70/90 rule (§7) | live, pre-registered | 3 calls so far, all below 0.70, so no trades. Evaluation starts at ≥ 100 gated trades. | `live_earnings_reader.py` |
+| v0.28-exp · 10-05 | **Post-earnings drift plus the user's confidence gate** (user idea). Long the top surprise quintile from the day +2 open for 20 sessions; a logistic gate trades at ≥ 70 % / ≥ 90 %. US stocks 2014-26, holdout 2022-01 → 2026-08. | **FAIL** (t 1.96 vs 2.0); the gate never trades | +0.484 % over 20 days, t 1.964 (5,403 events). Against SPY: +0.318 % (t 1.00); SPY-hedged: +0.098 %/trade. The honest P(up) never exceeded 0.612, so the gate made 0 trades. The long sleeve's +13.2 %/yr came with 91 % average exposure (SPY: +12.2 %). | `pead_drift_test.py` |
+| v0.27-exp · 10-04 | **Blind headline test** (user idea): read 20 earnings releases without prices and call the next-session move | **FAIL** by one call | 14/20 against a bar of 15 (p 0.058); Brier 0.199. From the next open: 9/20, because a median 77 % of the move was already in the opening gap. | `headline_blind_test.py` |
+| v0.26-b · 10-04 | **The real hurdle**: the user's 80/20 VGS/VAS, in AUD | benchmark | 80/20: +12.1 %/yr over 2015-26 (maxDD −17.1 %), +13.8 %/yr over 2021-Q1 → 2026-Q3. The S&P 500 in AUD: +15.0 / +16.7 %. The after-tax hurdle for trading profits is ≈ 14-15 %/yr pre-tax. | `benchmark_portfolio.py` |
+| v0.26-a · 10-04 | The v0.23 candidate against the S&P 500 | benchmark, corrected by v0.30 | S&P +14.7 %/yr. Strategy published at +8.9 %/yr, corrected to +3.7 %/yr. | `benchmark_sp500.py` |
+| v0.26-diag · 10-04 | **"Just remove what isn't working and rerun"** (user). Walk-forward coin selection using only trades already closed. | PASS at the time, **withdrawn by v0.30** | Dropping the losers in hindsight gives +56 % per coin and proves nothing. The mechanical rule beat 97.1 % of random picks, 93.6 % after the fix. | `coin_selection_walkforward.py` |
+| v0.25-diag · 10-04 | **"Combine it with the best parts of the failed strategy"** (user): a settlement-timing overlay on the v0.23 harvest | diagnostic; its base was withdrawn | About 4-7 bp per deferred trade; best paired t 1.84. | `horizon_harvest.py --overlays` |
+| v0.24-exp · 10-04 | **Funding-settlement flow**, a reason-first idea (from an IG reel on how quants find ideas): pre-settlement returns should oppose the funding sign | **FAIL**, killed by cost | The primary (`f_prev`) peaked at t −1.70. The effect is 1-5 bp against a 13 bp round trip. | `funding_settlement_test.py` |
+| v0.23-exp · 09-15 | **Horizon harvest** of the v0.22 entry: hold 4, 12 or 24 h; holdout on 6 alt perps | 24 h PASS, **withdrawn by v0.30** | Published T1 24 h: +$26,547, 5/6 coins, PF 1.085. Corrected: +$11,581, 3/6, PF 1.036. | `horizon_harvest.py` |
+| v0.22-exp · 09-14 | **The user's S/D rule**: 4H bias, an opposite 30m pullback into a supply/demand zone, a 5m structure shift, target VWAP. BTC and ETH. | **FAIL** everywhere | PF 0.59 / 0.31 / 0.62; 0 of 17 years positive. The VWAP target was unwinnable for 14-30 % of trades, and D1 (a 2R target) loses too. The D2/D3 "information" was withdrawn by v0.30 (1 h excess +0.053 % → +0.001 %). | `sd_vwap_experiment.py`, `sd_signal_information.py` |
 | v0.21 · 09-13 | Paper brackets resolve on the 1m price path instead of one mark per 60 s (user: "fix it all") | infra | The point check had missed 6-10 % of stop touches, flattering paper results by $486-2,188 per $10k. | `scripts/verify_exit_resolution.py` |
 | v0.20-diag · 09-13 | The live exit detector against the backtest's, same entries | diagnostic | Live vs backtest: −$928 to −$2,669 per $10k over 4-8 years. Recommendation C was withdrawn by v0.21: the exchange holds the bracket. | `exit_detector_audit.py` |
 | v0.16d-exp · 09-12 | ORB ATR cell on the fresh era 2020-06 → 2026-08, plus one refinement (a 10 % ATR stop) | **FAIL**; the ORB family is closed | Fresh era: n 1,537, PF 0.90, −$4,830, 1 of 5 years positive. Two-vendor gate on the same 320 trades: Oanda PF 1.42 vs Dukascopy PF 1.23. | `orb_paper_experiment.py`, `duka_overlap_check.py` |
@@ -365,8 +379,8 @@ on disk now. Rebuild one before re-running its script, then reproduce a publishe
   - mean net return > 0 with t ≥ 2.0, clustered by week;
   - the ≥ 0.70 bucket must hit ≥ 60 %, or the reading is declared overconfident;
   - the reader is compared against `model.json` on the same events.
-- **Results.** The script scores calls and paper trades into `predictions.jsonl`, `ledger.csv` and
-  `results.md`.
+- **Results.** Every call goes to `predictions.jsonl`. Paper trades go to `ledger.csv` and scores to
+  `results.md`. Neither of those two files exists yet, because no call has reached 0.70.
 - **Trigger.** `trig_019f4HV3kS8g9NvP2tpPuoCB`, "Live earnings reader (v0.29-live)". Cron
   `CRON_TZ=America/New_York 54 17 * * 1-5`. A fresh session per fire on the account's default model.
   It works only on the branch and never edits code, RUBRIC.md, CLAUDE.md or DEVLOG.md.
