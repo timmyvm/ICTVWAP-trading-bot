@@ -20,17 +20,34 @@ Reading order for a new session:
   50 % CGT discount, so the **pre-tax hurdle is ~14-15 %/yr**.
 - **What the ideas were.** Instagram reels, a friend's method, Telegram signal channels, news,
   earnings, and websites selling bots.
-- **The result.** 34 versions in, **nothing has passed**. Every strategy failed its pre-registered
-  bar or was withdrawn after an engine audit.
+- **The result.** 34 versions in, **no trading signal has passed**. Every directional strategy failed
+  its pre-registered bar or was withdrawn after an engine audit.
   - The closest to real is **v0.28 post-earnings drift**: +0.48 % over 20 days, t 1.96 against a
     bar of 2.0. As a traded overlay it was mostly market exposure.
   - The previous best, the v0.23 "holdout pass", was a forming-bar lookahead and was withdrawn in
     v0.30-audit.
+  - **One non-directional exception.** v0.18 **funding carry** (long spot, short the same coin's
+    perp, collect funding) passed its pre-registered bar on plain BTC and ETH: +11.6 / +13.6 %/yr on
+    notional, maxDD ~2 %. Realistically that is ~10-14 %/yr on capital, still under the hurdle. Its
+    risk is the exchange failing (FTX), which no backtest shows. It was never built: it needs spot
+    and perp legs plus margin management.
 - **One thing runs unattended:** the **v0.29-live earnings routine**, weekdays at 17:54 New York
   time (§7). **It has never pushed a commit.** It missed its only real event (Constellation Brands,
   STZ, due on the 2026-10-07 run). Check it first; see §7.
 - **Git:** branch `claude/profitability-issues-backtest-5urpdh` and `main` are identical. Develop on
   the branch, push, then fast-forward `main` (standing authorization from the user).
+
+**First minutes of a new session:**
+
+```bash
+git fetch origin claude/profitability-issues-backtest-5urpdh main && git log --oneline -8 FETCH_HEAD
+pip install -q -r requirements.txt requests histdata pyarrow   # the bot's deps + research extras
+# 1. did the earnings routine record anything? (§7)
+git log --oneline -5 origin/claude/profitability-issues-backtest-5urpdh -- backtest/live_earnings
+python3 backtest/live_earnings_reader.py --selftest
+# 2. nothing under backtest/data_cache/local/ survives a container reset:
+#    re-fetch only what the next task needs (§6)
+```
 
 ---
 
@@ -142,7 +159,69 @@ and v0.26 were all withdrawn after the fact.
 
 ## 4. Experiment ledger (v0.1 → v0.34)
 
-<!-- LEDGER -->
+Newest first, as in DEVLOG. "Withdrawn" means a later engine audit showed the result was an
+artifact. Numbers are net of costs unless marked gross. R = multiples of the stop distance.
+
+| Version · date | What was tested (source) | Verdict | Key numbers | Script |
+|---|---|---|---|---|
+| v0.34-exp · 10-09 | **EMT "Exhaustion Mean Theory"** (reel, Cody G). 5m: price stretched beyond the VWAP 2σ band and ≥1 ATR from the 9 EMA, an exhaustion wick, entry on the next candle's break, stop beyond the wick, target VWAP. NQ futures and BTC/ETH. | **FAIL** both | NQ 2024+: n 1,000, PF 1.03, +0.018R, t 0.39. NQ 2015-23: PF 0.87, t −4.45. BTC/ETH: n 4,099, PF 0.56, −0.402R; a gross +0.064R (t 2.48) eaten by 0.36R of fees. | `emt_experiment.py` |
+| v0.33-audit · 10-07 | **TSA Telegram gold signals** (the user's private channel, read through 2 public mirrors). 674 signals from Jan-Oct 2026 replayed on real bid/ask, following every "move SL / close" message. | Win rate real, **loses** | TP1 (as advertised): 86 % win, PF 0.80, t −2.2. TP4: 60 %, PF 1.13, t 0.8, against a 57 % random null. A quarter off at each TP: PF 0.99. At a $0.30 spread: 0.90 / 1.18 / 1.07. | `signal_audit.py`, `fetch_tg_channel.py` |
+| v0.32-exp · 10-07 | **ForexFactory surprises** (user idea). EURUSD traded in the surprise direction from release +1 min to +60 min, \|S\| ≥ 1. | **FAIL** | Holdout 2021-25: n 132, +1.09 bp, t 0.60, hit 49.2 %. The first-minute reaction is t 7-12, so the news is priced before a retail fill. | `ff_surprise_test.py`, `fetch_ff_calendar.py` |
+| v0.31-exp · 10-07 | **(B) gold-vs-DXY reel** (itstomtrades): a DXY 2σ push that gold ignores, then trade gold on the DXY pullback; M1, 2R. **(A) The friend's SMT + IFVG**: H4 → M15 on BTC/ETH and NQ/ES. | **FAIL** ×3 | Gold: n 1,719, PF 0.60, −0.319R, t −9.07, and PF 0.94 even at zero cost. BTC/ETH: n 37, PF 0.73. NQ/ES: n 28, PF 0.98. Both pairs fall under the n 60 bar at about 10 setups a year. | `divergence_experiment.py` |
+| v0.22 → v0.30 · 09-14 → 10-06 | The user's S/D strategy and its follow-ups (v0.22-v0.26), the blind headline test (v0.27), earnings drift (v0.28), the live routine (v0.29), and the lookahead audit (v0.30). | see DEVLOG | Summary in §1 (v0.28 is the closest to real; v0.23 and v0.26 were withdrawn by v0.30). Rows are being added. | see DEVLOG |
+| v0.21 · 09-13 | Paper brackets resolve on the 1m price path instead of one mark per 60 s (user: "fix it all") | infra | The point check had missed 6-10 % of stop touches, flattering paper results by $486-2,188 per $10k. | `scripts/verify_exit_resolution.py` |
+| v0.20-diag · 09-13 | The live exit detector against the backtest's, same entries | diagnostic | Live vs backtest: −$928 to −$2,669 per $10k over 4-8 years. Recommendation C was withdrawn by v0.21: the exchange holds the bracket. | `exit_detector_audit.py` |
+| v0.16d-exp · 09-12 | ORB ATR cell on the fresh era 2020-06 → 2026-08, plus one refinement (a 10 % ATR stop) | **FAIL**; the ORB family is closed | Fresh era: n 1,537, PF 0.90, −$4,830, 1 of 5 years positive. Two-vendor gate on the same 320 trades: Oanda PF 1.42 vs Dukascopy PF 1.23. | `orb_paper_experiment.py`, `duka_overlap_check.py` |
+| v0.10i-a · 09-12 | "$10k for one year" table for the EMA bracket | diagnostic | With realistic re-entry: BTC −$833/yr (2 of 7 years positive), ETH +$669/yr. | `ema_bracket_yearly.py` |
+| v0.19-exp · 09-12 | **QuantLab reel**: first 5-min candle vs the 12 EMA, EMA trailing stop; NAS100 | **FAIL** (2× cost stress) | At 1× costs the holdout PF was 1.19, all of it from 2019. At 2× costs PF was 0.87 / 0.96. The reel claimed 57 % wins and PF 1.29; the test got 30 %. | `ema12_open_experiment.py` |
+| v0.18-exp · 09-12 | **Funding carry**: long spot, short the same coin's perp | **PASS** for plain BTC and ETH; the timed and 3× variants FAIL | Plain BTC +11.6 %/yr, maxDD 2.3 %. Plain ETH +13.6 %/yr, maxDD 1.8 %. Never built. | `funding_carry_experiment.py` |
+| v0.10i · 09-12 | Re-entry semantics audit of the v0.10c reference engine | **audit: v0.10c WITHDRAWN** | BTC 2019-22 went from 58.0 % / PF 1.18 / Sharpe 1.68 to 52.7 % / 0.99 / 0.01 under realistic re-entry. The same collapse appears in all 7 datasets. | `reentry_audit.py` |
+| v0.10g, v0.10h · 09-12 | The reversed rule; streak conditioning; a cooldown after each loss (Rule A) | diagnostic; v0.10h withdrawn | The "32 % after a loss" streak effect was the same artifact. | `bracket_experiment.py` |
+| Paper run · 09-12 | Week-1 audit of the VPS paper run | diagnostic | 8 closed, 1 win, −6.6 %, consistent with an artifact-free ~52 %. | `scripts/audit_paper_vs_rule.py` |
+| v0.10f, v0.10e, v0.10d · 09-08 → 12 | Bracket validation on ETH, with real funding, and across NAS100/XAU/WTICO/SPX500 | PASS at the time, **withdrawn by v0.10i** | "The effect travels" (PF 1.09-1.23 in every market) was the engine's signature. | `bracket_experiment.py` |
+| docs · 09-12 | `docs/failure_path.md`: why every reel strategy dies | docs | Location ≠ information, and stops below the cost floor. Its "survivor" section was withdrawn by v0.10i. | — |
+| v0.17-exp · 09-12 | **IG reel**: fixed-range volume-profile POC pullback; BTC 1H | **FAIL**, and not because of costs | Explore: n 337, PF 0.78. Holdout: n 455, PF 0.86. | `volume_profile_experiment.py` |
+| v0.16c · 09-12 | ORB ATR cell at 2-4× costs | **FAIL** at 2× | Holdout PF 1.44 at 1×, 1.14 at 2×, 0.90 at 3×. Explore turns negative at 2×. | `orb_paper_experiment.py` |
+| v0.16b-exp · 09-12 | **Published ORB** (Zarattini & Aziz 2023), both cells; NAS100 1m | A FAIL; B passed the holdout, later retired (v0.16c/d) | B holdout: n 567, PF 1.44, +$14,100. | `orb_paper_experiment.py` |
+| v0.16-exp · 09-12 | **IG reel**: first-candle-range breakout + retest, 1:3; NAS100 1m | **FAIL** | Explore: n 341, 23.2 % wins against a 25 % null, PF 0.67. Costs were 0.72R per trade. | `fcr_retest_experiment.py` |
+| v0.13b-d · 09-07 → 10 | VPS deployment, multi-symbol paper trading, web dashboard | infra | — | `deploy/`, `scripts/` |
+| v0.15-exp · 09-07 | **ComLucro** 2/3-candle liquidity-grab reversal (YouTube); BTC 1H | **FAIL** | Explore: n 831, PF 0.74. Holdout: n 778, PF 0.85. Every hit rate sits on its random-walk null. | `three_candle_grab_experiment.py` |
+| v0.14-exp, v0.14b · 09-07 | **"Wake up at 9am NY" reel**: Asia/London sweep → 1m FVG, 1:2; v0.14b uses the reactor's DOL targets. NAS100 1m. | **FAIL** | n 2,350, 32.0 / 32.6 % wins against a 33.3 % null, PF 0.78 / 0.80. v0.14b: PF 0.88. | `session_sweep_experiment.py` |
+| v0.13 · 09-03 | v0.10c wired into the bot as the paper strategy (`STRATEGY=ema_bracket`) | infra | Parity 85/85 against the reference. | `strategy/ema_bracket.py`, `parity_ema_live.py` |
+| v0.12 → v0.12e · 09-02/03 | **The user's FVG-wick 0.3:1** on gold 5m; the "80 % IRL" reading; session filters; the 8am AEST open | **FAIL** in every reading | v0.12: 20.8 % wins against a 23.1 % breakeven. v0.12c: 57.8-59.2 % wins at PF 0.36. Best session: 62.7 % against a 79.9 % breakeven. −100 % everywhere. | `fvg_wick_experiment.py` |
+| v0.10c · 09-01 | 3×ATR symmetric bracket after the 1H close is ≥1 ATR from EMA200; BTC | PASS → **withdrawn (v0.10i)** | Claimed: 1,508 trades, 58.0 %, +$36,925, Sharpe 1.68. Artifact-free: ~52 %, PF ~1.0. | `bracket_experiment.py` |
+| v0.11 · 09-01 | Diversified daily time-series momentum (from the literature) | **FAIL** | Holdout Sharpe −0.21. | `trend_portfolio.py` |
+| v0.10b · 09-01 | The EMA-distance rule on XAU / WTICO / SPX500 | mixed. WTICO trend was parked, never killed | WTICO holdout PF 1.33-1.47, maxDD 33-36 %. Needs post-2020, roll-aware data. | `ema_experiment.py` |
+| v0.10-exp · 08-18 | **The user's 1H EMA200-distance** trend/revert rule; BTC and NAS100 | **FAIL** | BTC explore PF 1.31-1.44, holdout 0.83-0.90. | `ema_experiment.py` |
+| v0.9 · 08-17 | The ICT rejection-block family on its home instrument, NAS100 1m 2015-20 | **FAIL**; the ICT family is concluded | Clean: n 43, 30.2 % wins, PF 0.72. | `run_backtest.py` |
+| v0.8 · 07-22 | v0.3 and v0.3+FVG over 3.55 years of BTC | **FAIL**, shelved | 118 trades, −49.6 %; 53 trades, −31.9 %. | `run_backtest.py` |
+| v0.5 → v0.7.2 · 07-22 | ICT 2022 mentorship packs: D1 anchor + M15 MSS, R1-R3, the 2022-model FVG entry | **FAIL** | 7-14 trades per 180 days, PF 0.26-0.87. | `run_backtest.py` |
+| v0.4 → v0.4.2 · 07-21/22 | Trend gate and fee-aware TP floor | **FAIL**, reverted | — | `run_backtest.py` |
+| v0.3 · 07-21 | Rulebook-faithful execution model | baseline | 180 days: 22 trades, PF 0.71, −5.6 %. v0.8 showed this was regime luck. | `run_backtest.py` |
+| v0.2 · 07-21 | The 16-bug audit of the original bot | infra | The original ICT logic could never fire. | — |
+| v0.1 | The original Powell Trades bot | **FAIL** | −45.1 % over 60 days. | — |
+
+### What the ledger teaches (the short version)
+
+1. **Location is not information.** Entries at a drawn level (FVG, sweep, POC, first-candle range,
+   SMT) win at exactly the random-walk rate for their bracket (stop/(stop+target)). See v0.14-v0.17,
+   v0.31 and `docs/failure_path.md`.
+2. **The tight-stop cost law.** A stop or target below the cost floor kills a strategy whatever the
+   signal: v0.12, v0.16, v0.16c, v0.31 NQ/ES, v0.34 crypto. Always report cost as a share of R.
+3. **The best numbers were engine artifacts:**
+   - v0.10c: same-bar re-entry filled at a stale open;
+   - v0.23 and v0.26: the forming higher-timeframe bar;
+   - v0.16: a target with a flipped sign;
+   - v0.9: a fill through a gap.
+   A result that is uniformly strong across unrelated markets is a reason to audit the engine.
+4. **The era is the variable.** ORB and v0.19 lived in 2015-2020 and in single years; both died
+   after 2020. Test the freshest untouched data first.
+5. **News is priced in under a minute.** Reactions are huge (t 7-12), and what follows from a
+   tradable price is a coin flip (v0.27, v0.32).
+6. **Data can carry the result.** The same 320 ORB trades scored PF 1.42 on Oanda and 1.23 on
+   Dukascopy. Calendars and vendor clocks lie until checked (v0.16d, v0.32).
+7. **Marketing math.** Compounding a thin edge at high risk produces "+500 %" (QuantLab). A TP1
+   win rate sells while the account bleeds (TSA).
 
 ---
 
@@ -157,9 +236,16 @@ These were research answers, not experiments. The user may refer back to them.
   - Buffett's $1M index-vs-hedge-funds bet.
   - The bar for any paid strategy: full rules disclosed, audited live broker statements, results from
     after the sale started, and ~15 %/yr pre-tax.
-- **QuantLab (quantlab-ai.com) and "+500 %".** The same PF and win rate can be sold as +500 % by
-  compounding a backtest at a high risk setting. The money comes from roughly €75 subscriptions and
-  broker referral deals.
+- **QuantLab (quantlab-ai.com) and "+500 %"** (2026-10-06). It is all backtest, with no verified
+  live record.
+  - Their NAS100 bot's +506 % (2019-26) at PF 1.24 and 56 % wins is about 0.1R per trade,
+    compounded over ~1,780 trades at 1 % risk. That works out to ~26 %/yr with a −27 % drawdown, and
+    it was reproduced.
+  - The headline is a risk setting: +150 % at 0.5 % risk, +2,900 % at 2 %.
+  - It is fragile: a live PF of 1.10 gives +103 %, and 1.00 gives −7 %. That is what happened to
+    the ORB.
+  - Income: a €75/month subscription plus a broker partnership (Vantage) that pays on client volume.
+    Only the 3 bots that tested well are shown.
 - **"Should I sell like him if I succeed?"** Sell honestly or not at all.
   - Selling crowds the edge, and a prop firm is often the better route.
   - In Australia, signals or bots for derivatives very likely need an AFSL.
@@ -242,9 +328,25 @@ the earnings calendar and Yahoo. Only these are committed:
 | VGS/VAS/IVV benchmark series, FRED SP500 | `benchmark/`, `sp500_fred.csv` | `backtest/benchmark_portfolio.py`, `backtest/benchmark_sp500.py` | AUD, distributions reinvested. |
 | Telegram TSA mirrors (@tradesmartacademy, @tsafreetrades) | `tg/*_messages.csv`, `tg_raw/` | `python3 backtest/fetch_tg_channel.py <channel> --out backtest/data_cache/local/tg/<channel>_messages.csv` | Public preview only. Gaps in message ids are deletions or service messages, counted in the summary. |
 
-The old bot's own data (Bybit klines via `pybit`) needs exchange API access and is fetched by
-`run_backtest.py --refresh-data`. Other caches named in older DEVLOG entries (Oanda NAS100, Binance
-1m ETH, etc.) were lost in earlier container resets. Each entry names its source.
+**Older caches that the pre-v0.22 scripts expect** were lost in earlier container resets and are not
+on disk now. Rebuild one before re-running its script, then reproduce a published number first.
+- `btcusd_1m_2019_2022.csv.gz` and `btcusd_1m_2023_2026.csv.gz` (v0.10c, v0.15, v0.17, v0.20, v0.22):
+  Bitstamp spot BTC/USD 1m.
+  - The exact download source was never written down. The committed `btcusd_1m.csv.gz` is the same
+    vendor for a 180-day window.
+  - Binance spot (`fetch_binance_archive.py klines --symbol BTCUSDT`) is a substitute from a
+    different vendor, so expect small differences.
+- `ethusd_1m_2017_2026.csv.gz`:
+  `python3 backtest/fetch_binance_archive.py klines --symbol ETHUSDT --start 2017-08 --end 2026-08 --out backtest/data_cache/local/ethusd_1m_2017_2026.csv.gz`.
+- `nas100_1m_2015_2020.csv.gz` (v0.9, v0.14, v0.16, v0.19), `xau_5m_2006_2020.csv.gz` (v0.12), and
+  the ~17-instrument daily panel (v0.11, under `local/daily/`): Oanda data from the GitHub archive
+  FutureSharks/financial-data.
+  - The UTC stamps were verified through the DST drift of the 09:30 ET volume spike, with about
+    89 % minute coverage.
+  - HistData/Dukascopy NSXUSD is the documented alternative for NAS100 (the v0.16d two-vendor
+    check).
+- The old bot's own data (Bybit klines via `pybit`) needs exchange API access:
+  `run_backtest.py --refresh-data`.
 
 ---
 
@@ -255,6 +357,14 @@ The old bot's own data (Bybit klines via `pybit`) needs exchange API access and 
   confidence for each company, following `backtest/live_earnings/RUBRIC.md`.
 - **Paper trades.** Calls at **≥ 0.70** open a paper trade at 1 % of the portfolio; **≥ 0.90**
   opens one at 2 %. This is the user's 70/90 rule, and 0.50 means no view.
+  - Entry at the first session's open after T; exit at the 20th session's close.
+  - Costs: 0.10 % per side, plus 3 %/yr financing on DOWN calls.
+  - The v0.28 anchor in RUBRIC.md: the numbers alone justify about 0.60 at most, so trades should
+    be rare.
+- **Pre-registered evaluation, once there are ≥ 100 gated trades:**
+  - mean net return > 0 with t ≥ 2.0, clustered by week;
+  - the ≥ 0.70 bucket must hit ≥ 60 %, or the reading is declared overconfident;
+  - the reader is compared against `model.json` on the same events.
 - **Results.** The script scores calls and paper trades into `predictions.jsonl`, `ledger.csv` and
   `results.md`.
 - **Trigger.** `trig_019f4HV3kS8g9NvP2tpPuoCB`, "Live earnings reader (v0.29-live)". Cron
@@ -293,10 +403,11 @@ The old bot's own data (Bybit klines via `pybit`) needs exchange API access and 
 
 ## 8. Script catalogue
 
-All experiment scripts take `--selftest` (where applicable) and `--report`. Each one's module
-docstring holds the full rule and the DEVLOG pointer.
+Each script's module docstring holds the full rule and its DEVLOG pointer, and `--help` lists the
+flags. Most engines from v0.24 on have a `--selftest`, and the table lists each one's modes. Older
+ones take `--cache/--explore-end`-style arguments and default to the `local/` cache paths in §6.
 
-**Current research engines (v0.22+).** Most have `--selftest` and `--report`.
+**Current research engines (v0.22+).**
 
 | Script | What it does |
 |---|---|
@@ -345,9 +456,18 @@ docstring holds the full rule and the DEVLOG pointer.
 - `scripts/`: `dashboard.py`, `paper_stats.py`, `audit_paper_vs_rule.py`,
   `verify_exit_resolution.py`.
 - `deploy/`: `vps_setup.sh`, `dashboard_setup.sh`.
-- `config.STRATEGY` still defaults to `ema_bracket`, the v0.10c rule that v0.10i withdrew. If the
-  VPS paper run is still going, its numbers are not evidence of anything. Don't touch the VPS
-  without the user.
+- `config.STRATEGY` still defaults to `ema_bracket`, the v0.10c rule that v0.10i withdrew. Its
+  artifact-free expectation is ~52 % wins at PF ~1.0.
+- **The VPS paper run.** `deploy/vps_setup.sh` installs the `powelltrades` systemd service with
+  `PAPER_TRADE=true`, `BYBIT_TESTNET=false` (mainnet data) and no API keys.
+  - `deploy/dashboard_setup.sh` adds the `powelltrades-dash` read-only dashboard on port 8080, which
+    needs `DASHBOARD_TOKEN`.
+  - v0.10f told the user to set `EMA_BRACKET_SYMBOLS=BTCUSDT,XAUTUSDT,ETHUSDT`.
+  - The only recorded paper statistics are week 1: 8 closed, 1 win, −6.6 %.
+  - Paper brackets resolve on the 1m path since v0.21 (2026-09-13). That was the last change to
+    any bot code.
+  - **Whether it is still running is unknown from the repo.** Its numbers are a free measurement,
+    not evidence. Don't touch the VPS without the user.
 
 ---
 

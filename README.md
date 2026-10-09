@@ -2,6 +2,12 @@
 
 Algorithmic trading bot implementing the Powell Trades ICT strategy on Bybit Testnet (BTCUSDT Linear Perpetual).
 
+> **Status (2026-10-09).** The repo is now mainly a pre-registered research pipeline. It tests trading
+> ideas against an 80/20 VGS/VAS index holding, and no strategy has passed yet. Start with
+> [`docs/HANDOFF.md`](docs/HANDOFF.md); full detail is in [`DEVLOG.md`](DEVLOG.md). The bot below is
+> paper-only by default (`PAPER_TRADE=true`), and its default rule (`STRATEGY=ema_bracket`) was
+> withdrawn in DEVLOG v0.10i.
+
 ## Setup
 
 ```bash
