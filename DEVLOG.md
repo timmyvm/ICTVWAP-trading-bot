@@ -1,5 +1,46 @@
 # DEVLOG — Powell Trades Bot
 
+## v0.36-catalogue-1 — Strategy catalogue, phase 1: probe library, explore/sealed split in code, P2 pre-registration (2026-10-11)
+
+**Why.** The user said go on phase 1 (docs/CATALOGUE.md). Phase 1 turns 144 sourced cards into
+concrete probes, fixes the data split before any result exists, and writes the pre-registration for
+phase 2. No market return conditional on any state was computed; trials stay at 71.
+
+**What changed.**
+- `research/catalogue/probes/*.json` (nine mapper files), `build_probe_library.py`, `PROBE_LIBRARY.md`,
+  `probes/library.json`. 226 probe records from 144 cards: 201 real, 25 with no probe (not
+  mechanizable, wrapper only, or data we lack). 130 (archetype, variable) groups; 83 runnable on the
+  public crypto archive, 47 parked.
+- `backtest/edge_lab/split.py` and `research/prereg/split_assignment.csv`: era cut 2024-12-31; 715
+  USDT-perp symbols ranked by lifetime median quote volume, paired, halves by sha256 of
+  "edge-split-v036" + symbol. 358 A / 357 B; 10 of the top 20 and 25 of the top 50 coins in each half.
+  Explore quadrant (early, A) = 135,228 coin-days (23.3 %); sealed = 76.7 %. Self-test `t_split_rules`.
+- `backtest/edge_lab/ledger.py`: `log_catalogue_explore`, `catalogue_trials`, `trials_for(lineage)`,
+  `lineage` field on `register()`. Catalogue explore cells are not charged to `total_trials()`
+  (self-test `t_catalogue_ledger`; harness self-tests now 10, all pass).
+- `research/prereg/P2_power_table.md`, `P2_primitive_probes.md`, `scripts/` (the statistician's
+  scripts; first left in a scratchpad, copied here and re-run: tiers 102 / 27 / 21 / 51 and the 0.942
+  sub-half correlation reproduce).
+
+**Result (outcome-blind).** Probe tiers: T1 102, T2 27, T3 21, parked 51. Phase-2 grid: 304 cells (TS
+163, XS 76, VOL 41, LEVEL 21, CLOCK 2, FLOW 1), 5,092 views with regimes. 129 cells are descriptive
+only (every hold of 20 days or more, every monthly cell, CLOCK and EVENT, OI flushes, raw directional
+signals beyond 1 day). The sealed set can confirm market-neutral forms at 1-3 day holds (minimum
+detectable gross edge about 25-35 bp for a daily cross-sectional spread, 10-25 bp for a market-hedged
+state) and almost nothing directional (62-69 bp a day on the late era alone). Recommended and adopted:
+one batch of at most 5 sealed opens, t-bar `bonferroni_t(5)` = 2.576.
+
+**Correction.** The protocol said unseen era plus unseen coins gave two chances to fail. Two random halves
+of the coin universe have index correlation 0.94 (sub-half proxy, half A only), so for market-wide
+directional signals early_B is nearly explore's own dates. Fixed in docs/CATALOGUE.md section 5 and
+P2 section 16.
+
+**Not done.** Build preconditions (1d gap patch for 21 coins on 2022-02-26..28, funding for 54 half-A
+coins, loader guard with planted-row self-test), the probe engine, auditor stage A, and the
+`log_catalogue_explore` call. No probe has run.
+
+**Commit:** the commit that carries this entry (see `git log`).
+
 ## v0.36-catalogue-0 — Strategy catalogue, phase 0: 144 sourced cards, no trials spent (2026-10-10)
 
 **Why.** The user's pivot: tests of single strategies cannot reach significance on ~6 years of

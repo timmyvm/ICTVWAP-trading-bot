@@ -331,3 +331,10 @@ scripts/, deploy/ — paper-run dashboard/stats, VPS setup
   re-fetched" flag visible in the index. A fixed tag list can also hide the question: a single P1
   bucket for "trend vs reversal" took 55 of 144 cards, so split a primitive by the variable that
   flips its sign (here the holding horizon) before reading the map.
+
+- Two held-out partitions are not two independent holdouts until you have measured how correlated their
+  market paths are. The v0.36 catalogue promised "unseen era AND unseen coins = two chances to fail";
+  two random halves of the coin universe move together (index correlation 0.94), so for market-wide
+  directional signals the unseen coins add almost nothing and only the unseen dates count. Measure the
+  path correlation of any proposed split (outcome-blind, on the explore side) before describing it as
+  extra protection, and size directional power on the new dates alone.

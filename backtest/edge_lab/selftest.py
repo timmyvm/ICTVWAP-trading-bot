@@ -17,6 +17,7 @@ import pandas as pd
 from backtest.edge_lab import ledger as L
 from backtest.edge_lab import measure as M
 from backtest.edge_lab import power as P
+from backtest.edge_lab import split as S
 
 
 def _prices(n: int = 26_000, sd: float = 0.004, seed: int = 1, plant: np.ndarray | None = None,
@@ -150,8 +151,43 @@ def t_ledger_refusals() -> None:
             pass
 
 
+def t_split_rules() -> None:
+    syms = [f"C{i:03d}USDT" for i in range(101)]  # odd count on purpose
+    a = S.pair_split(syms)
+    assert a == S.pair_split(syms), "split is not deterministic"
+    assert set(a) == set(syms) and set(a.values()) == {"A", "B"}
+    for i in range(0, 100, 2):  # each neighbouring pair has one coin in each half
+        assert {a[syms[i]], a[syms[i + 1]]} == {"A", "B"}, syms[i]
+    assert a != S.pair_split(syms, salt="other"), "salt has no effect"
+    # era boundary: the last explore day is 2024-12-31 inclusive, the sealed era starts 2025-01-01 00:00 UTC
+    assert S.quadrant("A", pd.Timestamp("2024-12-31 23:59:59", tz="UTC")) == "explore"
+    assert S.quadrant("A", pd.Timestamp("2025-01-01 00:00:00", tz="UTC")) == "late_A"
+    assert S.quadrant("B", pd.Timestamp("2020-06-01")) == "early_B"
+    assert S.quadrant("B", pd.Timestamp("2026-01-01", tz="UTC")) == "late_B"
+    assert S.is_explore("C000USDT", pd.Timestamp("2021-01-01", tz="UTC"), {"C000USDT": "A"})
+    assert not S.is_explore("C000USDT", pd.Timestamp("2021-01-01", tz="UTC"), {"C000USDT": "B"})
+    try:
+        S.is_explore("NOPE", pd.Timestamp("2021-01-01", tz="UTC"), {})
+        raise AssertionError("unknown symbol did not raise")
+    except KeyError:
+        pass
+
+
+def t_catalogue_ledger() -> None:
+    with tempfile.TemporaryDirectory() as td:
+        led = Path(td) / "ledger.jsonl"
+        base = L.total_trials(led)
+        assert base == L.LEGACY_TRIALS and L.catalogue_trials(led) == 0
+        L.log_exploration("x", 3, "n", ledger=led)
+        L.log_catalogue_explore(2, 304, 5092, "research/prereg/P2.md", "0" * 64, "n", ledger=led)
+        assert L.total_trials(led) == base + 3, "catalogue cells leaked into total_trials"
+        assert L.catalogue_trials(led) == 304
+        assert L.trials_for("", led) == base + 3
+        assert L.trials_for("catalogue", led) == base + 3 + 304
+
+
 TESTS = [t_cost_constant, t_planted_edge_recovered, t_null_is_calibrated, t_null_shift_not_fooled,
-         t_truncation_guard, t_hedge_removes_beta, t_power_and_stats, t_ledger_refusals]
+         t_truncation_guard, t_hedge_removes_beta, t_power_and_stats, t_ledger_refusals, t_split_rules, t_catalogue_ledger]
 
 
 def main() -> int:

@@ -81,9 +81,12 @@ def events(prereg_id: str, ledger: Path = LEDGER) -> list[str]:
 
 # --------------------------------------------------------------------------- lifecycle
 def register(prereg_path: Path, *, family: str, n_cells: int, primaries: int,
-             repo: Path = REPO, ledger: Path = LEDGER, require_pushed: bool = False) -> dict:
+             repo: Path = REPO, ledger: Path = LEDGER, require_pushed: bool = False,
+             lineage: str = "") -> dict:
     """Step 2 of the protocol. n_cells = every variant this experiment will evaluate
-    (primary + secondaries + diagnostics); primaries = the cells that can pass the verdict."""
+    (primary + secondaries + diagnostics); primaries = the cells that can pass the verdict.
+    lineage="catalogue" marks an idea that came out of the strategy catalogue: its deflated Sharpe
+    then uses trials_for("catalogue"), which adds the catalogue's explore cells."""
     pid = Path(prereg_path).stem
     if "registered" in events(pid, ledger):
         raise RuntimeError(f"{pid} is already registered")
@@ -91,7 +94,8 @@ def register(prereg_path: Path, *, family: str, n_cells: int, primaries: int,
         raise ValueError("need n_cells >= primaries >= 1")
     h = committed_hash(prereg_path, repo, require_pushed)
     return _append(dict(event="registered", id=pid, family=family, n_cells=int(n_cells),
-                        primaries=int(primaries), prereg=os.path.relpath(Path(prereg_path).resolve(), Path(repo).resolve()),
+                        primaries=int(primaries), lineage=lineage,
+                        prereg=os.path.relpath(Path(prereg_path).resolve(), Path(repo).resolve()),
                         prereg_commit=h, prereg_sha256=_sha256(prereg_path)), ledger)
 
 
@@ -99,6 +103,16 @@ def log_exploration(family: str, n_cells: int, note: str, ledger: Path = LEDGER)
     """Every screen run outside a pre-registration still counts as trials. Log it."""
     return _append(dict(event="exploration", id=f"explore:{family}", family=family,
                         n_cells=int(n_cells), note=note), ledger)
+
+
+def log_catalogue_explore(phase: int, n_cells: int, n_views: int, grid: str, grid_sha256: str, note: str,
+                          ledger: Path = LEDGER) -> dict:
+    """Catalogue exploration on the EXPLORE quadrant only (docs/CATALOGUE.md section 5). It is not
+    charged to total_trials(), so unrelated work keeps its own count; it IS charged to anything with
+    lineage "catalogue" (see trials_for). Log it once, before the first probe runs."""
+    return _append(dict(event="catalogue_explore", id=f"catalogue:p{int(phase)}", phase=int(phase),
+                        quadrant="explore", n_cells=int(n_cells), n_views=int(n_views), grid=grid,
+                        grid_sha256=grid_sha256, note=note), ledger)
 
 
 def mark_audited(prereg_id: str, auditor_note: str, ledger: Path = LEDGER) -> dict:
@@ -134,6 +148,16 @@ def record_verdict(prereg_id: str, verdict: str, summary: str, ledger: Path = LE
 
 def total_trials(ledger: Path = LEDGER, legacy: int = LEGACY_TRIALS) -> int:
     return legacy + sum(r.get("n_cells", 0) for r in _read(ledger) if r["event"] in ("registered", "exploration"))
+
+
+def catalogue_trials(ledger: Path = LEDGER) -> int:
+    return sum(r.get("n_cells", 0) for r in _read(ledger) if r["event"] == "catalogue_explore")
+
+
+def trials_for(lineage: str = "", ledger: Path = LEDGER, legacy: int = LEGACY_TRIALS) -> int:
+    """Trial count to deflate against: everything, plus the catalogue's explore cells when the idea
+    came out of the catalogue."""
+    return total_trials(ledger, legacy) + (catalogue_trials(ledger) if lineage == "catalogue" else 0)
 
 
 # --------------------------------------------------------------------------- statistics

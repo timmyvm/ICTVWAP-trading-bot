@@ -78,25 +78,35 @@ many cards). Every card has these fields and nothing in it may be a backtest res
 
 | phase | what | trials spent |
 |---|---|---|
-| 0 | scouts compile cards per family (this document's cards); chair checks sources and consolidates an index and a primitive map | 0 |
-| 1 | outcome-blind triage: event rate and funnel counts per primitive on the explore data; drop cards that duplicate another's primitive | 0 |
-| 2 | primitive probes: one pre-registered probe per primitive x horizon grid x regime split on the EXPLORE data. Each grid cell is logged with `ledger.log_exploration` | counted |
+| 0 | DONE. scouts compile cards per family; chair checks sources and consolidates an index and a primitive map | 0 |
+| 1 | DONE. cards mapped to 226 probe records (`research/catalogue/probes/`), merged into 130 groups (`PROBE_LIBRARY.md`), tiered at probe level, split fixed, power table and pre-registration written (`research/prereg/P2_*`) | 0 |
+| 2 | primitive probes: the 304-cell grid of `P2_primitive_probes.md` on the EXPLORE quadrant, with the pre-stated regime breakdowns. Logged once with `ledger.log_catalogue_explore` | 304 catalogue cells |
 | 3 | combination search on EXPLORE data only: state variables that say when a primitive holds, pairs of primitives; every candidate counted | counted |
 | 4 | the best few combinations go to the SEALED data once each (`open_holdout`), then to the forward paper tracker at small size | one per combination |
 
 Phases 2 and 3 are exploration; reading their results never counts as a pass.
 
-## 5. The data split (set before the first probe, recorded in the ledger)
+## 5. The data split (fixed 2026-10-11 in `backtest/edge_lab/split.py`; assignment in `research/prereg/split_assignment.csv`)
 
-- **Explore set.** The early part of history and coin half A. Anything may be tried here, as often
-  as we like; every cell is logged and counts as a trial.
-- **Sealed set.** The freshest period (at least 18 months) and coin half B, split by a fixed rule
-  (symbol-name hash parity) decided before any probe is run. Not read in phases 0-3. Each
-  combination that reaches phase 4 opens it once.
-- The exact dates and the coin rule are written into the first phase-2 pre-registration, before any
-  result exists.
-- Why both: era alone leaves room for era luck; coin split alone leaves market-wide luck.
-  A combination that holds on the unseen era AND the unseen coins has had two chances to fail.
+- **Explore quadrant** = early era (bars on or before 2024-12-31) x coin half A: 191 coins, 135,228
+  coin-days (23.3 %). Anything may be tried here, as often as we like; every cell is logged and counts
+  as a catalogue trial (not charged to unrelated work: `ledger.log_catalogue_explore`).
+- **Sealed set** = the other three quadrants (late_A, early_B, late_B; 76.7 % of coin-days). Not read
+  in phases 0-3. Opened once, as one batch of at most 5 pre-registered combinations (phase 4).
+- **Coin halves**: all 715 USDT-perp symbols are ranked by lifetime median daily quote volume and
+  paired 1-2, 3-4, ...; in each pair the smaller sha256("edge-split-v036" + symbol) goes to A. This
+  balances liquidity (10 of the top 20 and 25 of the top 50 coins in each half) while the hash makes
+  the choice arbitrary. BTCUSDT is in half B, so half-A hedges use a 10-coin half-A index.
+- **What the split does and does not protect against.** The unseen era is a real holdout. The unseen
+  coins are much weaker: two random halves of the coin universe move almost together (index
+  correlation 0.94), so for a market-wide directional signal early_B is close to explore's own dates.
+  The coin split protects against coin-specific overfitting and cross-sectional spreads, not against
+  market-path luck. Directional forms are therefore confirmed on the late era (638 new dates) only.
+  An earlier version of this section said a combination that held on both unseen era and unseen coins
+  had "two chances to fail"; that overstated the protection and is corrected here.
+- Why the sealed bar is cheap: selection happens on the explore quadrant only, so a sealed read is a
+  clean test of a pre-stated hypothesis. Its multiplicity is the number of sealed opens (at most 5,
+  t-bar 2.576), not the hundreds of explore cells. The price is less data per stage.
 
 ## 6. Success and failure
 

@@ -1,0 +1,4689 @@
+[
+ {
+  "archetype": "XS_RANK",
+  "variable": "past_return",
+  "n_probes": 13,
+  "cards": [
+   "S-MOD-08",
+   "S-MOD-10",
+   "S-MR-09",
+   "S-MR-15",
+   "S-XS-01",
+   "S-XS-02",
+   "S-XS-12",
+   "S-XS-13",
+   "S-XS-15"
+  ],
+  "probe_ids": [
+   "S-XS-01a",
+   "S-XS-02a",
+   "S-XS-12a",
+   "S-XS-13a",
+   "S-XS-13b",
+   "S-XS-13c",
+   "S-XS-15a",
+   "S-MR-09a",
+   "S-MR-09b",
+   "S-MR-15a",
+   "S-MR-15c",
+   "S-MOD-08a",
+   "S-MOD-10b"
+  ],
+  "primitives": [
+   "P3"
+  ],
+  "bars": [
+   "1d",
+   "4h"
+  ],
+  "universes": [
+   "cross_section"
+  ],
+  "data_needed": [
+   "equities",
+   "funding",
+   "klines_1d",
+   "klines_intraday",
+   "market_cap"
+  ],
+  "lookbacks": [
+   3,
+   6,
+   9,
+   12,
+   1,
+   2,
+   4,
+   26,
+   14,
+   52,
+   "1 day",
+   "1 week",
+   "1 month",
+   "12 hours",
+   5,
+   7,
+   8,
+   10,
+   11,
+   13,
+   15,
+   16,
+   17,
+   18,
+   19,
+   20,
+   40,
+   60,
+   80,
+   100,
+   120,
+   140,
+   160,
+   180,
+   200,
+   220,
+   240
+  ],
+  "thresholds": [],
+  "holds": [
+   "1 day",
+   "1 month",
+   "1 week",
+   "12 hours",
+   "12 months",
+   "14 days",
+   "2 weeks",
+   "3 months",
+   "6 months",
+   "9 months"
+  ],
+  "testable": {
+   "Y": 11,
+   "Partial": 1,
+   "N": 1
+  },
+  "runnable": true
+ },
+ {
+  "archetype": "TS_STATE",
+  "variable": "past_return",
+  "n_probes": 10,
+  "cards": [
+   "S-MOD-07",
+   "S-MOD-09",
+   "S-MOD-11",
+   "S-MR-10",
+   "S-MR-15",
+   "S-TREND-01",
+   "S-TREND-02",
+   "S-TREND-15"
+  ],
+  "probe_ids": [
+   "S-MR-10a",
+   "S-MR-15b",
+   "S-MOD-07a",
+   "S-MOD-09b",
+   "S-MOD-11b",
+   "S-TREND-01a",
+   "S-TREND-02a",
+   "S-TREND-02b",
+   "S-TREND-02c",
+   "S-TREND-15a"
+  ],
+  "primitives": [
+   "P1"
+  ],
+  "bars": [
+   "15m",
+   "1d",
+   "1m",
+   "1mo",
+   "1w"
+  ],
+  "universes": [
+   "market_wide",
+   "single_asset"
+  ],
+  "data_needed": [
+   "equities",
+   "klines_1d",
+   "klines_intraday",
+   "taker_flow"
+  ],
+  "lookbacks": [
+   1,
+   2,
+   3,
+   4,
+   15,
+   12,
+   120
+  ],
+  "thresholds": [
+   "sign of the previous candle",
+   0,
+   "top quintile",
+   "bottom quintile"
+  ],
+  "holds": [
+   "1 day",
+   "1 minute",
+   "1 month",
+   "1 week",
+   "15 minutes",
+   "2 weeks",
+   "3 weeks",
+   "36 months",
+   "4 weeks",
+   "5 minutes",
+   "60 minutes",
+   "signal_defined"
+  ],
+  "testable": {
+   "Partial": 1,
+   "Y": 9
+  },
+  "runnable": true
+ },
+ {
+  "archetype": "TS_STATE",
+  "variable": "donchian_breakout",
+  "n_probes": 7,
+  "cards": [
+   "S-BRK-09",
+   "S-BRK-11",
+   "S-MR-07",
+   "S-TREND-07",
+   "S-TREND-16"
+  ],
+  "probe_ids": [
+   "S-BRK-09a",
+   "S-BRK-11a",
+   "S-MR-07a",
+   "S-TREND-07a",
+   "S-TREND-07b",
+   "S-TREND-07c",
+   "S-TREND-16a"
+  ],
+  "primitives": [
+   "P1"
+  ],
+  "bars": [
+   "1d"
+  ],
+  "universes": [
+   "single_asset"
+  ],
+  "data_needed": [
+   "funding",
+   "klines_1d"
+  ],
+  "lookbacks": [
+   7,
+   20,
+   55,
+   5,
+   10,
+   30,
+   60,
+   90,
+   150,
+   250,
+   360
+  ],
+  "thresholds": [],
+  "holds": [
+   "10 days",
+   "signal_defined"
+  ],
+  "testable": {
+   "Y": 7
+  },
+  "runnable": true
+ },
+ {
+  "archetype": "TS_STATE",
+  "variable": "pair_spread_zscore",
+  "n_probes": 4,
+  "cards": [
+   "S-MR-11",
+   "S-MR-12",
+   "S-MR-16"
+  ],
+  "probe_ids": [
+   "S-MR-11a",
+   "S-MR-12a",
+   "S-MR-16a",
+   "S-MR-16b"
+  ],
+  "primitives": [
+   "P1"
+  ],
+  "bars": [
+   "1d",
+   "5m"
+  ],
+  "universes": [
+   "cross_section"
+  ],
+  "data_needed": [
+   "klines_1d",
+   "klines_intraday"
+  ],
+  "lookbacks": [],
+  "thresholds": [
+   2
+  ],
+  "holds": [
+   "max 6 months",
+   "signal_defined"
+  ],
+  "testable": {
+   "Y": 4
+  },
+  "runnable": true
+ },
+ {
+  "archetype": "CARRY",
+  "variable": "basis",
+  "n_probes": 3,
+  "cards": [
+   "S-CARRY-02",
+   "S-CARRY-03",
+   "S-CARRY-12"
+  ],
+  "probe_ids": [
+   "S-CARRY-02a",
+   "S-CARRY-03a",
+   "S-CARRY-12b"
+  ],
+  "primitives": [
+   "P4"
+  ],
+  "bars": [
+   "1d",
+   "1h",
+   "1mo"
+  ],
+  "universes": [
+   "single_asset"
+  ],
+  "data_needed": [
+   "equities",
+   "funding",
+   "klines_1d",
+   "klines_intraday",
+   "premium"
+  ],
+  "lookbacks": [],
+  "thresholds": [
+   "rho_u = kappa*ln(1+C)",
+   "rho_l = kappa*ln(1-C)",
+   0
+  ],
+  "holds": [
+   "1 month",
+   "1 month (to expiry, then roll)",
+   "3 months (to expiry, then roll)",
+   "signal_defined"
+  ],
+  "testable": {
+   "Partial": 2,
+   "N": 1
+  },
+  "runnable": false
+ },
+ {
+  "archetype": "CARRY",
+  "variable": "variance_risk_premium",
+  "n_probes": 3,
+  "cards": [
+   "S-BRK-15",
+   "S-CARRY-15",
+   "S-CARRY-16"
+  ],
+  "probe_ids": [
+   "S-BRK-15a",
+   "S-CARRY-15a",
+   "S-CARRY-16b"
+  ],
+  "primitives": [
+   "P4"
+  ],
+  "bars": [
+   "1d"
+  ],
+  "universes": [
+   "single_asset"
+  ],
+  "data_needed": [
+   "equities",
+   "klines_1d",
+   "options"
+  ],
+  "lookbacks": [],
+  "thresholds": [],
+  "holds": [
+   "1 month",
+   "30 days"
+  ],
+  "testable": {
+   "N": 2,
+   "Partial": 1
+  },
+  "runnable": false
+ },
+ {
+  "archetype": "CLOCK",
+  "variable": "hour_of_day",
+  "n_probes": 3,
+  "cards": [
+   "S-BRK-07",
+   "S-CAL-08",
+   "S-PAT-15"
+  ],
+  "probe_ids": [
+   "S-BRK-07a",
+   "S-CAL-08a",
+   "S-PAT-15a"
+  ],
+  "primitives": [
+   "P5"
+  ],
+  "bars": [
+   "1h"
+  ],
+  "universes": [
+   "single_asset"
+  ],
+  "data_needed": [
+   "fx",
+   "klines_intraday"
+  ],
+  "lookbacks": [],
+  "thresholds": [],
+  "holds": [
+   "07:00-10:00 UTC window",
+   "2 hours",
+   "signal_defined"
+  ],
+  "testable": {
+   "Partial": 1,
+   "Y": 2
+  },
+  "runnable": true
+ },
+ {
+  "archetype": "LEVEL_TOUCH",
+  "variable": "round_number_touch",
+  "n_probes": 3,
+  "cards": [
+   "S-FLOW-06",
+   "S-PAT-04"
+  ],
+  "probe_ids": [
+   "S-FLOW-06a",
+   "S-FLOW-06b",
+   "S-PAT-04a"
+  ],
+  "primitives": [
+   "P8"
+  ],
+  "bars": [
+   "1m"
+  ],
+  "universes": [
+   "single_asset"
+  ],
+  "data_needed": [
+   "klines_intraday"
+  ],
+  "lookbacks": [],
+  "thresholds": [],
+  "holds": [
+   "15 min",
+   "15m",
+   "2 h",
+   "30 min",
+   "30m"
+  ],
+  "testable": {
+   "Y": 3
+  },
+  "runnable": true
+ },
+ {
+  "archetype": "MODEL",
+  "variable": "residual_s_score",
+  "n_probes": 3,
+  "cards": [
+   "S-MR-13"
+  ],
+  "probe_ids": [
+   "S-MR-13a",
+   "S-MR-13b",
+   "S-MR-13c"
+  ],
+  "primitives": [
+   "P3"
+  ],
+  "bars": [
+   "1d"
+  ],
+  "universes": [
+   "cross_section"
+  ],
+  "data_needed": [
+   "equities",
+   "klines_1d"
+  ],
+  "lookbacks": [],
+  "thresholds": [],
+  "holds": [
+   "signal_defined"
+  ],
+  "testable": {
+   "Y": 1,
+   "N": 1,
+   "Partial": 1
+  },
+  "runnable": true
+ },
+ {
+  "archetype": "TS_STATE",
+  "variable": "channel_breakout",
+  "n_probes": 3,
+  "cards": [
+   "S-BRK-10",
+   "S-TREND-10",
+   "S-TREND-11"
+  ],
+  "probe_ids": [
+   "S-BRK-10a",
+   "S-TREND-10a",
+   "S-TREND-11a"
+  ],
+  "primitives": [
+   "P1"
+  ],
+  "bars": [
+   "1d"
+  ],
+  "universes": [
+   "single_asset"
+  ],
+  "data_needed": [
+   "klines_1d"
+  ],
+  "lookbacks": [
+   10
+  ],
+  "thresholds": [],
+  "holds": [
+   "3 days",
+   "5 days",
+   "signal_defined"
+  ],
+  "testable": {
+   "Y": 3
+  },
+  "runnable": true
+ },
+ {
+  "archetype": "TS_STATE",
+  "variable": "gap",
+  "n_probes": 3,
+  "cards": [
+   "S-BRK-13",
+   "S-MR-14"
+  ],
+  "probe_ids": [
+   "S-BRK-13a",
+   "S-BRK-13b",
+   "S-MR-14a"
+  ],
+  "primitives": [
+   "P1"
+  ],
+  "bars": [
+   "1d"
+  ],
+  "universes": [
+   "single_asset"
+  ],
+  "data_needed": [
+   "equities",
+   "fx"
+  ],
+  "lookbacks": [],
+  "thresholds": [],
+  "holds": [
+   "gap day",
+   "open to same-day close",
+   "signal_defined"
+  ],
+  "testable": {
+   "Partial": 3
+  },
+  "runnable": false
+ },
+ {
+  "archetype": "TS_STATE",
+  "variable": "sma_cross",
+  "n_probes": 3,
+  "cards": [
+   "S-TREND-04",
+   "S-TREND-05"
+  ],
+  "probe_ids": [
+   "S-TREND-04a",
+   "S-TREND-04b",
+   "S-TREND-05a"
+  ],
+  "primitives": [
+   "P1"
+  ],
+  "bars": [
+   "1d"
+  ],
+  "universes": [
+   "single_asset"
+  ],
+  "data_needed": [
+   "klines_1d"
+  ],
+  "lookbacks": [],
+  "thresholds": [],
+  "holds": [
+   "10 days",
+   "signal_defined"
+  ],
+  "testable": {
+   "Y": 3
+  },
+  "runnable": true
+ },
+ {
+  "archetype": "TS_STATE",
+  "variable": "volume_spike",
+  "n_probes": 3,
+  "cards": [
+   "S-BRK-04",
+   "S-FLOW-05"
+  ],
+  "probe_ids": [
+   "S-BRK-04b",
+   "S-FLOW-05a",
+   "S-FLOW-05b"
+  ],
+  "primitives": [
+   "P1",
+   "P7"
+  ],
+  "bars": [
+   "1d",
+   "1w",
+   "5m"
+  ],
+  "universes": [
+   "cross_section",
+   "single_asset"
+  ],
+  "data_needed": [
+   "equities",
+   "klines_1d"
+  ],
+  "lookbacks": [
+   50,
+   10
+  ],
+  "thresholds": [
+   "high: day-50 rank >= 46 of 50 (top 10%)",
+   "low: day-50 rank <= 5 of 50 (bottom 10%)",
+   "high: last week rank 10 of 10",
+   "low: last week rank 1 of 10"
+  ],
+  "holds": [
+   "1 trading day",
+   "10 trading days",
+   "20 trading days",
+   "to 16:00 ET same day"
+  ],
+  "testable": {
+   "Partial": 1,
+   "Y": 2
+  },
+  "runnable": true
+ },
+ {
+  "archetype": "XS_RANK",
+  "variable": "market_cap",
+  "n_probes": 3,
+  "cards": [
+   "S-XS-11",
+   "S-XS-12"
+  ],
+  "probe_ids": [
+   "S-XS-11a",
+   "S-XS-11b",
+   "S-XS-12b"
+  ],
+  "primitives": [
+   "P3"
+  ],
+  "bars": [
+   "1d",
+   "1mo"
+  ],
+  "universes": [
+   "cross_section"
+  ],
+  "data_needed": [
+   "equities",
+   "klines_1d",
+   "market_cap"
+  ],
+  "lookbacks": [],
+  "thresholds": [],
+  "holds": [
+   "1 week",
+   "5 years",
+   "signal_defined"
+  ],
+  "testable": {
+   "Partial": 2,
+   "N": 1
+  },
+  "runnable": false
+ },
+ {
+  "archetype": "CARRY",
+  "variable": "funding_spread",
+  "n_probes": 2,
+  "cards": [
+   "S-CARRY-04"
+  ],
+  "probe_ids": [
+   "S-CARRY-04a",
+   "S-CARRY-04b"
+  ],
+  "primitives": [
+   "P4"
+  ],
+  "bars": [
+   "8h"
+  ],
+  "universes": [
+   "single_asset"
+  ],
+  "data_needed": [
+   "funding",
+   "klines_intraday"
+  ],
+  "lookbacks": [],
+  "thresholds": [],
+  "holds": [
+   "signal_defined"
+  ],
+  "testable": {
+   "Y": 1,
+   "Partial": 1
+  },
+  "runnable": true
+ },
+ {
+  "archetype": "CLOCK",
+  "variable": "trading_session",
+  "n_probes": 2,
+  "cards": [
+   "S-CAL-06",
+   "S-CAL-07"
+  ],
+  "probe_ids": [
+   "S-CAL-06b",
+   "S-CAL-07a"
+  ],
+  "primitives": [
+   "P5"
+  ],
+  "bars": [
+   "15m",
+   "1h"
+  ],
+  "universes": [
+   "market_wide",
+   "single_asset"
+  ],
+  "data_needed": [
+   "fx",
+   "klines_intraday"
+  ],
+  "lookbacks": [],
+  "thresholds": [],
+  "holds": [
+   "one European session (short EUR)",
+   "one US session (long EUR)",
+   "overnight: close to next open"
+  ],
+  "testable": {
+   "Y": 1,
+   "Partial": 1
+  },
+  "runnable": true
+ },
+ {
+  "archetype": "CLOCK",
+  "variable": "turn_of_year",
+  "n_probes": 2,
+  "cards": [
+   "S-CAL-04"
+  ],
+  "probe_ids": [
+   "S-CAL-04a",
+   "S-CAL-04b"
+  ],
+  "primitives": [
+   "P5"
+  ],
+  "bars": [
+   "1d"
+  ],
+  "universes": [
+   "cross_section",
+   "market_wide"
+  ],
+  "data_needed": [
+   "equities",
+   "klines_1d",
+   "market_cap"
+  ],
+  "lookbacks": [],
+  "thresholds": [],
+  "holds": [
+   "close of the last December trading day to close of 15 January",
+   "last 5 trading days of December plus first 2 trading days of January"
+  ],
+  "testable": {
+   "Partial": 2
+  },
+  "runnable": false
+ },
+ {
+  "archetype": "EVENT",
+  "variable": "equity_weight_drift",
+  "n_probes": 2,
+  "cards": [
+   "S-CAL-14"
+  ],
+  "probe_ids": [
+   "S-CAL-14a",
+   "S-CAL-14c"
+  ],
+  "primitives": [
+   "P5"
+  ],
+  "bars": [
+   "1d"
+  ],
+  "universes": [
+   "market_wide",
+   "single_asset"
+  ],
+  "data_needed": [
+   "equities",
+   "klines_1d"
+  ],
+  "lookbacks": [],
+  "thresholds": [],
+  "holds": [
+   "1 day",
+   "1 day (set at close t, earns day t+1)"
+  ],
+  "testable": {
+   "Partial": 2
+  },
+  "runnable": false
+ },
+ {
+  "archetype": "FLOW_STATE",
+  "variable": "basis",
+  "n_probes": 2,
+  "cards": [
+   "S-CARRY-03",
+   "S-FLOW-10"
+  ],
+  "probe_ids": [
+   "S-CARRY-03b",
+   "S-FLOW-10a"
+  ],
+  "primitives": [
+   "P4",
+   "P6"
+  ],
+  "bars": [
+   "1d"
+  ],
+  "universes": [
+   "single_asset"
+  ],
+  "data_needed": [
+   "klines_1d",
+   "liquidations",
+   "open_interest",
+   "premium"
+  ],
+  "lookbacks": [],
+  "thresholds": [],
+  "holds": [
+   "1 month",
+   "3 months"
+  ],
+  "testable": {
+   "Partial": 2
+  },
+  "runnable": false
+ },
+ {
+  "archetype": "FLOW_STATE",
+  "variable": "cot_sentiment_index",
+  "n_probes": 2,
+  "cards": [
+   "S-FLOW-11"
+  ],
+  "probe_ids": [
+   "S-FLOW-11a",
+   "S-FLOW-11b"
+  ],
+  "primitives": [
+   "P6"
+  ],
+  "bars": [
+   "1w"
+  ],
+  "universes": [
+   "single_asset"
+  ],
+  "data_needed": [
+   "klines_1d",
+   "sentiment_index"
+  ],
+  "lookbacks": [
+   3
+  ],
+  "thresholds": [
+   "top 20% (EH)",
+   "bottom 20% (EL)"
+  ],
+  "holds": [
+   "2 weeks",
+   "4 weeks",
+   "6 weeks",
+   "8 weeks"
+  ],
+  "testable": {
+   "Partial": 2
+  },
+  "runnable": false
+ },
+ {
+  "archetype": "FLOW_STATE",
+  "variable": "exchange_net_inflow",
+  "n_probes": 2,
+  "cards": [
+   "S-FLOW-14"
+  ],
+  "probe_ids": [
+   "S-FLOW-14b",
+   "S-FLOW-14c"
+  ],
+  "primitives": [
+   "P9b"
+  ],
+  "bars": [
+   "1h"
+  ],
+  "universes": [
+   "market_wide",
+   "single_asset"
+  ],
+  "data_needed": [
+   "klines_intraday",
+   "onchain"
+  ],
+  "lookbacks": [],
+  "thresholds": [],
+  "holds": [
+   "1 h",
+   "2 h",
+   "3 h",
+   "4 h",
+   "5 h",
+   "6 h"
+  ],
+  "testable": {
+   "N": 2
+  },
+  "runnable": false
+ },
+ {
+  "archetype": "FLOW_STATE",
+  "variable": "funding_rate",
+  "n_probes": 2,
+  "cards": [
+   "S-CARRY-06",
+   "S-FLOW-10"
+  ],
+  "probe_ids": [
+   "S-CARRY-06a",
+   "S-FLOW-10b"
+  ],
+  "primitives": [
+   "P6"
+  ],
+  "bars": [
+   "8h"
+  ],
+  "universes": [
+   "single_asset"
+  ],
+  "data_needed": [
+   "funding",
+   "klines_1d",
+   "klines_intraday"
+  ],
+  "lookbacks": [
+   30
+  ],
+  "thresholds": [
+   "30-day average funding < 0 (turns negative)"
+  ],
+  "holds": [
+   "8h",
+   "90 days"
+  ],
+  "testable": {
+   "Y": 2
+  },
+  "runnable": true
+ },
+ {
+  "archetype": "FLOW_STATE",
+  "variable": "oi_price_quadrant",
+  "n_probes": 2,
+  "cards": [
+   "S-FLOW-08"
+  ],
+  "probe_ids": [
+   "S-FLOW-08a",
+   "S-FLOW-08b"
+  ],
+  "primitives": [
+   "P6"
+  ],
+  "bars": [
+   "1d"
+  ],
+  "universes": [
+   "single_asset"
+  ],
+  "data_needed": [
+   "klines_1d",
+   "open_interest"
+  ],
+  "lookbacks": [
+   7,
+   30
+  ],
+  "thresholds": [
+   "7-day OI change >= +/-15%",
+   "opposite 7-day price move >= +/-5%",
+   "30-day OI change +/-25%",
+   "opposite 30-day price move +/-10%",
+   "R1 defensive when OI grows about 1.5x faster than price over 30+ days"
+  ],
+  "holds": [
+   "signal_defined"
+  ],
+  "testable": {
+   "Y": 2
+  },
+  "runnable": true
+ },
+ {
+  "archetype": "FLOW_STATE",
+  "variable": "open_interest_change",
+  "n_probes": 2,
+  "cards": [
+   "S-FLOW-07",
+   "S-FLOW-08"
+  ],
+  "probe_ids": [
+   "S-FLOW-07a",
+   "S-FLOW-08c"
+  ],
+  "primitives": [
+   "P6"
+  ],
+  "bars": [
+   "1h",
+   "1mo"
+  ],
+  "universes": [
+   "market_wide",
+   "single_asset"
+  ],
+  "data_needed": [
+   "klines_1d",
+   "klines_intraday",
+   "open_interest"
+  ],
+  "lookbacks": [
+   1,
+   "48 h",
+   "7 days"
+  ],
+  "thresholds": [
+   "flush: OI -15% within 48 h",
+   "capitulation: OI -30% within 7 days"
+  ],
+  "holds": [
+   "1 month",
+   "signal_defined"
+  ],
+  "testable": {
+   "Y": 2
+  },
+  "runnable": true
+ },
+ {
+  "archetype": "FLOW_STATE",
+  "variable": "taker_imbalance",
+  "n_probes": 2,
+  "cards": [
+   "S-FLOW-01"
+  ],
+  "probe_ids": [
+   "S-FLOW-01a",
+   "S-FLOW-01b"
+  ],
+  "primitives": [
+   "P9a"
+  ],
+  "bars": [
+   "1d",
+   "tick"
+  ],
+  "universes": [
+   "single_asset"
+  ],
+  "data_needed": [
+   "klines_1d",
+   "taker_flow"
+  ],
+  "lookbacks": [
+   1
+  ],
+  "thresholds": [
+   0
+  ],
+  "holds": [
+   "1 day (next day, open to close)"
+  ],
+  "testable": {
+   "Y": 1,
+   "N": 1
+  },
+  "runnable": true
+ },
+ {
+  "archetype": "LEVEL_TOUCH",
+  "variable": "candle_pattern",
+  "n_probes": 2,
+  "cards": [
+   "S-PAT-01"
+  ],
+  "probe_ids": [
+   "S-PAT-01a",
+   "S-PAT-01b"
+  ],
+  "primitives": [
+   "P8"
+  ],
+  "bars": [
+   "1d"
+  ],
+  "universes": [
+   "single_asset"
+  ],
+  "data_needed": [
+   "klines_1d"
+  ],
+  "lookbacks": [
+   3,
+   6,
+   10
+  ],
+  "thresholds": [
+   2
+  ],
+  "holds": [
+   "10d",
+   "1d",
+   "2d",
+   "3d"
+  ],
+  "testable": {
+   "Y": 2
+  },
+  "runnable": true
+ },
+ {
+  "archetype": "LEVEL_TOUCH",
+  "variable": "chart_pattern",
+  "n_probes": 2,
+  "cards": [
+   "S-PAT-02"
+  ],
+  "probe_ids": [
+   "S-PAT-02a",
+   "S-PAT-02b"
+  ],
+  "primitives": [
+   "P8"
+  ],
+  "bars": [
+   "1d"
+  ],
+  "universes": [
+   "single_asset"
+  ],
+  "data_needed": [
+   "klines_1d"
+  ],
+  "lookbacks": [
+   38,
+   63
+  ],
+  "thresholds": [
+   1.5,
+   0.75,
+   4
+  ],
+  "holds": [
+   "1d",
+   "20d",
+   "40d",
+   "60d"
+  ],
+  "testable": {
+   "Y": 2
+  },
+  "runnable": true
+ },
+ {
+  "archetype": "TS_STATE",
+  "variable": "bollinger_pct_b",
+  "n_probes": 2,
+  "cards": [
+   "S-BRK-08",
+   "S-MR-03"
+  ],
+  "probe_ids": [
+   "S-BRK-08c",
+   "S-MR-03a"
+  ],
+  "primitives": [
+   "P1",
+   "P2"
+  ],
+  "bars": [
+   "1d"
+  ],
+  "universes": [
+   "single_asset"
+  ],
+  "data_needed": [
+   "klines_1d"
+  ],
+  "lookbacks": [
+   20
+  ],
+  "thresholds": [
+   0,
+   1
+  ],
+  "holds": [
+   "signal_defined"
+  ],
+  "testable": {
+   "Y": 2
+  },
+  "runnable": true
+ },
+ {
+  "archetype": "TS_STATE",
+  "variable": "cci",
+  "n_probes": 2,
+  "cards": [
+   "S-MR-05"
+  ],
+  "probe_ids": [
+   "S-MR-05a",
+   "S-MR-05b"
+  ],
+  "primitives": [
+   "P1"
+  ],
+  "bars": [
+   "1d"
+  ],
+  "universes": [
+   "single_asset"
+  ],
+  "data_needed": [
+   "klines_1d"
+  ],
+  "lookbacks": [
+   20
+  ],
+  "thresholds": [
+   100,
+   200
+  ],
+  "holds": [
+   "signal_defined"
+  ],
+  "testable": {
+   "Y": 2
+  },
+  "runnable": true
+ },
+ {
+  "archetype": "TS_STATE",
+  "variable": "open_k_prior_range_break",
+  "n_probes": 2,
+  "cards": [
+   "S-BRK-06"
+  ],
+  "probe_ids": [
+   "S-BRK-06a",
+   "S-BRK-06b"
+  ],
+  "primitives": [
+   "P1"
+  ],
+  "bars": [
+   "1d",
+   "5m"
+  ],
+  "universes": [
+   "single_asset"
+  ],
+  "data_needed": [
+   "klines_1d",
+   "klines_intraday"
+  ],
+  "lookbacks": [],
+  "thresholds": [],
+  "holds": [
+   "to 21:59 same day",
+   "to next daily open"
+  ],
+  "testable": {
+   "Y": 2
+  },
+  "runnable": true
+ },
+ {
+  "archetype": "TS_STATE",
+  "variable": "rsi",
+  "n_probes": 2,
+  "cards": [
+   "S-MR-01",
+   "S-MR-02"
+  ],
+  "probe_ids": [
+   "S-MR-01a",
+   "S-MR-02a"
+  ],
+  "primitives": [
+   "P1"
+  ],
+  "bars": [
+   "1d"
+  ],
+  "universes": [
+   "single_asset"
+  ],
+  "data_needed": [
+   "klines_1d"
+  ],
+  "lookbacks": [
+   2,
+   14
+  ],
+  "thresholds": [
+   30,
+   70
+  ],
+  "holds": [
+   "signal_defined"
+  ],
+  "testable": {
+   "Y": 2
+  },
+  "runnable": true
+ },
+ {
+  "archetype": "TS_STATE",
+  "variable": "stochastic",
+  "n_probes": 2,
+  "cards": [
+   "S-MR-02"
+  ],
+  "probe_ids": [
+   "S-MR-02b",
+   "S-MR-02c"
+  ],
+  "primitives": [
+   "P1"
+  ],
+  "bars": [
+   "1d"
+  ],
+  "universes": [
+   "single_asset"
+  ],
+  "data_needed": [
+   "klines_1d"
+  ],
+  "lookbacks": [
+   5,
+   9,
+   14
+  ],
+  "thresholds": [
+   -80,
+   -20
+  ],
+  "holds": [
+   "signal_defined"
+  ],
+  "testable": {
+   "Y": 2
+  },
+  "runnable": true
+ },
+ {
+  "archetype": "VOL_STATE",
+  "variable": "narrow_range_nr_n",
+  "n_probes": 2,
+  "cards": [
+   "S-BRK-01",
+   "S-BRK-02"
+  ],
+  "probe_ids": [
+   "S-BRK-01a",
+   "S-BRK-02a"
+  ],
+  "primitives": [
+   "P2"
+  ],
+  "bars": [
+   "1d"
+  ],
+  "universes": [
+   "single_asset"
+  ],
+  "data_needed": [
+   "klines_1d"
+  ],
+  "lookbacks": [],
+  "thresholds": [],
+  "holds": [
+   "10 days",
+   "signal_defined"
+  ],
+  "testable": {
+   "Y": 2
+  },
+  "runnable": true
+ },
+ {
+  "archetype": "XS_RANK",
+  "variable": "basis",
+  "n_probes": 2,
+  "cards": [
+   "S-CARRY-11",
+   "S-CARRY-12"
+  ],
+  "probe_ids": [
+   "S-CARRY-11a",
+   "S-CARRY-12a"
+  ],
+  "primitives": [
+   "P4"
+  ],
+  "bars": [
+   "1mo"
+  ],
+  "universes": [
+   "cross_section"
+  ],
+  "data_needed": [
+   "equities"
+  ],
+  "lookbacks": [],
+  "thresholds": [],
+  "holds": [
+   "1 month"
+  ],
+  "testable": {
+   "N": 2
+  },
+  "runnable": false
+ },
+ {
+  "archetype": "XS_RANK",
+  "variable": "distance_to_high",
+  "n_probes": 2,
+  "cards": [
+   "S-XS-05",
+   "S-XS-14"
+  ],
+  "probe_ids": [
+   "S-XS-05a",
+   "S-XS-14a"
+  ],
+  "primitives": [
+   "P3"
+  ],
+  "bars": [
+   "1d"
+  ],
+  "universes": [
+   "cross_section"
+  ],
+  "data_needed": [
+   "klines_1d",
+   "market_cap"
+  ],
+  "lookbacks": [
+   52,
+   1,
+   2,
+   4,
+   12,
+   26
+  ],
+  "thresholds": [],
+  "holds": [
+   "1 week",
+   "6 months"
+  ],
+  "testable": {
+   "Y": 1,
+   "Partial": 1
+  },
+  "runnable": true
+ },
+ {
+  "archetype": "CARRY",
+  "variable": "atm_call_premium",
+  "n_probes": 1,
+  "cards": [
+   "S-CARRY-14"
+  ],
+  "probe_ids": [
+   "S-CARRY-14b"
+  ],
+  "primitives": [
+   "P4"
+  ],
+  "bars": [
+   "1d"
+  ],
+  "universes": [
+   "single_asset"
+  ],
+  "data_needed": [
+   "equities",
+   "options"
+  ],
+  "lookbacks": [],
+  "thresholds": [],
+  "holds": [
+   "1 month (to expiry)"
+  ],
+  "testable": {
+   "N": 1
+  },
+  "runnable": false
+ },
+ {
+  "archetype": "CARRY",
+  "variable": "atm_put_premium",
+  "n_probes": 1,
+  "cards": [
+   "S-CARRY-14"
+  ],
+  "probe_ids": [
+   "S-CARRY-14a"
+  ],
+  "primitives": [
+   "P4"
+  ],
+  "bars": [
+   "1d"
+  ],
+  "universes": [
+   "single_asset"
+  ],
+  "data_needed": [
+   "equities",
+   "options"
+  ],
+  "lookbacks": [],
+  "thresholds": [],
+  "holds": [
+   "1 month (to expiry)"
+  ],
+  "testable": {
+   "N": 1
+  },
+  "runnable": false
+ },
+ {
+  "archetype": "CARRY",
+  "variable": "atm_straddle_premium",
+  "n_probes": 1,
+  "cards": [
+   "S-CARRY-15"
+  ],
+  "probe_ids": [
+   "S-CARRY-15b"
+  ],
+  "primitives": [
+   "P4"
+  ],
+  "bars": [
+   "1d"
+  ],
+  "universes": [
+   "single_asset"
+  ],
+  "data_needed": [
+   "equities",
+   "options"
+  ],
+  "lookbacks": [],
+  "thresholds": [],
+  "holds": [
+   "1 week"
+  ],
+  "testable": {
+   "N": 1
+  },
+  "runnable": false
+ },
+ {
+  "archetype": "CARRY",
+  "variable": "average_forward_discount",
+  "n_probes": 1,
+  "cards": [
+   "S-CARRY-10"
+  ],
+  "probe_ids": [
+   "S-CARRY-10a"
+  ],
+  "primitives": [
+   "P4"
+  ],
+  "bars": [
+   "1mo"
+  ],
+  "universes": [
+   "market_wide"
+  ],
+  "data_needed": [
+   "fx"
+  ],
+  "lookbacks": [],
+  "thresholds": [
+   0
+  ],
+  "holds": [
+   "1 month"
+  ],
+  "testable": {
+   "N": 1
+  },
+  "runnable": false
+ },
+ {
+  "archetype": "CARRY",
+  "variable": "forward_discount",
+  "n_probes": 1,
+  "cards": [
+   "S-CARRY-09"
+  ],
+  "probe_ids": [
+   "S-CARRY-09a"
+  ],
+  "primitives": [
+   "P4"
+  ],
+  "bars": [
+   "1mo"
+  ],
+  "universes": [
+   "single_asset"
+  ],
+  "data_needed": [
+   "fx"
+  ],
+  "lookbacks": [],
+  "thresholds": [
+   0
+  ],
+  "holds": [
+   "1 month"
+  ],
+  "testable": {
+   "N": 1
+  },
+  "runnable": false
+ },
+ {
+  "archetype": "CARRY",
+  "variable": "funding_rate",
+  "n_probes": 1,
+  "cards": [
+   "S-CARRY-01"
+  ],
+  "probe_ids": [
+   "S-CARRY-01a"
+  ],
+  "primitives": [
+   "P4"
+  ],
+  "bars": [
+   "8h"
+  ],
+  "universes": [
+   "single_asset"
+  ],
+  "data_needed": [
+   "funding",
+   "klines_intraday",
+   "premium"
+  ],
+  "lookbacks": [],
+  "thresholds": [],
+  "holds": [
+   "continuous (returns measured per 8h funding period)"
+  ],
+  "testable": {
+   "Partial": 1
+  },
+  "runnable": false
+ },
+ {
+  "archetype": "CARRY",
+  "variable": "otm_call_premium",
+  "n_probes": 1,
+  "cards": [
+   "S-CARRY-16"
+  ],
+  "probe_ids": [
+   "S-CARRY-16a"
+  ],
+  "primitives": [
+   "P4"
+  ],
+  "bars": [
+   "1h"
+  ],
+  "universes": [
+   "single_asset"
+  ],
+  "data_needed": [
+   "klines_intraday",
+   "options"
+  ],
+  "lookbacks": [],
+  "thresholds": [],
+  "holds": [
+   "30 days (to expiry)"
+  ],
+  "testable": {
+   "Partial": 1
+  },
+  "runnable": false
+ },
+ {
+  "archetype": "CLOCK",
+  "variable": "day_of_month",
+  "n_probes": 1,
+  "cards": [
+   "S-CAL-01"
+  ],
+  "probe_ids": [
+   "S-CAL-01a"
+  ],
+  "primitives": [
+   "P5"
+  ],
+  "bars": [
+   "1d"
+  ],
+  "universes": [
+   "market_wide"
+  ],
+  "data_needed": [
+   "klines_1d"
+  ],
+  "lookbacks": [],
+  "thresholds": [],
+  "holds": [
+   "4 trading days"
+  ],
+  "testable": {
+   "Y": 1
+  },
+  "runnable": true
+ },
+ {
+  "archetype": "CLOCK",
+  "variable": "month_of_year",
+  "n_probes": 1,
+  "cards": [
+   "S-CAL-05"
+  ],
+  "probe_ids": [
+   "S-CAL-05a"
+  ],
+  "primitives": [
+   "P5"
+  ],
+  "bars": [
+   "1mo"
+  ],
+  "universes": [
+   "market_wide"
+  ],
+  "data_needed": [
+   "klines_1d"
+  ],
+  "lookbacks": [],
+  "thresholds": [],
+  "holds": [
+   "6 months (November to April)"
+  ],
+  "testable": {
+   "Y": 1
+  },
+  "runnable": true
+ },
+ {
+  "archetype": "CLOCK",
+  "variable": "weekday",
+  "n_probes": 1,
+  "cards": [
+   "S-CAL-02"
+  ],
+  "probe_ids": [
+   "S-CAL-02a"
+  ],
+  "primitives": [
+   "P5"
+  ],
+  "bars": [
+   "1d"
+  ],
+  "universes": [
+   "market_wide"
+  ],
+  "data_needed": [
+   "klines_1d"
+  ],
+  "lookbacks": [],
+  "thresholds": [],
+  "holds": [
+   "weekend return: Friday close to the next trading-day close"
+  ],
+  "testable": {
+   "Y": 1
+  },
+  "runnable": true
+ },
+ {
+  "archetype": "EVENT",
+  "variable": "fomc_cycle_week",
+  "n_probes": 1,
+  "cards": [
+   "S-CAL-10"
+  ],
+  "probe_ids": [
+   "S-CAL-10b"
+  ],
+  "primitives": [
+   "P5"
+  ],
+  "bars": [
+   "1d"
+  ],
+  "universes": [
+   "market_wide"
+  ],
+  "data_needed": [
+   "calendar_events",
+   "klines_1d"
+  ],
+  "lookbacks": [],
+  "thresholds": [],
+  "holds": [
+   "5 weekdays per even FOMC-cycle week"
+  ],
+  "testable": {
+   "Partial": 1
+  },
+  "runnable": false
+ },
+ {
+  "archetype": "EVENT",
+  "variable": "index_membership_change",
+  "n_probes": 1,
+  "cards": [
+   "S-CAL-13"
+  ],
+  "probe_ids": [
+   "S-CAL-13a"
+  ],
+  "primitives": [
+   "P5"
+  ],
+  "bars": [
+   "1d"
+  ],
+  "universes": [
+   "single_asset"
+  ],
+  "data_needed": [
+   "calendar_events",
+   "equities"
+  ],
+  "lookbacks": [],
+  "thresholds": [],
+  "holds": [
+   "day before announcement to day after effective date (mean 4.8 days to effective for additions, 5.8 for deletions)"
+  ],
+  "testable": {
+   "N": 1
+  },
+  "runnable": false
+ },
+ {
+  "archetype": "EVENT",
+  "variable": "macro_announcement_day",
+  "n_probes": 1,
+  "cards": [
+   "S-CAL-11"
+  ],
+  "probe_ids": [
+   "S-CAL-11a"
+  ],
+  "primitives": [
+   "P5"
+  ],
+  "bars": [
+   "1d"
+  ],
+  "universes": [
+   "market_wide"
+  ],
+  "data_needed": [
+   "calendar_events",
+   "klines_1d"
+  ],
+  "lookbacks": [],
+  "thresholds": [],
+  "holds": [
+   "1 day"
+  ],
+  "testable": {
+   "Partial": 1
+  },
+  "runnable": false
+ },
+ {
+  "archetype": "EVENT",
+  "variable": "option_expiration_week",
+  "n_probes": 1,
+  "cards": [
+   "S-CAL-15"
+  ],
+  "probe_ids": [
+   "S-CAL-15a"
+  ],
+  "primitives": [
+   "P5"
+  ],
+  "bars": [
+   "1d"
+  ],
+  "universes": [
+   "market_wide"
+  ],
+  "data_needed": [
+   "calendar_events",
+   "klines_1d"
+  ],
+  "lookbacks": [],
+  "thresholds": [],
+  "holds": [
+   "1 week (the expiration week)"
+  ],
+  "testable": {
+   "Partial": 1
+  },
+  "runnable": false
+ },
+ {
+  "archetype": "EVENT",
+  "variable": "pre_fomc_window",
+  "n_probes": 1,
+  "cards": [
+   "S-CAL-10"
+  ],
+  "probe_ids": [
+   "S-CAL-10a"
+  ],
+  "primitives": [
+   "P5"
+  ],
+  "bars": [
+   "15m"
+  ],
+  "universes": [
+   "market_wide"
+  ],
+  "data_needed": [
+   "calendar_events",
+   "klines_intraday"
+  ],
+  "lookbacks": [],
+  "thresholds": [],
+  "holds": [
+   "from 24 h before to 15 min before the statement"
+  ],
+  "testable": {
+   "Partial": 1
+  },
+  "runnable": false
+ },
+ {
+  "archetype": "EVENT",
+  "variable": "pre_holiday",
+  "n_probes": 1,
+  "cards": [
+   "S-CAL-03"
+  ],
+  "probe_ids": [
+   "S-CAL-03a"
+  ],
+  "primitives": [
+   "P5"
+  ],
+  "bars": [
+   "1d"
+  ],
+  "universes": [
+   "market_wide"
+  ],
+  "data_needed": [
+   "calendar_events",
+   "klines_1d"
+  ],
+  "lookbacks": [],
+  "thresholds": [],
+  "holds": [
+   "1 trading day"
+  ],
+  "testable": {
+   "Partial": 1
+  },
+  "runnable": false
+ },
+ {
+  "archetype": "FLOW_STATE",
+  "variable": "long_short_ratio",
+  "n_probes": 1,
+  "cards": [
+   "S-FLOW-09"
+  ],
+  "probe_ids": [
+   "S-FLOW-09a"
+  ],
+  "primitives": [
+   "P6"
+  ],
+  "bars": [
+   "1d"
+  ],
+  "universes": [
+   "single_asset"
+  ],
+  "data_needed": [
+   "klines_1d",
+   "long_short_ratio"
+  ],
+  "lookbacks": [],
+  "thresholds": [
+   4
+  ],
+  "holds": [
+   "signal_defined"
+  ],
+  "testable": {
+   "Y": 1
+  },
+  "runnable": true
+ },
+ {
+  "archetype": "FLOW_STATE",
+  "variable": "order_flow_imbalance",
+  "n_probes": 1,
+  "cards": [
+   "S-FLOW-02"
+  ],
+  "probe_ids": [
+   "S-FLOW-02b"
+  ],
+  "primitives": [
+   "P9a"
+  ],
+  "bars": [
+   "tick"
+  ],
+  "universes": [
+   "single_asset"
+  ],
+  "data_needed": [
+   "orderbook"
+  ],
+  "lookbacks": [],
+  "thresholds": [],
+  "holds": [
+   "contemporaneous (same 10 s interval)"
+  ],
+  "testable": {
+   "N": 1
+  },
+  "runnable": false
+ },
+ {
+  "archetype": "FLOW_STATE",
+  "variable": "queue_imbalance",
+  "n_probes": 1,
+  "cards": [
+   "S-FLOW-02"
+  ],
+  "probe_ids": [
+   "S-FLOW-02a"
+  ],
+  "primitives": [
+   "P9a"
+  ],
+  "bars": [
+   "tick"
+  ],
+  "universes": [
+   "single_asset"
+  ],
+  "data_needed": [
+   "orderbook"
+  ],
+  "lookbacks": [],
+  "thresholds": [],
+  "holds": [
+   "next mid-price change"
+  ],
+  "testable": {
+   "N": 1
+  },
+  "runnable": false
+ },
+ {
+  "archetype": "FLOW_STATE",
+  "variable": "stablecoin_issuance",
+  "n_probes": 1,
+  "cards": [
+   "S-FLOW-14"
+  ],
+  "probe_ids": [
+   "S-FLOW-14a"
+  ],
+  "primitives": [
+   "P9b"
+  ],
+  "bars": [
+   "1h"
+  ],
+  "universes": [
+   "market_wide"
+  ],
+  "data_needed": [
+   "klines_intraday",
+   "onchain"
+  ],
+  "lookbacks": [],
+  "thresholds": [
+   "issuance >= US$1m"
+  ],
+  "holds": [
+   "24 h (0 to +24 h after issuance)"
+  ],
+  "testable": {
+   "N": 1
+  },
+  "runnable": false
+ },
+ {
+  "archetype": "LEVEL_TOUCH",
+  "variable": "fib_retracement_cross",
+  "n_probes": 1,
+  "cards": [
+   "S-PAT-06"
+  ],
+  "probe_ids": [
+   "S-PAT-06a"
+  ],
+  "primitives": [
+   "P8"
+  ],
+  "bars": [
+   "1d"
+  ],
+  "universes": [
+   "single_asset"
+  ],
+  "data_needed": [
+   "klines_1d"
+  ],
+  "lookbacks": [
+   50
+  ],
+  "thresholds": [
+   23.6,
+   38.2,
+   50,
+   61.8,
+   78.6
+  ],
+  "holds": [
+   "signal_defined"
+  ],
+  "testable": {
+   "Y": 1
+  },
+  "runnable": true
+ },
+ {
+  "archetype": "LEVEL_TOUCH",
+  "variable": "fib_zone_touch",
+  "n_probes": 1,
+  "cards": [
+   "S-PAT-06"
+  ],
+  "probe_ids": [
+   "S-PAT-06b"
+  ],
+  "primitives": [
+   "P8"
+  ],
+  "bars": [
+   "1d"
+  ],
+  "universes": [
+   "single_asset"
+  ],
+  "data_needed": [
+   "klines_1d"
+  ],
+  "lookbacks": [],
+  "thresholds": [
+   23.6,
+   38.2,
+   50,
+   61.8,
+   78.6
+  ],
+  "holds": [
+   "signal_defined"
+  ],
+  "testable": {
+   "Y": 1
+  },
+  "runnable": true
+ },
+ {
+  "archetype": "LEVEL_TOUCH",
+  "variable": "fvg_zone_touch",
+  "n_probes": 1,
+  "cards": [
+   "S-PAT-14"
+  ],
+  "probe_ids": [
+   "S-PAT-14a"
+  ],
+  "primitives": [
+   "P8"
+  ],
+  "bars": [
+   "1m"
+  ],
+  "universes": [
+   "single_asset"
+  ],
+  "data_needed": [
+   "klines_intraday"
+  ],
+  "lookbacks": [],
+  "thresholds": [],
+  "holds": [
+   "signal_defined"
+  ],
+  "testable": {
+   "Y": 1
+  },
+  "runnable": true
+ },
+ {
+  "archetype": "LEVEL_TOUCH",
+  "variable": "harmonic_pattern",
+  "n_probes": 1,
+  "cards": [
+   "S-PAT-07"
+  ],
+  "probe_ids": [
+   "S-PAT-07a"
+  ],
+  "primitives": [
+   "P8"
+  ],
+  "bars": [
+   "1h"
+  ],
+  "universes": [
+   "single_asset"
+  ],
+  "data_needed": [
+   "klines_intraday"
+  ],
+  "lookbacks": [],
+  "thresholds": [],
+  "holds": [
+   "signal_defined"
+  ],
+  "testable": {
+   "Y": 1
+  },
+  "runnable": true
+ },
+ {
+  "archetype": "LEVEL_TOUCH",
+  "variable": "pivot_level_break",
+  "n_probes": 1,
+  "cards": [
+   "S-PAT-05"
+  ],
+  "probe_ids": [
+   "S-PAT-05b"
+  ],
+  "primitives": [
+   "P8"
+  ],
+  "bars": [
+   "1m"
+  ],
+  "universes": [
+   "single_asset"
+  ],
+  "data_needed": [
+   "klines_1d",
+   "klines_intraday"
+  ],
+  "lookbacks": [],
+  "thresholds": [],
+  "holds": [
+   "signal_defined"
+  ],
+  "testable": {
+   "Y": 1
+  },
+  "runnable": true
+ },
+ {
+  "archetype": "LEVEL_TOUCH",
+  "variable": "pivot_level_touch",
+  "n_probes": 1,
+  "cards": [
+   "S-PAT-05"
+  ],
+  "probe_ids": [
+   "S-PAT-05a"
+  ],
+  "primitives": [
+   "P8"
+  ],
+  "bars": [
+   "1m"
+  ],
+  "universes": [
+   "single_asset"
+  ],
+  "data_needed": [
+   "klines_1d",
+   "klines_intraday"
+  ],
+  "lookbacks": [],
+  "thresholds": [],
+  "holds": [
+   "signal_defined"
+  ],
+  "testable": {
+   "Y": 1
+  },
+  "runnable": true
+ },
+ {
+  "archetype": "LEVEL_TOUCH",
+  "variable": "prior_extreme_touch",
+  "n_probes": 1,
+  "cards": [
+   "S-PAT-03"
+  ],
+  "probe_ids": [
+   "S-PAT-03b"
+  ],
+  "primitives": [
+   "P8"
+  ],
+  "bars": [
+   "1m"
+  ],
+  "universes": [
+   "single_asset"
+  ],
+  "data_needed": [
+   "klines_intraday"
+  ],
+  "lookbacks": [],
+  "thresholds": [],
+  "holds": [
+   "15m",
+   "30m"
+  ],
+  "testable": {
+   "Y": 1
+  },
+  "runnable": true
+ },
+ {
+  "archetype": "LEVEL_TOUCH",
+  "variable": "round_number_cross",
+  "n_probes": 1,
+  "cards": [
+   "S-PAT-04"
+  ],
+  "probe_ids": [
+   "S-PAT-04b"
+  ],
+  "primitives": [
+   "P8"
+  ],
+  "bars": [
+   "1m"
+  ],
+  "universes": [
+   "single_asset"
+  ],
+  "data_needed": [
+   "klines_intraday"
+  ],
+  "lookbacks": [],
+  "thresholds": [],
+  "holds": [
+   "15m",
+   "30m"
+  ],
+  "testable": {
+   "Y": 1
+  },
+  "runnable": true
+ },
+ {
+  "archetype": "LEVEL_TOUCH",
+  "variable": "setup_bar_extreme_break",
+  "n_probes": 1,
+  "cards": [
+   "S-BRK-02"
+  ],
+  "probe_ids": [
+   "S-BRK-02c"
+  ],
+  "primitives": [
+   "P2"
+  ],
+  "bars": [
+   "1d"
+  ],
+  "universes": [
+   "single_asset"
+  ],
+  "data_needed": [
+   "klines_1d"
+  ],
+  "lookbacks": [],
+  "thresholds": [],
+  "holds": [
+   "signal_defined"
+  ],
+  "testable": {
+   "Y": 1
+  },
+  "runnable": true
+ },
+ {
+  "archetype": "LEVEL_TOUCH",
+  "variable": "support_resistance_break",
+  "n_probes": 1,
+  "cards": [
+   "S-BRK-10"
+  ],
+  "probe_ids": [
+   "S-BRK-10b"
+  ],
+  "primitives": [
+   "P1"
+  ],
+  "bars": [
+   "1d"
+  ],
+  "universes": [
+   "single_asset"
+  ],
+  "data_needed": [
+   "klines_1d"
+  ],
+  "lookbacks": [],
+  "thresholds": [],
+  "holds": [
+   "signal_defined"
+  ],
+  "testable": {
+   "Y": 1
+  },
+  "runnable": true
+ },
+ {
+  "archetype": "LEVEL_TOUCH",
+  "variable": "swing_break",
+  "n_probes": 1,
+  "cards": [
+   "S-PAT-14"
+  ],
+  "probe_ids": [
+   "S-PAT-14b"
+  ],
+  "primitives": [
+   "P8"
+  ],
+  "bars": [
+   "1m"
+  ],
+  "universes": [
+   "single_asset"
+  ],
+  "data_needed": [
+   "klines_intraday"
+  ],
+  "lookbacks": [],
+  "thresholds": [],
+  "holds": [
+   "signal_defined"
+  ],
+  "testable": {
+   "Y": 1
+  },
+  "runnable": true
+ },
+ {
+  "archetype": "LEVEL_TOUCH",
+  "variable": "value_area_reentry",
+  "n_probes": 1,
+  "cards": [
+   "S-PAT-12"
+  ],
+  "probe_ids": [
+   "S-PAT-12a"
+  ],
+  "primitives": [
+   "P7"
+  ],
+  "bars": [
+   "1m"
+  ],
+  "universes": [
+   "single_asset"
+  ],
+  "data_needed": [
+   "klines_intraday"
+  ],
+  "lookbacks": [],
+  "thresholds": [],
+  "holds": [
+   "signal_defined"
+  ],
+  "testable": {
+   "Partial": 1
+  },
+  "runnable": false
+ },
+ {
+  "archetype": "MODEL",
+  "variable": "btc_direction_classifier",
+  "n_probes": 1,
+  "cards": [
+   "S-MOD-09"
+  ],
+  "probe_ids": [
+   "S-MOD-09a"
+  ],
+  "primitives": [
+   "P9"
+  ],
+  "bars": [
+   "1m"
+  ],
+  "universes": [
+   "single_asset"
+  ],
+  "data_needed": [
+   "equities",
+   "fx",
+   "klines_intraday",
+   "onchain",
+   "sentiment_index"
+  ],
+  "lookbacks": [],
+  "thresholds": [],
+  "holds": [
+   "1 minute",
+   "15 minutes",
+   "5 minutes",
+   "60 minutes"
+  ],
+  "testable": {
+   "Partial": 1
+  },
+  "runnable": false
+ },
+ {
+  "archetype": "MODEL",
+  "variable": "characteristics_return_forecast",
+  "n_probes": 1,
+  "cards": [
+   "S-MOD-10"
+  ],
+  "probe_ids": [
+   "S-MOD-10a"
+  ],
+  "primitives": [
+   "P3"
+  ],
+  "bars": [
+   "1d"
+  ],
+  "universes": [
+   "cross_section"
+  ],
+  "data_needed": [
+   "equities",
+   "klines_1d",
+   "market_cap"
+  ],
+  "lookbacks": [],
+  "thresholds": [],
+  "holds": [
+   "1 month"
+  ],
+  "testable": {
+   "Partial": 1
+  },
+  "runnable": false
+ },
+ {
+  "archetype": "MODEL",
+  "variable": "deep_momentum_network",
+  "n_probes": 1,
+  "cards": [
+   "S-MOD-06"
+  ],
+  "probe_ids": [
+   "S-MOD-06a"
+  ],
+  "primitives": [
+   "P1"
+  ],
+  "bars": [
+   "1d"
+  ],
+  "universes": [
+   "single_asset"
+  ],
+  "data_needed": [
+   "klines_1d"
+  ],
+  "lookbacks": [],
+  "thresholds": [],
+  "holds": [
+   "signal_defined"
+  ],
+  "testable": {
+   "Y": 1
+  },
+  "runnable": true
+ },
+ {
+  "archetype": "MODEL",
+  "variable": "deep_rl_agent",
+  "n_probes": 1,
+  "cards": [
+   "S-MOD-11"
+  ],
+  "probe_ids": [
+   "S-MOD-11a"
+  ],
+  "primitives": [
+   "P1"
+  ],
+  "bars": [
+   "1d"
+  ],
+  "universes": [
+   "single_asset"
+  ],
+  "data_needed": [
+   "klines_1d"
+  ],
+  "lookbacks": [],
+  "thresholds": [],
+  "holds": [
+   "signal_defined"
+  ],
+  "testable": {
+   "Y": 1
+  },
+  "runnable": true
+ },
+ {
+  "archetype": "MODEL",
+  "variable": "gp_evolved_rule",
+  "n_probes": 1,
+  "cards": [
+   "S-MOD-14"
+  ],
+  "probe_ids": [
+   "S-MOD-14a"
+  ],
+  "primitives": [
+   "P1"
+  ],
+  "bars": [
+   "1d"
+  ],
+  "universes": [
+   "single_asset"
+  ],
+  "data_needed": [
+   "klines_1d"
+  ],
+  "lookbacks": [],
+  "thresholds": [],
+  "holds": [
+   "signal_defined"
+  ],
+  "testable": {
+   "Y": 1
+  },
+  "runnable": true
+ },
+ {
+  "archetype": "MODEL",
+  "variable": "hmm_regime",
+  "n_probes": 1,
+  "cards": [
+   "S-MOD-01"
+  ],
+  "probe_ids": [
+   "S-MOD-01b"
+  ],
+  "primitives": [
+   "P2"
+  ],
+  "bars": [
+   "1d"
+  ],
+  "universes": [
+   "single_asset"
+  ],
+  "data_needed": [
+   "klines_1d"
+  ],
+  "lookbacks": [],
+  "thresholds": [],
+  "holds": [
+   "signal_defined"
+  ],
+  "testable": {
+   "Y": 1
+  },
+  "runnable": true
+ },
+ {
+  "archetype": "MODEL",
+  "variable": "jump_model_regime",
+  "n_probes": 1,
+  "cards": [
+   "S-MOD-01"
+  ],
+  "probe_ids": [
+   "S-MOD-01a"
+  ],
+  "primitives": [
+   "P2"
+  ],
+  "bars": [
+   "1d"
+  ],
+  "universes": [
+   "single_asset"
+  ],
+  "data_needed": [
+   "klines_1d"
+  ],
+  "lookbacks": [],
+  "thresholds": [],
+  "holds": [
+   "signal_defined"
+  ],
+  "testable": {
+   "Y": 1
+  },
+  "runnable": true
+ },
+ {
+  "archetype": "MODEL",
+  "variable": "past_return_lag_forecast",
+  "n_probes": 1,
+  "cards": [
+   "S-XS-02"
+  ],
+  "probe_ids": [
+   "S-XS-02b"
+  ],
+  "primitives": [
+   "P3"
+  ],
+  "bars": [
+   "1mo"
+  ],
+  "universes": [
+   "cross_section"
+  ],
+  "data_needed": [
+   "klines_1d"
+  ],
+  "lookbacks": [],
+  "thresholds": [],
+  "holds": [
+   "1 month"
+  ],
+  "testable": {
+   "Y": 1
+  },
+  "runnable": true
+ },
+ {
+  "archetype": "TS_STATE",
+  "variable": "asian_range_break",
+  "n_probes": 1,
+  "cards": [
+   "S-BRK-07"
+  ],
+  "probe_ids": [
+   "S-BRK-07b"
+  ],
+  "primitives": [
+   "P5"
+  ],
+  "bars": [
+   "1h"
+  ],
+  "universes": [
+   "single_asset"
+  ],
+  "data_needed": [
+   "fx"
+  ],
+  "lookbacks": [],
+  "thresholds": [],
+  "holds": [
+   "signal_defined"
+  ],
+  "testable": {
+   "Partial": 1
+  },
+  "runnable": false
+ },
+ {
+  "archetype": "TS_STATE",
+  "variable": "consecutive_down_days",
+  "n_probes": 1,
+  "cards": [
+   "S-MR-07"
+  ],
+  "probe_ids": [
+   "S-MR-07b"
+  ],
+  "primitives": [
+   "P1"
+  ],
+  "bars": [
+   "1d"
+  ],
+  "universes": [
+   "single_asset"
+  ],
+  "data_needed": [
+   "klines_1d"
+  ],
+  "lookbacks": [],
+  "thresholds": [],
+  "holds": [
+   "signal_defined"
+  ],
+  "testable": {
+   "Y": 1
+  },
+  "runnable": true
+ },
+ {
+  "archetype": "TS_STATE",
+  "variable": "dmi_sign",
+  "n_probes": 1,
+  "cards": [
+   "S-TREND-08"
+  ],
+  "probe_ids": [
+   "S-TREND-08a"
+  ],
+  "primitives": [
+   "P1"
+  ],
+  "bars": [
+   "1d"
+  ],
+  "universes": [
+   "single_asset"
+  ],
+  "data_needed": [
+   "klines_1d"
+  ],
+  "lookbacks": [],
+  "thresholds": [],
+  "holds": [
+   "signal_defined"
+  ],
+  "testable": {
+   "Y": 1
+  },
+  "runnable": true
+ },
+ {
+  "archetype": "TS_STATE",
+  "variable": "ema_cross",
+  "n_probes": 1,
+  "cards": [
+   "S-TREND-06"
+  ],
+  "probe_ids": [
+   "S-TREND-06a"
+  ],
+  "primitives": [
+   "P1"
+  ],
+  "bars": [
+   "1d"
+  ],
+  "universes": [
+   "single_asset"
+  ],
+  "data_needed": [
+   "klines_1d"
+  ],
+  "lookbacks": [],
+  "thresholds": [],
+  "holds": [
+   "signal_defined"
+  ],
+  "testable": {
+   "Y": 1
+  },
+  "runnable": true
+ },
+ {
+  "archetype": "TS_STATE",
+  "variable": "equity_weight_drift_beyond_band",
+  "n_probes": 1,
+  "cards": [
+   "S-CAL-14"
+  ],
+  "probe_ids": [
+   "S-CAL-14b"
+  ],
+  "primitives": [
+   "P5"
+  ],
+  "bars": [
+   "1d"
+  ],
+  "universes": [
+   "market_wide"
+  ],
+  "data_needed": [
+   "equities"
+  ],
+  "lookbacks": [],
+  "thresholds": [],
+  "holds": [
+   "1 day"
+  ],
+  "testable": {
+   "Partial": 1
+  },
+  "runnable": false
+ },
+ {
+  "archetype": "TS_STATE",
+  "variable": "fear_greed_index",
+  "n_probes": 1,
+  "cards": [
+   "S-FLOW-13"
+  ],
+  "probe_ids": [
+   "S-FLOW-13a"
+  ],
+  "primitives": [
+   "P1"
+  ],
+  "bars": [
+   "1d"
+  ],
+  "universes": [
+   "single_asset"
+  ],
+  "data_needed": [
+   "klines_1d",
+   "sentiment_index"
+  ],
+  "lookbacks": [],
+  "thresholds": [],
+  "holds": [
+   "signal_defined"
+  ],
+  "testable": {
+   "Partial": 1
+  },
+  "runnable": false
+ },
+ {
+  "archetype": "TS_STATE",
+  "variable": "heikin_ashi_colour",
+  "n_probes": 1,
+  "cards": [
+   "S-TREND-14"
+  ],
+  "probe_ids": [
+   "S-TREND-14a"
+  ],
+  "primitives": [
+   "P1"
+  ],
+  "bars": [
+   "1d"
+  ],
+  "universes": [
+   "single_asset"
+  ],
+  "data_needed": [
+   "klines_1d"
+  ],
+  "lookbacks": [],
+  "thresholds": [],
+  "holds": [
+   "signal_defined"
+  ],
+  "testable": {
+   "Y": 1
+  },
+  "runnable": true
+ },
+ {
+  "archetype": "TS_STATE",
+  "variable": "hma_slope",
+  "n_probes": 1,
+  "cards": [
+   "S-TREND-13"
+  ],
+  "probe_ids": [
+   "S-TREND-13a"
+  ],
+  "primitives": [
+   "P1"
+  ],
+  "bars": [
+   "1d"
+  ],
+  "universes": [
+   "single_asset"
+  ],
+  "data_needed": [
+   "klines_1d"
+  ],
+  "lookbacks": [
+   20
+  ],
+  "thresholds": [],
+  "holds": [
+   "signal_defined"
+  ],
+  "testable": {
+   "Y": 1
+  },
+  "runnable": true
+ },
+ {
+  "archetype": "TS_STATE",
+  "variable": "ibs",
+  "n_probes": 1,
+  "cards": [
+   "S-MR-06"
+  ],
+  "probe_ids": [
+   "S-MR-06a"
+  ],
+  "primitives": [
+   "P1"
+  ],
+  "bars": [
+   "1d"
+  ],
+  "universes": [
+   "single_asset"
+  ],
+  "data_needed": [
+   "equities",
+   "klines_1d"
+  ],
+  "lookbacks": [
+   1
+  ],
+  "thresholds": [
+   0.2,
+   0.8
+  ],
+  "holds": [
+   "1 day (close to next close)"
+  ],
+  "testable": {
+   "Partial": 1
+  },
+  "runnable": false
+ },
+ {
+  "archetype": "TS_STATE",
+  "variable": "macd",
+  "n_probes": 1,
+  "cards": [
+   "S-TREND-06"
+  ],
+  "probe_ids": [
+   "S-TREND-06b"
+  ],
+  "primitives": [
+   "P1"
+  ],
+  "bars": [
+   "1d"
+  ],
+  "universes": [
+   "single_asset"
+  ],
+  "data_needed": [
+   "klines_1d"
+  ],
+  "lookbacks": [],
+  "thresholds": [],
+  "holds": [
+   "signal_defined"
+  ],
+  "testable": {
+   "Y": 1
+  },
+  "runnable": true
+ },
+ {
+  "archetype": "TS_STATE",
+  "variable": "market_illiquidity",
+  "n_probes": 1,
+  "cards": [
+   "S-XS-10"
+  ],
+  "probe_ids": [
+   "S-XS-10b"
+  ],
+  "primitives": [
+   "P3"
+  ],
+  "bars": [
+   "1d"
+  ],
+  "universes": [
+   "market_wide"
+  ],
+  "data_needed": [
+   "klines_1d"
+  ],
+  "lookbacks": [],
+  "thresholds": [],
+  "holds": [
+   "signal_defined"
+  ],
+  "testable": {
+   "Y": 1
+  },
+  "runnable": true
+ },
+ {
+  "archetype": "TS_STATE",
+  "variable": "noise_band_break",
+  "n_probes": 1,
+  "cards": [
+   "S-BRK-05"
+  ],
+  "probe_ids": [
+   "S-BRK-05a"
+  ],
+  "primitives": [
+   "P1"
+  ],
+  "bars": [
+   "15m"
+  ],
+  "universes": [
+   "single_asset"
+  ],
+  "data_needed": [
+   "equities"
+  ],
+  "lookbacks": [],
+  "thresholds": [],
+  "holds": [
+   "to 16:00 ET same day"
+  ],
+  "testable": {
+   "Partial": 1
+  },
+  "runnable": false
+ },
+ {
+  "archetype": "TS_STATE",
+  "variable": "open_noise_stretch_break",
+  "n_probes": 1,
+  "cards": [
+   "S-BRK-01"
+  ],
+  "probe_ids": [
+   "S-BRK-01b"
+  ],
+  "primitives": [
+   "P2"
+  ],
+  "bars": [
+   "1d"
+  ],
+  "universes": [
+   "single_asset"
+  ],
+  "data_needed": [
+   "klines_1d"
+  ],
+  "lookbacks": [],
+  "thresholds": [],
+  "holds": [
+   "10 days"
+  ],
+  "testable": {
+   "Y": 1
+  },
+  "runnable": true
+ },
+ {
+  "archetype": "TS_STATE",
+  "variable": "opening_bar_sign",
+  "n_probes": 1,
+  "cards": [
+   "S-BRK-03"
+  ],
+  "probe_ids": [
+   "S-BRK-03a"
+  ],
+  "primitives": [
+   "P1"
+  ],
+  "bars": [
+   "5m"
+  ],
+  "universes": [
+   "single_asset"
+  ],
+  "data_needed": [
+   "equities"
+  ],
+  "lookbacks": [],
+  "thresholds": [],
+  "holds": [
+   "to 16:00 ET same day"
+  ],
+  "testable": {
+   "Partial": 1
+  },
+  "runnable": false
+ },
+ {
+  "archetype": "TS_STATE",
+  "variable": "opening_range_break",
+  "n_probes": 1,
+  "cards": [
+   "S-BRK-04"
+  ],
+  "probe_ids": [
+   "S-BRK-04a"
+  ],
+  "primitives": [
+   "P1"
+  ],
+  "bars": [
+   "5m"
+  ],
+  "universes": [
+   "single_asset"
+  ],
+  "data_needed": [
+   "equities"
+  ],
+  "lookbacks": [],
+  "thresholds": [],
+  "holds": [
+   "to 16:00 ET same day"
+  ],
+  "testable": {
+   "Partial": 1
+  },
+  "runnable": false
+ },
+ {
+  "archetype": "TS_STATE",
+  "variable": "pnf_double_top_breakout",
+  "n_probes": 1,
+  "cards": [
+   "S-PAT-13"
+  ],
+  "probe_ids": [
+   "S-PAT-13a"
+  ],
+  "primitives": [
+   "P1"
+  ],
+  "bars": [
+   "1m"
+  ],
+  "universes": [
+   "single_asset"
+  ],
+  "data_needed": [
+   "klines_1d",
+   "klines_intraday"
+  ],
+  "lookbacks": [],
+  "thresholds": [],
+  "holds": [
+   "signal_defined"
+  ],
+  "testable": {
+   "Y": 1
+  },
+  "runnable": true
+ },
+ {
+  "archetype": "TS_STATE",
+  "variable": "price_vs_sma",
+  "n_probes": 1,
+  "cards": [
+   "S-TREND-03"
+  ],
+  "probe_ids": [
+   "S-TREND-03a"
+  ],
+  "primitives": [
+   "P1"
+  ],
+  "bars": [
+   "1mo"
+  ],
+  "universes": [
+   "single_asset"
+  ],
+  "data_needed": [
+   "klines_1d"
+  ],
+  "lookbacks": [
+   10
+  ],
+  "thresholds": [
+   0
+  ],
+  "holds": [
+   "1 month"
+  ],
+  "testable": {
+   "Y": 1
+  },
+  "runnable": true
+ },
+ {
+  "archetype": "TS_STATE",
+  "variable": "price_zscore",
+  "n_probes": 1,
+  "cards": [
+   "S-MR-04"
+  ],
+  "probe_ids": [
+   "S-MR-04a"
+  ],
+  "primitives": [
+   "P1"
+  ],
+  "bars": [
+   "1d"
+  ],
+  "universes": [
+   "single_asset"
+  ],
+  "data_needed": [
+   "klines_1d"
+  ],
+  "lookbacks": [],
+  "thresholds": [],
+  "holds": [
+   "1 bar (continuous rebalance)"
+  ],
+  "testable": {
+   "Y": 1
+  },
+  "runnable": true
+ },
+ {
+  "archetype": "TS_STATE",
+  "variable": "renko_brick_direction",
+  "n_probes": 1,
+  "cards": [
+   "S-PAT-13"
+  ],
+  "probe_ids": [
+   "S-PAT-13b"
+  ],
+  "primitives": [
+   "P1"
+  ],
+  "bars": [
+   "1m"
+  ],
+  "universes": [
+   "single_asset"
+  ],
+  "data_needed": [
+   "klines_1d",
+   "klines_intraday"
+  ],
+  "lookbacks": [
+   14
+  ],
+  "thresholds": [],
+  "holds": [
+   "signal_defined"
+  ],
+  "testable": {
+   "Y": 1
+  },
+  "runnable": true
+ },
+ {
+  "archetype": "TS_STATE",
+  "variable": "search_volume_change",
+  "n_probes": 1,
+  "cards": [
+   "S-FLOW-12"
+  ],
+  "probe_ids": [
+   "S-FLOW-12a"
+  ],
+  "primitives": [
+   "P9c"
+  ],
+  "bars": [
+   "1w"
+  ],
+  "universes": [
+   "market_wide"
+  ],
+  "data_needed": [
+   "klines_1d",
+   "sentiment_index"
+  ],
+  "lookbacks": [
+   3
+  ],
+  "thresholds": [
+   0
+  ],
+  "holds": [
+   "1 week"
+  ],
+  "testable": {
+   "Partial": 1
+  },
+  "runnable": false
+ },
+ {
+  "archetype": "TS_STATE",
+  "variable": "spread_zscore",
+  "n_probes": 1,
+  "cards": [
+   "S-MOD-02"
+  ],
+  "probe_ids": [
+   "S-MOD-02a"
+  ],
+  "primitives": [
+   "P1"
+  ],
+  "bars": [
+   "1d"
+  ],
+  "universes": [
+   "single_asset"
+  ],
+  "data_needed": [
+   "funding",
+   "klines_1d"
+  ],
+  "lookbacks": [],
+  "thresholds": [
+   1
+  ],
+  "holds": [
+   "signal_defined"
+  ],
+  "testable": {
+   "Y": 1
+  },
+  "runnable": true
+ },
+ {
+  "archetype": "TS_STATE",
+  "variable": "tenkan_kijun_cross",
+  "n_probes": 1,
+  "cards": [
+   "S-TREND-12"
+  ],
+  "probe_ids": [
+   "S-TREND-12a"
+  ],
+  "primitives": [
+   "P1"
+  ],
+  "bars": [
+   "1d"
+  ],
+  "universes": [
+   "single_asset"
+  ],
+  "data_needed": [
+   "klines_1d"
+  ],
+  "lookbacks": [],
+  "thresholds": [],
+  "holds": [
+   "signal_defined"
+  ],
+  "testable": {
+   "Y": 1
+  },
+  "runnable": true
+ },
+ {
+  "archetype": "TS_STATE",
+  "variable": "vwap_distance",
+  "n_probes": 1,
+  "cards": [
+   "S-MR-08"
+  ],
+  "probe_ids": [
+   "S-MR-08a"
+  ],
+  "primitives": [
+   "P7"
+  ],
+  "bars": [
+   "1m"
+  ],
+  "universes": [
+   "single_asset"
+  ],
+  "data_needed": [
+   "klines_intraday"
+  ],
+  "lookbacks": [],
+  "thresholds": [],
+  "holds": [
+   "signal_defined"
+  ],
+  "testable": {
+   "Y": 1
+  },
+  "runnable": true
+ },
+ {
+  "archetype": "VOL_STATE",
+  "variable": "adx",
+  "n_probes": 1,
+  "cards": [
+   "S-TREND-08"
+  ],
+  "probe_ids": [
+   "S-TREND-08b"
+  ],
+  "primitives": [
+   "P2"
+  ],
+  "bars": [
+   "1d"
+  ],
+  "universes": [
+   "single_asset"
+  ],
+  "data_needed": [
+   "klines_1d"
+  ],
+  "lookbacks": [],
+  "thresholds": [
+   20,
+   40
+  ],
+  "holds": [
+   "signal_defined"
+  ],
+  "testable": {
+   "Y": 1
+  },
+  "runnable": true
+ },
+ {
+  "archetype": "VOL_STATE",
+  "variable": "bollinger_bandwidth_low",
+  "n_probes": 1,
+  "cards": [
+   "S-BRK-08"
+  ],
+  "probe_ids": [
+   "S-BRK-08a"
+  ],
+  "primitives": [
+   "P2"
+  ],
+  "bars": [
+   "1d"
+  ],
+  "universes": [
+   "single_asset"
+  ],
+  "data_needed": [
+   "klines_1d"
+  ],
+  "lookbacks": [],
+  "thresholds": [],
+  "holds": [
+   "signal_defined"
+  ],
+  "testable": {
+   "Y": 1
+  },
+  "runnable": true
+ },
+ {
+  "archetype": "VOL_STATE",
+  "variable": "changepoint_severity",
+  "n_probes": 1,
+  "cards": [
+   "S-MOD-06"
+  ],
+  "probe_ids": [
+   "S-MOD-06b"
+  ],
+  "primitives": [
+   "P1"
+  ],
+  "bars": [
+   "1d"
+  ],
+  "universes": [
+   "single_asset"
+  ],
+  "data_needed": [
+   "klines_1d"
+  ],
+  "lookbacks": [
+   10,
+   21,
+   63,
+   126,
+   252
+  ],
+  "thresholds": [],
+  "holds": [
+   "signal_defined"
+  ],
+  "testable": {
+   "Y": 1
+  },
+  "runnable": true
+ },
+ {
+  "archetype": "VOL_STATE",
+  "variable": "downside_deviation",
+  "n_probes": 1,
+  "cards": [
+   "S-MOD-01"
+  ],
+  "probe_ids": [
+   "S-MOD-01c"
+  ],
+  "primitives": [
+   "P2"
+  ],
+  "bars": [
+   "1d"
+  ],
+  "universes": [
+   "single_asset"
+  ],
+  "data_needed": [
+   "klines_1d"
+  ],
+  "lookbacks": [],
+  "thresholds": [],
+  "holds": [
+   "signal_defined"
+  ],
+  "testable": {
+   "Y": 1
+  },
+  "runnable": true
+ },
+ {
+  "archetype": "VOL_STATE",
+  "variable": "ewma_vol",
+  "n_probes": 1,
+  "cards": [
+   "S-BRK-14"
+  ],
+  "probe_ids": [
+   "S-BRK-14b"
+  ],
+  "primitives": [
+   "P2"
+  ],
+  "bars": [
+   "1d"
+  ],
+  "universes": [
+   "single_asset"
+  ],
+  "data_needed": [
+   "klines_1d"
+  ],
+  "lookbacks": [],
+  "thresholds": [],
+  "holds": [
+   "1 day"
+  ],
+  "testable": {
+   "Y": 1
+  },
+  "runnable": true
+ },
+ {
+  "archetype": "VOL_STATE",
+  "variable": "ewma_volatility",
+  "n_probes": 1,
+  "cards": [
+   "S-TREND-01"
+  ],
+  "probe_ids": [
+   "S-TREND-01b"
+  ],
+  "primitives": [
+   "P2"
+  ],
+  "bars": [
+   "1d"
+  ],
+  "universes": [
+   "single_asset"
+  ],
+  "data_needed": [
+   "klines_1d"
+  ],
+  "lookbacks": [],
+  "thresholds": [],
+  "holds": [
+   "1 month"
+  ],
+  "testable": {
+   "Y": 1
+  },
+  "runnable": true
+ },
+ {
+  "archetype": "VOL_STATE",
+  "variable": "inside_bar",
+  "n_probes": 1,
+  "cards": [
+   "S-BRK-02"
+  ],
+  "probe_ids": [
+   "S-BRK-02b"
+  ],
+  "primitives": [
+   "P2"
+  ],
+  "bars": [
+   "1d"
+  ],
+  "universes": [
+   "single_asset"
+  ],
+  "data_needed": [
+   "klines_1d"
+  ],
+  "lookbacks": [],
+  "thresholds": [],
+  "holds": [
+   "signal_defined"
+  ],
+  "testable": {
+   "Y": 1
+  },
+  "runnable": true
+ },
+ {
+  "archetype": "VOL_STATE",
+  "variable": "realised_variance",
+  "n_probes": 1,
+  "cards": [
+   "S-MOD-04"
+  ],
+  "probe_ids": [
+   "S-MOD-04a"
+  ],
+  "primitives": [
+   "P2"
+  ],
+  "bars": [
+   "1d"
+  ],
+  "universes": [
+   "single_asset"
+  ],
+  "data_needed": [
+   "klines_1d"
+  ],
+  "lookbacks": [
+   1
+  ],
+  "thresholds": [],
+  "holds": [
+   "1 month"
+  ],
+  "testable": {
+   "Y": 1
+  },
+  "runnable": true
+ },
+ {
+  "archetype": "VOL_STATE",
+  "variable": "realized_variance",
+  "n_probes": 1,
+  "cards": [
+   "S-BRK-14"
+  ],
+  "probe_ids": [
+   "S-BRK-14a"
+  ],
+  "primitives": [
+   "P2"
+  ],
+  "bars": [
+   "1d"
+  ],
+  "universes": [
+   "single_asset"
+  ],
+  "data_needed": [
+   "klines_1d"
+  ],
+  "lookbacks": [],
+  "thresholds": [],
+  "holds": [
+   "1 month"
+  ],
+  "testable": {
+   "Y": 1
+  },
+  "runnable": true
+ },
+ {
+  "archetype": "VOL_STATE",
+  "variable": "sma_cross",
+  "n_probes": 1,
+  "cards": [
+   "S-TREND-04"
+  ],
+  "probe_ids": [
+   "S-TREND-04c"
+  ],
+  "primitives": [
+   "P2"
+  ],
+  "bars": [
+   "1d"
+  ],
+  "universes": [
+   "single_asset"
+  ],
+  "data_needed": [
+   "klines_1d"
+  ],
+  "lookbacks": [],
+  "thresholds": [],
+  "holds": [
+   "signal_defined"
+  ],
+  "testable": {
+   "Y": 1
+  },
+  "runnable": true
+ },
+ {
+  "archetype": "VOL_STATE",
+  "variable": "ttm_squeeze",
+  "n_probes": 1,
+  "cards": [
+   "S-BRK-08"
+  ],
+  "probe_ids": [
+   "S-BRK-08b"
+  ],
+  "primitives": [
+   "P2"
+  ],
+  "bars": [
+   "1d"
+  ],
+  "universes": [
+   "single_asset"
+  ],
+  "data_needed": [
+   "klines_1d"
+  ],
+  "lookbacks": [],
+  "thresholds": [],
+  "holds": [
+   "signal_defined"
+  ],
+  "testable": {
+   "Y": 1
+  },
+  "runnable": true
+ },
+ {
+  "archetype": "VOL_STATE",
+  "variable": "vpin",
+  "n_probes": 1,
+  "cards": [
+   "S-FLOW-04"
+  ],
+  "probe_ids": [
+   "S-FLOW-04a"
+  ],
+  "primitives": [
+   "P2"
+  ],
+  "bars": [
+   "1m"
+  ],
+  "universes": [
+   "single_asset"
+  ],
+  "data_needed": [
+   "klines_intraday"
+  ],
+  "lookbacks": [],
+  "thresholds": [
+   "CDF(VPIN) > 0.9"
+  ],
+  "holds": [
+   "next volume bucket (1/50 of average daily volume)"
+  ],
+  "testable": {
+   "Y": 1
+  },
+  "runnable": true
+ },
+ {
+  "archetype": "XS_RANK",
+  "variable": "address_growth",
+  "n_probes": 1,
+  "cards": [
+   "S-XS-16"
+  ],
+  "probe_ids": [
+   "S-XS-16a"
+  ],
+  "primitives": [
+   "P9"
+  ],
+  "bars": [
+   "1d"
+  ],
+  "universes": [
+   "cross_section"
+  ],
+  "data_needed": [
+   "klines_1d",
+   "onchain"
+  ],
+  "lookbacks": [],
+  "thresholds": [],
+  "holds": [
+   "1 week"
+  ],
+  "testable": {
+   "N": 1
+  },
+  "runnable": false
+ },
+ {
+  "archetype": "XS_RANK",
+  "variable": "amihud_illiquidity",
+  "n_probes": 1,
+  "cards": [
+   "S-XS-10"
+  ],
+  "probe_ids": [
+   "S-XS-10a"
+  ],
+  "primitives": [
+   "P3"
+  ],
+  "bars": [
+   "1d"
+  ],
+  "universes": [
+   "cross_section"
+  ],
+  "data_needed": [
+   "klines_1d"
+  ],
+  "lookbacks": [
+   1
+  ],
+  "thresholds": [],
+  "holds": [
+   "1 year"
+  ],
+  "testable": {
+   "Y": 1
+  },
+  "runnable": true
+ },
+ {
+  "archetype": "XS_RANK",
+  "variable": "beta",
+  "n_probes": 1,
+  "cards": [
+   "S-XS-06"
+  ],
+  "probe_ids": [
+   "S-XS-06a"
+  ],
+  "primitives": [
+   "P3"
+  ],
+  "bars": [
+   "1d"
+  ],
+  "universes": [
+   "cross_section"
+  ],
+  "data_needed": [
+   "klines_1d"
+  ],
+  "lookbacks": [],
+  "thresholds": [],
+  "holds": [
+   "1 month"
+  ],
+  "testable": {
+   "Y": 1
+  },
+  "runnable": true
+ },
+ {
+  "archetype": "XS_RANK",
+  "variable": "bond_carry",
+  "n_probes": 1,
+  "cards": [
+   "S-CARRY-13"
+  ],
+  "probe_ids": [
+   "S-CARRY-13a"
+  ],
+  "primitives": [
+   "P4"
+  ],
+  "bars": [
+   "1mo"
+  ],
+  "universes": [
+   "cross_section"
+  ],
+  "data_needed": [],
+  "lookbacks": [],
+  "thresholds": [],
+  "holds": [
+   "1 month"
+  ],
+  "testable": {
+   "N": 1
+  },
+  "runnable": false
+ },
+ {
+  "archetype": "XS_RANK",
+  "variable": "dollar_volume",
+  "n_probes": 1,
+  "cards": [
+   "S-XS-12"
+  ],
+  "probe_ids": [
+   "S-XS-12c"
+  ],
+  "primitives": [
+   "P3"
+  ],
+  "bars": [
+   "1d"
+  ],
+  "universes": [
+   "cross_section"
+  ],
+  "data_needed": [
+   "klines_1d"
+  ],
+  "lookbacks": [],
+  "thresholds": [],
+  "holds": [
+   "1 week"
+  ],
+  "testable": {
+   "Y": 1
+  },
+  "runnable": true
+ },
+ {
+  "archetype": "XS_RANK",
+  "variable": "earnings_surprise_sue",
+  "n_probes": 1,
+  "cards": [
+   "S-CAL-12"
+  ],
+  "probe_ids": [
+   "S-CAL-12b"
+  ],
+  "primitives": [
+   "P1"
+  ],
+  "bars": [
+   "1d"
+  ],
+  "universes": [
+   "cross_section"
+  ],
+  "data_needed": [
+   "calendar_events",
+   "equities"
+  ],
+  "lookbacks": [],
+  "thresholds": [],
+  "holds": [
+   "about 60 days"
+  ],
+  "testable": {
+   "N": 1
+  },
+  "runnable": false
+ },
+ {
+  "archetype": "XS_RANK",
+  "variable": "earnings_surprise_sue_ear",
+  "n_probes": 1,
+  "cards": [
+   "S-CAL-12"
+  ],
+  "probe_ids": [
+   "S-CAL-12a"
+  ],
+  "primitives": [
+   "P1"
+  ],
+  "bars": [
+   "1d"
+  ],
+  "universes": [
+   "cross_section"
+  ],
+  "data_needed": [
+   "calendar_events",
+   "equities"
+  ],
+  "lookbacks": [],
+  "thresholds": [],
+  "holds": [
+   "60 trading days"
+  ],
+  "testable": {
+   "N": 1
+  },
+  "runnable": false
+ },
+ {
+  "archetype": "XS_RANK",
+  "variable": "forward_discount",
+  "n_probes": 1,
+  "cards": [
+   "S-CARRY-08"
+  ],
+  "probe_ids": [
+   "S-CARRY-08a"
+  ],
+  "primitives": [
+   "P4"
+  ],
+  "bars": [
+   "1mo"
+  ],
+  "universes": [
+   "cross_section"
+  ],
+  "data_needed": [
+   "fx"
+  ],
+  "lookbacks": [],
+  "thresholds": [],
+  "holds": [
+   "1 month"
+  ],
+  "testable": {
+   "N": 1
+  },
+  "runnable": false
+ },
+ {
+  "archetype": "XS_RANK",
+  "variable": "funding_change",
+  "n_probes": 1,
+  "cards": [
+   "S-CARRY-05"
+  ],
+  "probe_ids": [
+   "S-CARRY-05b"
+  ],
+  "primitives": [
+   "P4"
+  ],
+  "bars": [
+   "5m"
+  ],
+  "universes": [
+   "cross_section"
+  ],
+  "data_needed": [
+   "funding",
+   "klines_intraday"
+  ],
+  "lookbacks": [
+   24,
+   6
+  ],
+  "thresholds": [],
+  "holds": [
+   "signal_defined"
+  ],
+  "testable": {
+   "Y": 1
+  },
+  "runnable": true
+ },
+ {
+  "archetype": "XS_RANK",
+  "variable": "funding_rate",
+  "n_probes": 1,
+  "cards": [
+   "S-CARRY-05"
+  ],
+  "probe_ids": [
+   "S-CARRY-05a"
+  ],
+  "primitives": [
+   "P4"
+  ],
+  "bars": [
+   "8h"
+  ],
+  "universes": [
+   "cross_section"
+  ],
+  "data_needed": [
+   "funding",
+   "klines_intraday"
+  ],
+  "lookbacks": [],
+  "thresholds": [],
+  "holds": [
+   "signal_defined"
+  ],
+  "testable": {
+   "Y": 1
+  },
+  "runnable": true
+ },
+ {
+  "archetype": "XS_RANK",
+  "variable": "ibs",
+  "n_probes": 1,
+  "cards": [
+   "S-MR-06"
+  ],
+  "probe_ids": [
+   "S-MR-06b"
+  ],
+  "primitives": [
+   "P1"
+  ],
+  "bars": [
+   "1d"
+  ],
+  "universes": [
+   "cross_section"
+  ],
+  "data_needed": [
+   "equities",
+   "klines_1d"
+  ],
+  "lookbacks": [
+   1
+  ],
+  "thresholds": [],
+  "holds": [
+   "1 day (close to next close)"
+  ],
+  "testable": {
+   "Partial": 1
+  },
+  "runnable": false
+ },
+ {
+  "archetype": "XS_RANK",
+  "variable": "idiosyncratic_vol",
+  "n_probes": 1,
+  "cards": [
+   "S-XS-07"
+  ],
+  "probe_ids": [
+   "S-XS-07a"
+  ],
+  "primitives": [
+   "P3"
+  ],
+  "bars": [
+   "1d"
+  ],
+  "universes": [
+   "cross_section"
+  ],
+  "data_needed": [
+   "klines_1d"
+  ],
+  "lookbacks": [
+   1,
+   12
+  ],
+  "thresholds": [],
+  "holds": [
+   "1 month",
+   "12 months"
+  ],
+  "testable": {
+   "Y": 1
+  },
+  "runnable": true
+ },
+ {
+  "archetype": "XS_RANK",
+  "variable": "implied_vol_of_vol",
+  "n_probes": 1,
+  "cards": [
+   "S-BRK-16"
+  ],
+  "probe_ids": [
+   "S-BRK-16a"
+  ],
+  "primitives": [
+   "P3"
+  ],
+  "bars": [
+   "1d"
+  ],
+  "universes": [
+   "cross_section"
+  ],
+  "data_needed": [
+   "equities",
+   "market_cap",
+   "options"
+  ],
+  "lookbacks": [],
+  "thresholds": [],
+  "holds": [
+   "1 month"
+  ],
+  "testable": {
+   "N": 1
+  },
+  "runnable": false
+ },
+ {
+  "archetype": "XS_RANK",
+  "variable": "industry_past_return",
+  "n_probes": 1,
+  "cards": [
+   "S-XS-04"
+  ],
+  "probe_ids": [
+   "S-XS-04a"
+  ],
+  "primitives": [
+   "P3"
+  ],
+  "bars": [
+   "1mo"
+  ],
+  "universes": [
+   "cross_section"
+  ],
+  "data_needed": [
+   "klines_1d"
+  ],
+  "lookbacks": [
+   6
+  ],
+  "thresholds": [],
+  "holds": [
+   "6 months"
+  ],
+  "testable": {
+   "Partial": 1
+  },
+  "runnable": false
+ },
+ {
+  "archetype": "XS_RANK",
+  "variable": "max_daily_return",
+  "n_probes": 1,
+  "cards": [
+   "S-XS-08"
+  ],
+  "probe_ids": [
+   "S-XS-08a"
+  ],
+  "primitives": [
+   "P3"
+  ],
+  "bars": [
+   "1d"
+  ],
+  "universes": [
+   "cross_section"
+  ],
+  "data_needed": [
+   "klines_1d"
+  ],
+  "lookbacks": [
+   1
+  ],
+  "thresholds": [],
+  "holds": [
+   "1 month"
+  ],
+  "testable": {
+   "Y": 1
+  },
+  "runnable": true
+ },
+ {
+  "archetype": "XS_RANK",
+  "variable": "past_session_return",
+  "n_probes": 1,
+  "cards": [
+   "S-CAL-06"
+  ],
+  "probe_ids": [
+   "S-CAL-06a"
+  ],
+  "primitives": [
+   "P5"
+  ],
+  "bars": [
+   "15m"
+  ],
+  "universes": [
+   "cross_section"
+  ],
+  "data_needed": [
+   "klines_intraday"
+  ],
+  "lookbacks": [
+   1
+  ],
+  "thresholds": [],
+  "holds": [
+   "overnight (or intraday, for the mirror) periods of the next month"
+  ],
+  "testable": {
+   "Y": 1
+  },
+  "runnable": true
+ },
+ {
+  "archetype": "XS_RANK",
+  "variable": "price_to_new_address",
+  "n_probes": 1,
+  "cards": [
+   "S-XS-16"
+  ],
+  "probe_ids": [
+   "S-XS-16b"
+  ],
+  "primitives": [
+   "P9"
+  ],
+  "bars": [
+   "1d"
+  ],
+  "universes": [
+   "cross_section"
+  ],
+  "data_needed": [
+   "klines_1d",
+   "onchain"
+  ],
+  "lookbacks": [],
+  "thresholds": [],
+  "holds": [
+   "1 week"
+  ],
+  "testable": {
+   "N": 1
+  },
+  "runnable": false
+ },
+ {
+  "archetype": "XS_RANK",
+  "variable": "realized_skewness",
+  "n_probes": 1,
+  "cards": [
+   "S-XS-09"
+  ],
+  "probe_ids": [
+   "S-XS-09a"
+  ],
+  "primitives": [
+   "P3"
+  ],
+  "bars": [
+   "1m"
+  ],
+  "universes": [
+   "cross_section"
+  ],
+  "data_needed": [
+   "klines_intraday"
+  ],
+  "lookbacks": [
+   1
+  ],
+  "thresholds": [],
+  "holds": [
+   "1 week"
+  ],
+  "testable": {
+   "Y": 1
+  },
+  "runnable": true
+ },
+ {
+  "archetype": "XS_RANK",
+  "variable": "residual_return",
+  "n_probes": 1,
+  "cards": [
+   "S-XS-03"
+  ],
+  "probe_ids": [
+   "S-XS-03a"
+  ],
+  "primitives": [
+   "P3"
+  ],
+  "bars": [
+   "1mo"
+  ],
+  "universes": [
+   "cross_section"
+  ],
+  "data_needed": [
+   "klines_1d"
+  ],
+  "lookbacks": [],
+  "thresholds": [],
+  "holds": [
+   "1 month",
+   "12 months",
+   "3 months",
+   "6 months"
+  ],
+  "testable": {
+   "Y": 1
+  },
+  "runnable": true
+ },
+ {
+  "archetype": "XS_RANK",
+  "variable": "staking_yield",
+  "n_probes": 1,
+  "cards": [
+   "S-CARRY-07"
+  ],
+  "probe_ids": [
+   "S-CARRY-07a"
+  ],
+  "primitives": [
+   "P4"
+  ],
+  "bars": [
+   "1w"
+  ],
+  "universes": [
+   "cross_section"
+  ],
+  "data_needed": [
+   "klines_1d",
+   "onchain"
+  ],
+  "lookbacks": [],
+  "thresholds": [],
+  "holds": [
+   "1 month",
+   "1 week"
+  ],
+  "testable": {
+   "N": 1
+  },
+  "runnable": false
+ }
+]
