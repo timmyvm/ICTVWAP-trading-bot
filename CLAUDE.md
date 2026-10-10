@@ -29,6 +29,7 @@ execution/
   risk.py        — Daily/weekly trade limits, re-entry logic, news blackouts
 main.py          — Main loop, ATR mode switching, position monitoring
 config.py        — All tuneable parameters (TESTING_MODE, ENTRY_MODE, etc.)
+research/catalogue/ — 144 sourced strategy cards by family + INDEX.md (docs/CATALOGUE.md: primitives, explore/sealed split)
 backtest/edge_lab/ — shared measurement harness, trial ledger, one-shot holdout (docs/EDGE_LAB.md);
                    `/edge-lab <family|next>` runs the chair + five-agent team (.claude/agents/, research/)
 backtest/        — research engines (one script per experiment), data fetchers, live_earnings/,
@@ -322,3 +323,11 @@ scripts/, deploy/ — paper-run dashboard/stats, VPS setup
   episodes were on coins with no spot market (only ~8 of 82 verdict-era episodes at 7 bp were
   hedgeable on Binance). Count how much of a state is actually tradable as designed before
   pre-registering it.
+
+- Scout-compiled source cards are scout-reported until the chair re-reads the source with the page
+  open. In the v0.36 catalogue a spot-check of three key numbers matched, but one section label was
+  wrong ("Fact 9" was stylised fact 6) and 53 of 144 cards hold a claim recalled from memory.
+  Sample the numbers that will drive a decision, fix labels in place, and keep the "recalled, not
+  re-fetched" flag visible in the index. A fixed tag list can also hide the question: a single P1
+  bucket for "trend vs reversal" took 55 of 144 cards, so split a primitive by the variable that
+  flips its sign (here the holding horizon) before reading the map.

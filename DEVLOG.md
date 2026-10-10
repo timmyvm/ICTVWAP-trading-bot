@@ -1,5 +1,34 @@
 # DEVLOG — Powell Trades Bot
 
+## v0.36-catalogue-0 — Strategy catalogue, phase 0: 144 sourced cards, no trials spent (2026-10-10)
+
+**Why.** The user's pivot: tests of single strategies cannot reach significance on ~6 years of
+data, so instead compile what published strategies rely on, who is on the other side and when it
+holds, then combine at the level of mechanism. `docs/CATALOGUE.md` is the protocol: a fixed
+primitive list (P1-P9, P10 added by the chair), a card template with no results allowed, an
+explore/sealed data split (early era + coin half A vs freshest era + coin half B, rule fixed before
+any probe), and phases 0-4.
+
+**What changed.** New: `docs/CATALOGUE.md`, `research/catalogue/` (nine family files of 16 cards
+each, `INDEX.md`, `build_index.py`). No strategy code, no data fetch, no ledger entry: trials stay
+at 71.
+
+**Phase 0 result.** 144 cards. Fidelity A/B/C = 64 / 52 / 28. Primary primitive: P1 55, P5 17,
+P4 16, P8 16, P2 10, P9 (+ sub-tags) 13, P6 6, P7 6, P3 4. The scouts judge 86 cards testable on our
+data, 33 partly, 25 not. 53 cards carry at least one claim recalled from memory and not re-fetched.
+The chair re-read three key sources against the originals (Zarattini/Barbon/Aziz ORB, Kitron and
+Wengrowicz 2026 on 15-minute crypto reversal, Borri/Liu/Tsyvinski/Wu on carry): numbers matched; one
+section label was wrong ("Fact 9", really stylised fact 6) and was fixed. The other cards remain
+scout-reported.
+
+**Leads, not conclusions (published numbers).** Several published effects are below a 13 bp round
+trip as published (crypto hour-of-day about 9-11 bp gross; 15-minute reversal about 1.3 bp gross;
+weekly realized skewness about 19 bp against a 26 bp weekly cost floor). Funding carry has
+compressed in the latest sample. None of the ML papers read used purged validation. P1 is too
+coarse (trend and reversal share it), so phase 1 splits it by horizon band.
+
+**Commit:** the commit that carries this entry (see `git log`).
+
 ## v0.35-gate1 — Edge lab, first batch: both advancing cards shelved on testability (2026-10-10)
 
 No verdict era was opened, no pre-registration was registered, and no return or P&L was computed
