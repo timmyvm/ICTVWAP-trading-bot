@@ -113,6 +113,30 @@ premium updates, trims, stop moves, % claims.
   - so is a % claim above the highest trade since the entry;
   - recap posts are compared with that week's alert trades, to find missing losers.
 
+**Freeze record (2026-10-15, before any price was read).**
+- **Labelling.** 3,241 causal candidate windows, labelled in two independent passes of 8 subagents
+  each.
+  - Pass agreement: class 91.6 %, ticker 94.5 %, strike 97.6 %, call/put 96.9 %, price 99.0 %,
+    % 99.3 %, referent 91.0 %.
+  - 539 disagreements went to a third pass: 383 settled by majority, 156 left ambiguous (excluded,
+    counted). 2,702 labels agreed outright.
+- **Trade table** (`trades_frozen.jsonl`, local, sha256
+  `b1d50659dd46e6642bed67345cd8302a56aa9d5927466b718c67e64cad04d44f`).
+  - **134 QQQ same-day trades on 108 days:** 114 announced live and 20 after the move. 57 calls and
+    77 puts. By year: 2024 6, 2025 92, 2026 36.
+  - 106 carry a stated entry price, 77 an explicit exit or stop-out, 36 an executed trim, 38 a
+    break-even stop.
+- **Counted, not scored:**
+  - 146 entries with no strike, 90 on other tickers, 3 not same-day, 10 adds;
+  - 526 conditional hints and 133 recaps.
+  - 1,444 trade-shaped messages (quotes, gain claims, trims, exits) refer to no tracked trade.
+    Gain or loss claims appear on 117 days with no tracked trade; 84 of those days had only a
+    conditional hint.
+- **One bookkeeping fix before freezing.** The first run attached commentary messages to trades as
+  inert events (`OTHER`), which the replay ignores. They are now skipped. The trade population was
+  unchanged at 134; only the hash and the orphan count moved (first hash `2df9e1c8…`).
+- **To fetch:** 132 contract-days plus 23 QQQ months, about 155 API calls.
+
 ## docs — HANDOFF.md: everything a new session needs (2026-10-09)
 
 The user asked: "push all u know to docs. im starting a new session." Until now the project's working

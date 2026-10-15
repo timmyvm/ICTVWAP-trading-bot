@@ -347,6 +347,8 @@ def freeze() -> dict:
             if cls == "RECAP":
                 counts["recaps"] += 1
                 continue
+            if cls == "OTHER":
+                continue
             if cls in ("ENTRY_LIVE", "ENTRY_AFTER"):
                 ck = contract_key(lab)
                 tick = (lab.get("ticker") or "QQQ").upper()
