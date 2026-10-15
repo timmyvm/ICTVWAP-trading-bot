@@ -18,6 +18,7 @@ Stages (DEVLOG v0.35-audit):
 import argparse
 import hashlib
 import json
+import math
 import os
 import random
 import re
@@ -205,6 +206,209 @@ def batches(n_batches: int) -> dict:
     return out
 
 
+CLASSES = ("ENTRY_LIVE", "ENTRY_AFTER", "ENTRY_PRICE", "CONDITIONAL", "RECAP", "EXIT", "TRIM_EXECUTED",
+           "TRIM_CONDITIONAL", "BE_STOP", "STOPPED", "QUOTE", "CLAIM", "OTHER")
+KEY_FIELDS = ("class", "ticker", "strike", "cp", "price", "pct", "refers_to")
+
+
+def load_pass(name: str) -> Dict[int, dict]:
+    d = f"{OUT_DIR}/pass{name}"
+    out: Dict[int, dict] = {}
+    for fn in sorted(os.listdir(d)):
+        if fn.startswith("labels_") and fn.endswith(".jsonl") and "_part" not in fn:
+            for r in read_jsonl(os.path.join(d, fn)):
+                assert r["cid"] not in out, f"pass {name}: duplicate cid {r['cid']}"
+                assert r["class"] in CLASSES, f"pass {name}: bad class {r['class']}"
+                out[r["cid"]] = r
+    return out
+
+
+def norm(field: str, v):
+    if v is None:
+        return None
+    if field in ("strike", "price", "pct"):
+        try:
+            return round(float(v), 2)
+        except (TypeError, ValueError):
+            return None
+    s = str(v).strip().upper().replace(" ", "")
+    return s or None
+
+
+def key_of(r: dict) -> tuple:
+    """The fields a disagreement is judged on; contract fields matter only for trade-shaped classes."""
+    tradeish = r["class"] not in ("OTHER", "RECAP", "CONDITIONAL")
+    return tuple(norm(f, r.get(f)) if (f == "class" or tradeish) else None for f in KEY_FIELDS)
+
+
+def adjudicate(n_batches: int) -> dict:
+    """Agreement between passes A and B per field; disagreements go to pass C batch files."""
+    cands = {c["cid"]: c for c in read_jsonl(f"{OUT_DIR}/candidates.jsonl")}
+    A, B = load_pass("A"), load_pass("B")
+    missing = [cid for cid in cands if cid not in A or cid not in B]
+    assert not missing, f"{len(missing)} candidates lack a label in pass A or B"
+    agree = {f: 0 for f in KEY_FIELDS}
+    dis = []
+    for cid in cands:
+        a, b = A[cid], B[cid]
+        for f in KEY_FIELDS:
+            agree[f] += norm(f, a.get(f)) == norm(f, b.get(f))
+        if key_of(a) != key_of(b):
+            dis.append(cid)
+    n = len(cands)
+    rows = [{k: cands[c][k] for k in ("cid", "day", "time", "edited_time", "text", "n_img", "window")} for c in dis]
+    random.Random(33).shuffle(rows)
+    os.makedirs(f"{OUT_DIR}/passC", exist_ok=True)
+    per = max(1, math.ceil(len(rows) / n_batches))
+    for g in range(n_batches):
+        part = rows[g * per:(g + 1) * per]
+        if part:
+            write_jsonl(f"{OUT_DIR}/passC/batch_{g + 1:02d}.jsonl", part)
+    cls = {}
+    for cid in cands:
+        cls[A[cid]["class"]] = cls.get(A[cid]["class"], 0) + 1
+    return {"candidates": n, "agreement_%": {f: round(100 * agree[f] / n, 1) for f in KEY_FIELDS},
+            "disagreements": len(dis), "pass_A_classes": cls}
+
+
+def merged_labels() -> Tuple[Dict[int, dict], Dict[str, int]]:
+    """A == B -> A. Otherwise the majority of A, B, C on the key fields; a three-way split -> AMBIGUOUS."""
+    A, B = load_pass("A"), load_pass("B")
+    C = load_pass("C") if os.path.isdir(f"{OUT_DIR}/passC") else {}
+    out, stats = {}, {"agree": 0, "majority": 0, "ambiguous": 0, "no_third_label": 0}
+    for cid, a in A.items():
+        b = B[cid]
+        if key_of(a) == key_of(b):
+            out[cid] = a
+            stats["agree"] += 1
+            continue
+        c = C.get(cid)
+        if c is None:
+            out[cid] = dict(a, **{"class": "AMBIGUOUS"})
+            stats["no_third_label"] += 1
+            continue
+        if key_of(c) == key_of(a):
+            out[cid] = a
+            stats["majority"] += 1
+        elif key_of(c) == key_of(b):
+            out[cid] = b
+            stats["majority"] += 1
+        else:
+            out[cid] = dict(a, **{"class": "AMBIGUOUS"})
+            stats["ambiguous"] += 1
+    return out, stats
+
+
+def contract_key(lab: dict) -> Optional[str]:
+    s, cp = lab.get("strike"), (lab.get("cp") or "").upper()[:1]
+    if s is None or cp not in ("C", "P"):
+        return None
+    try:
+        return f"{float(s):g}{cp}"
+    except (TypeError, ValueError):
+        return None
+
+
+def freeze() -> dict:
+    """Labels -> trades by position tracking (each contract its own trade; an unnamed exit closes all open
+    trades; a re-entry after a close is a new trade; adds ignored). Writes trades_frozen.jsonl and its hash."""
+    labels, mstats = merged_labels()
+    msgs = read_jsonl(f"{OUT_DIR}/caller_messages.jsonl")
+    cands = {c["cid"]: c for c in read_jsonl(f"{OUT_DIR}/candidates.jsonl")}
+    by_msg = {cands[cid]["msg_id"]: lab for cid, lab in labels.items()}
+    trades: List[dict] = []
+    counts = {"no_strike_entries": 0, "non_qqq_entries": 0, "non_same_day_entries": 0, "adds_ignored": 0,
+              "conditional_hints": 0, "recaps": 0, "ambiguous": 0, "orphan_events": 0}
+    day_rows: Dict[str, List[dict]] = {}
+    for m in msgs:
+        day_rows.setdefault(m["date"], []).append(m)
+    for day, rows in sorted(day_rows.items()):
+        open_t: Dict[str, dict] = {}
+        last_opened: Optional[str] = None
+        for m in rows:
+            lab = by_msg.get(m["msg_id"])
+            if lab is None:
+                if m["code"] in ("QUOTE", "CLAIM") and m["session"] == "rth":
+                    num = re.findall(r"\d{0,4}\.?\d+", m["text"])
+                    val = float(num[0]) if num else None
+                    lab = {"class": m["code"], "refers_to": "all-open",
+                           "price": val if m["code"] == "QUOTE" else None,
+                           "pct": val if m["code"] == "CLAIM" else None}
+                else:
+                    continue
+            cls = lab["class"]
+            ev_time = {"utc": m["posted_utc"], "edited_utc": m["edited_utc"]}
+            if cls == "AMBIGUOUS":
+                counts["ambiguous"] += 1
+                continue
+            if cls == "CONDITIONAL":
+                counts["conditional_hints"] += 1
+                continue
+            if cls == "RECAP":
+                counts["recaps"] += 1
+                continue
+            if cls in ("ENTRY_LIVE", "ENTRY_AFTER"):
+                ck = contract_key(lab)
+                tick = (lab.get("ticker") or "QQQ").upper()
+                if ck is None:
+                    counts["no_strike_entries"] += 1
+                    continue
+                if tick != "QQQ":
+                    counts["non_qqq_entries"] += 1
+                    continue
+                if (lab.get("expiry") or "same-day").lower() not in ("same-day", "sameday", "0dte"):
+                    counts["non_same_day_entries"] += 1
+                    continue
+                if ck in open_t:
+                    counts["adds_ignored"] += 1
+                    continue
+                tr = {"date": day, "day": m["day"], "contract_key": ck, "strike": float(ck[:-1]), "cp": ck[-1],
+                      "kind": "after" if cls == "ENTRY_AFTER" else "live",
+                      "announce_utc": m["posted_utc"], "announce_edited_utc": m["edited_utc"],
+                      "stated_entry": lab.get("price") if lab.get("price_kind") in ("entry", None) and lab.get("price") else None,
+                      "events": []}
+                open_t[ck] = tr
+                trades.append(tr)
+                last_opened = ck
+                continue
+            # events for open trades
+            ref = (lab.get("refers_to") or "all-open")
+            ck = contract_key(lab) if str(ref).lower() == "this" else (ref.upper() if ref and ref.lower() != "all-open" else None)
+            if ck is not None and not re.match(r"^\d+(\.\d+)?[CP]$", ck):
+                ck = None
+            if ck is not None and ck not in open_t:
+                counts["orphan_events"] += 1
+                continue
+            targets = [ck] if ck else (list(open_t) if cls in ("EXIT", "STOPPED", "BE_STOP", "TRIM_EXECUTED") else
+                                       ([last_opened] if last_opened in open_t else []))
+            if not targets:
+                counts["orphan_events"] += 1
+                continue
+            for tk in targets:
+                if cls == "ENTRY_PRICE":
+                    if lab.get("price") and open_t[tk].get("stated_entry") is None:
+                        open_t[tk]["stated_entry"] = lab["price"]
+                        open_t[tk]["stated_entry_utc"] = m["posted_utc"]
+                    continue
+                open_t[tk]["events"].append(dict(ev_time, type=cls, price=lab.get("price"), pct=lab.get("pct")))
+            if cls in ("EXIT", "STOPPED"):
+                for tk in targets:
+                    open_t.pop(tk, None)
+    for i, t in enumerate(trades):
+        t["trade_id"] = f"T{i + 1:04d}"
+    path = f"{OUT_DIR}/trades_frozen.jsonl"
+    write_jsonl(path, trades)
+    counts.update({"trades": len(trades), "live": sum(t["kind"] == "live" for t in trades),
+                   "after_move": sum(t["kind"] == "after" for t in trades),
+                   "with_stated_entry": sum(t["stated_entry"] is not None for t in trades),
+                   "with_exit_cue": sum(any(e["type"] in ("EXIT", "STOPPED") for e in t["events"]) for t in trades),
+                   "with_trim": sum(any(e["type"] == "TRIM_EXECUTED" for e in t["events"]) for t in trades),
+                   "with_be": sum(any(e["type"] == "BE_STOP" for e in t["events"]) for t in trades),
+                   "trade_days": len({t["date"] for t in trades}), "label_merge": mstats,
+                   "sha256": sha256_file(path)})
+    return counts
+
+
 def sha256_file(path: str) -> str:
     h = hashlib.sha256()
     with open(path, "rb") as f:
@@ -244,10 +448,16 @@ def main() -> int:
     ap.add_argument("--config", default="backtest/data_cache/local/discord/v035_config.json")
     ap.add_argument("--prepass", action="store_true")
     ap.add_argument("--batches", type=int, default=0, help="number of subagent batches per pass")
+    ap.add_argument("--adjudicate", type=int, default=0, help="compare passes A/B; write N pass-C batches")
+    ap.add_argument("--freeze", action="store_true")
     ap.add_argument("--selftest", action="store_true")
     a = ap.parse_args()
     if a.selftest:
         return selftest()
+    if a.adjudicate:
+        print(json.dumps(adjudicate(a.adjudicate), indent=1))
+    if a.freeze:
+        print(json.dumps(freeze(), indent=1))
     if a.prepass:
         cfg = json.load(open(a.config, encoding="utf-8"))
         s = prepass(cfg)
