@@ -499,6 +499,24 @@ ones take `--cache/--explore-end`-style arguments and default to the `local/` ca
   - Screenshots work but are slow: transcribe them into a signals CSV (the format is in
     `signal_audit.py`'s docstring), and ask for date headers plus every "move SL / close now"
     message.
+- **A Discord server the user doesn't own (v0.35-audit).**
+  - **There is no public view, and a bot needs the admins.** Never take the user's login token.
+  - **The route that worked:** the user exports the channels with their own scraper (JSON, with
+    media saved locally), uploads the folder to Google Drive, and shares the link. Download only the
+    signal, analysis and results channels into `backtest/data_cache/local/discord/`. Skip staff,
+    verification, 1-on-1 and member chat.
+  - **Then follow the protocol in DEVLOG v0.35-audit:**
+    1. `backtest/discord_trades.py --prepass`
+    2. two blind subagent labelling passes with `backtest/v035_label_rubric.md`
+    3. `--adjudicate`, then a third pass on the disagreements
+    4. `--freeze`
+    5. `backtest/fetch_massive_options.py`
+    6. `backtest/options_signal_audit.py --report`
+  - **The repo is public:** run `backtest/privacy_check.py` before every commit, and commit no
+    names, messages, ids or per-trade data.
+  - **Options prices** need the user's free Massive key as a Network secret (`api.massive.com`,
+    `Authorization: Bearer`). Never accept a key pasted in chat; the safety check correctly
+    refuses to store one.
 - **The signal-replay fill model:**
   - Market orders fill at the next minute's ask or bid.
   - Limit and stop entries fill only when traded through, and expire after 24 h.
@@ -551,6 +569,30 @@ ones take `--cache/--explore-end`-style arguments and default to the `local/` ca
   with the container.
 
 ---
+
+## 10b. In progress: v0.35-audit (a private Discord QQQ-options signal server)
+
+State on 2026-10-15:
+- **Done and committed:**
+  - the pre-registration;
+  - the extractor and the rubric;
+  - the fetcher, the replay (17 self-tests) and the report;
+  - the freeze record: **134 trades**, sha256 `b1d50659…`.
+- **Waiting for:** the user's Massive key as a Network secret. Then run:
+  1. `python3 backtest/fetch_massive_options.py --check`
+  2. `--stock QQQ --months 2024-12:2026-10`
+  3. `--contracts backtest/data_cache/local/discord/v035/contracts.jsonl` (132 contract-days,
+     about 30 min)
+  4. `python3 backtest/options_signal_audit.py --report`
+  5. write the results in DEVLOG, generic, after `privacy_check.py`.
+- **Continuity caveat.**
+  - The labels and the frozen table exist only in this container's
+    `backtest/data_cache/local/discord/v035/`. They are private-server data, so not git; uploading
+    them to Drive was also blocked.
+  - **A new container must redo the extraction** from the user's export (the Drive folder they
+    shared on 2026-10-15; ask them for the link), following DEVLOG v0.35-audit.
+  - A redo will not reproduce the hash, because LLM labelling is not deterministic. Record it as a
+    re-freeze before any price is read.
 
 ## 11. Open threads
 
