@@ -1,5 +1,118 @@
 # DEVLOG — Powell Trades Bot
 
+## v0.35-audit — A private Discord options-signal server: what would a follower actually make? (2026-10-15) — PRE-REGISTERED
+
+**Source and privacy.** The user exported a private Discord server they don't own and asked for an
+audit like v0.33. **This repository is public**, so this entry names no server, channel or person,
+quotes no messages, and gives no per-trade dates or prices.
+- The export, the extracted trade table and the price cache stay in `backtest/data_cache/local/`
+  (gitignored).
+- Commits carry only code, these rules and aggregate results.
+- `backtest/privacy_check.py` scans each staged change against a local denylist and blocks Discord
+  ids and links. It prints only line numbers and pattern ids.
+
+**What is audited.** The server's main caller posted about 9.7k messages in its alert channel
+between Dec 2024 and Oct 2026. Almost all are about same-day QQQ options, written as chat: an entry,
+premium updates, trims, stop moves, % claims.
+- Three guest callers posted too few trades to score (≤ 7 days with a contract each). They get a
+  qualitative note only.
+- Visible before any price is read (descriptive only):
+  - every self-reported weekly record is perfect;
+  - about 150 posts reveal an entry only after the option had already risen;
+  - % claims outnumber loss words about 5 to 1.
+
+**Data.**
+- Option minute bars, with their volume-weighted price, from Massive (formerly Polygon.io) on the
+  free Options Basic plan: one call per contract-day, 12.5 s apart, oldest first, sent with a
+  header key that is never logged. QQQ minute bars come from the same source.
+- Clock checks:
+  - QQQ against local NAS100 HistData, month by month (lag scan);
+  - the caller's bare premium updates against the bars (lag scan);
+  - every option bar at or above its intrinsic value minus $0.05.
+
+**Extraction (frozen before any price is read).**
+1. **Code pre-pass.**
+   - Caller messages only, with dates replaced by trading-day numbers.
+   - Tags for contract tokens (including half strikes), prices, ranges, %, entry/exit/trim/stop
+     verbs, pings, edits and images.
+   - Code labels a lone premium number as QUOTE and a lone % as CLAIM.
+   - Pre-market posts default to watchlist.
+2. **Causal labelling.** Each remaining candidate is labelled from itself and the earlier messages of
+   its day only, never later ones. Classes:
+   - ENTRY-live, ENTRY-after-move, ENTRY-PRICE-stated, CONDITIONAL, RECAP;
+   - EXIT, TRIM-executed, TRIM-conditional, BE-STOP, STOPPED;
+   - QUOTE, CLAIM, OTHER.
+
+   Each label carries the contract, any stated price, and which open position it refers to
+   ("all open" when none is named).
+3. **Two independent passes,** with days shuffled across subagents. Agreement is reported for every
+   field. Disagreements go to a third independent pass and the majority wins. A three-way split is
+   "ambiguous": excluded from the primary and counted.
+4. **Position tracking** in code:
+   - each contract is its own trade;
+   - an exit cue that names no contract closes all open trades;
+   - a re-entry is a new trade;
+   - adds are ignored.
+5. **Validity** in code, with no hand fixes after the freeze:
+   - the contract must return bars, and the strike must be within 3 % of QQQ at the announce minute;
+   - same-day expiry is assumed for QQQ only;
+   - other tickers, swings and futures are counted, not scored;
+   - entries with no strike are counted.
+6. **Images** never open or close a trade. Image-only posts inside trade windows are counted.
+7. **Freeze.** The trade table's hash and its outcome-blind counts are committed before the first
+   price call.
+
+**Scoring.**
+- **Population (primary):** every position announced while the caller is still in it, live or after
+  the move. Recaps are excluded. Live and after-the-move entries are also reported separately.
+- **Entry fill:** the volume-weighted price of the first minute bar that starts at least 30 s after
+  the post (after the edit, for edited posts), plus half the spread.
+  - Never the 09:30 opening print.
+  - With no bar within 3 minutes the trade is "unfillable": counted, and scored as no trade.
+  - A latency curve is also reported: next open, +2 min, +5 min.
+- **Costs per side:** half-spread = max($0.01, 2 % of premium), doubled from 09:30 to 09:45, plus
+  $0.65 commission per contract. The stress run doubles the spread. Cost is reported as a share of
+  premium. **Both verdicts must hold at the stress level.**
+- **Exits (primary):**
+  - **Trim:** half out at the first executed trim. The rest goes out at the next exit cue, the BE
+    stop or the time stop.
+  - **Full exit cue:** everything exits at the volume-weighted price of the first bar at least 30 s
+    later, minus half the spread.
+  - **BE stop:**
+    - It is live from the next bar and triggers when a trade prints at or below the follower's
+      entry.
+    - The fill is the lower of the bar's open and the stop, minus half the spread.
+    - If the option is already below the entry when the stop is posted, it exits at the next fill.
+    - These exits count as losses after costs.
+  - **No cue:** a time stop at 15:50 ET. The session end comes from the bars, so half-days and
+    closures are handled.
+- **Secondaries (labelled; they cannot change a verdict):**
+  - full exit at the first trim;
+  - exit at the first % claim;
+  - a fixed 30-minute hold;
+  - hold to expiry at intrinsic value;
+  - a close-triggered BE stop;
+  - excluding edited messages.
+- **Verdicts**, each at t ≥ 2.24 (Bonferroni over two):
+  - **V1:** a follower's mean net return on premium is above 0 (equal $ per trade, t clustered by
+    ISO (year, week)).
+  - **V2:** the caller's entries beat chance.
+    - Under a fixed 30-minute hold with the same costs, each real entry is compared with 2,000
+      random entries within ±60 min on the same cached contract-day.
+    - Statistic: the mean over trades of (his return − mean random return), with clustered t.
+    - Buying same-day options loses on average, so zero is not the skill bar.
+  - **Value of his exits** = the primary result − his fixed-hold result (reported, with no bar).
+- **Also reported:**
+  - win rate, profit factor, median, worst, and results by year;
+  - a week-block bootstrap 95 % interval;
+  - the mean without the top 3 trades;
+  - the share of total loss;
+  - the minimum detectable effect from the outcome-blind count.
+- **Honesty tests** (no fill assumptions):
+  - a stated entry below the lowest trade since the previous message is impossible;
+  - so is a % claim above the highest trade since the entry;
+  - recap posts are compared with that week's alert trades, to find missing losers.
+
 ## docs — HANDOFF.md: everything a new session needs (2026-10-09)
 
 The user asked: "push all u know to docs. im starting a new session." Until now the project's working
