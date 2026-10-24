@@ -137,6 +137,101 @@ premium updates, trims, stop moves, % claims.
   unchanged at 134; only the hash and the orphan count moved (first hash `2df9e1c8…`).
 - **To fetch:** 132 contract-days plus 23 QQQ months, about 155 API calls.
 
+**Addendum A — keyless fallback (pre-registered 2026-10-24, before any underlying price was read for
+these trades or sessions).**
+- **Why.** The option-data key never reached the session: every call returns HTTP 401, and the user
+  is not available to fix it. The caller's class videos are also gone (the hosting account was closed
+  between 16 and 24 Oct).
+- **Standing of the primary.** V1 and V2 above stay OPEN until real option bars are fetched. Nothing
+  in this addendum can pass or fail them. A1, A2 and A5 are model-free tests of their own questions;
+  A3 and A4 are model estimates.
+- **Threshold:** t ≥ 2.39 for A1, A2 and A5 (one-sided 2.5 %, Bonferroni over three), t clustered by
+  ISO (year, week).
+
+*Underlying (QQQ path).*
+- QQQ at minute t = HistData NSXUSD 1m (Nasdaq-100 CFD, bid) × that day's ratio k_d.
+  - k_d = QQQ's official daily close (Yahoo, unadjusted) / NSXUSD's close in the last regular-session
+    minute.
+  - The ratio is a unit conversion and carries no intraday information.
+- Early closes come from Yahoo QQQ hourly bars: a session whose last bar starts at 12:30 closes at
+  13:00.
+- Sessions after the HistData cache ends (October 2026) use Yahoo QQQ 1m directly; Yahoo serves only
+  the last 30 days.
+- **Proxy check before any trade is scored.** Where Yahoo QQQ 1m and the scaled proxy overlap, run a
+  lag scan of 1m returns over −3…+3 min and report the RMS level error in $. Also compare against the
+  QQQ hourly closes over the whole span. A non-zero lag stops the run; nothing gets shifted to fit.
+- A minute's price is (o + h + l + c) / 4, standing in for the volume-weighted price.
+
+*A1 — Direction over his holds (model-free).*
+- Scope: the 134 frozen trades whose strike is within 3 % of the proxy QQQ at the announce minute.
+- Direction: d = +1 for calls, −1 for puts.
+- Entry t_in: the primary's rule — the first bar starting ≥ 30 s after the post (or edit), never
+  09:30, and within 3 minutes.
+- Exit t_out: the first bar starting ≥ 30 s after his first EXIT, STOPPED or TRIM-executed event;
+  otherwise the time stop (15:50, or 10 minutes before an early close).
+- Per trade r = d × ln(P_out / P_in).
+- PASS: mean r > 0 with t ≥ 2.39.
+- Also reported:
+  - fixed holds of 5, 15, 30 and 60 min;
+  - the live and after-the-move split;
+  - the unconditional 30-min drift.
+
+*A2 — Timing against chance (model-free).*
+- Each trade is compared with 2,000 random entry minutes within ±60 min of t_in. The random entries
+  are on the same session, in the same direction, never at 09:30, and each is held as long as his
+  trade, capped at the time stop.
+- Statistic: the mean over trades of (r_his − mean r_random). PASS if > 0 with t ≥ 2.39.
+
+*A3 — Modelled option P&L (an estimate, no verdict).*
+- Pricing:
+  - Black–Scholes with r = q = 0.
+  - T = remaining regular-session minutes at the bar midpoint / (252 × 390). At T = 0 the option is
+    worth its intrinsic value.
+- Modelled bar:
+  - o, c and vw are the model price at the underlying's o, c and (o + h + l + c) / 4;
+  - h and l come from the underlying's h and l for calls, and are swapped for puts.
+- σ per trade:
+  - Solved so that the model price at the stated-entry minute equals the stated premium, within
+    5–300 % annualized.
+  - Unsolvable, or no stated premium: the median solved σ of that calendar month, else of the
+    nearest month that has one.
+  - Counts are reported.
+- The pre-registered replay runs unchanged on the modelled bars: fills, costs, half-trim, BE stop and
+  time stop.
+- Reported:
+  - mean, win rate, PF and clustered t;
+  - the stress spread;
+  - σ × 0.8 and × 1.2;
+  - the modelled V2 (random entries, 30-minute hold);
+  - descriptively, modelled losers in the weeks he called perfect.
+
+*A4 — Gain claims against the underlying's path.*
+- Scope: each % claim on a scored trade that has a stated entry.
+- Bound: the largest model price from the stated-entry minute to the claim minute, divided by the
+  stated entry, minus 1.
+  - The model uses 1.5 × that trade's σ, an allowance for volatility expanding.
+  - The underlying is taken at the bar's favourable extreme (high for calls, low for puts).
+- Implausible if 1 + claim > 1.2 × (1 + bound).
+- Limits:
+  - Claims on untracked trades are counted but not checked.
+  - Whether a stated entry was honest cannot be tested here, because σ is fitted to it. That test
+    needs real option prices.
+
+*A5 — Pre-market bias calls (analysis channel, model-free).*
+- Extraction (`backtest/discord_bias_calls.py`), outcome-blind:
+  - each pre-open post is assigned to its session (evening and weekend posts go to the next weekday,
+    intraday posts are excluded) and dates are blinded;
+  - two independent subagent passes label each session BULL / BEAR / CONDITIONAL / NEUTRAL / NONE,
+    using the rubric in the script;
+  - only agreed labels are kept, and their hash is committed before scoring.
+- Score: sessions both passes call BULL or BEAR, with r = d × ln(close / 09:30 open) of the session.
+- Statistic: mean(r − d × μ), where μ is the mean open-to-close log return over every session from
+  the first to the last labelled one. PASS if > 0 with t ≥ 2.39.
+- Also reported:
+  - hit rate;
+  - 09:30 → 10:30 and 09:30 → 12:00;
+  - label shares.
+
 ## docs — HANDOFF.md: everything a new session needs (2026-10-09)
 
 The user asked: "push all u know to docs. im starting a new session." Until now the project's working
