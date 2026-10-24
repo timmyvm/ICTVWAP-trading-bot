@@ -569,6 +569,92 @@ def report() -> int:
 
 
 # ---------------------------------------------------------------------------------------------------
+# post-hoc audit of the A1/A2 pass (DEVLOG: D1-D4); cannot change a verdict
+# ---------------------------------------------------------------------------------------------------
+def placebo(bars: pd.DataFrame, t_in: pd.Timestamp, t_out: pd.Timestamp, d: float, stop: pd.Timestamp,
+            shift: int) -> Optional[float]:
+    a, b = t_in + pd.Timedelta(minutes=shift), t_out + pd.Timedelta(minutes=shift)
+    if a.time() <= time(9, 30) or b > stop or a not in bars.index or b not in bars.index:
+        return None
+    p = typical(bars)
+    return d * math.log(p[b] / p[a])
+
+
+def diagnostics() -> int:
+    ub = Underlying()
+    trades = {t["trade_id"]: t for t in (json.loads(x) for x in open(TRADES, encoding="utf-8") if x.strip())}
+    res = pd.read_csv(f"{V035}/fallback_per_trade.csv")
+    res = res[res["status"] == "ok"]
+    bp = lambda x: f"{1e4 * x:+.1f} bp"
+    rows = []
+    for _, r in res.iterrows():
+        t = trades[r["trade_id"]]
+        d = date.fromisoformat(t["date"])
+        b = ub.day(d)
+        stop = session_stop(d, ub.close_ts[d])
+        rows.append((t, b, stop, a1_trade(t, b, stop)))
+
+    print("=" * 100 + "\nD1 second vendor: A1 on CME NQ futures 1m (to 2025-07-25)\n" + "=" * 100)
+    nq = pd.read_pickle(f"{LOCAL}/nq_hf_1m.pkl").rename(columns={"open": "o", "high": "h", "low": "l", "close": "c"})
+    nq.index = nq.index.tz_convert(NY)
+    nq = nq[(nq.index >= pd.Timestamp("2024-11-01", tz=NY)) & (nq.index.time >= OPEN_T) & (nq.index.time < time(16, 0))]
+    nq_days = {d: g for d, g in nq.groupby(nq.index.date)}
+    pa, pb, wk = [], [], []
+    for t, b, stop, a in rows:
+        d = date.fromisoformat(t["date"])
+        g = nq_days.get(d)
+        if g is None or len(g) < 300:
+            continue
+        g = g[g.index < ub.close_ts[d]][["o", "h", "l", "c"]]
+        an = a1_trade(t, g, stop)
+        if an["status"] == "ok":
+            pa.append(a["r"]); pb.append(an["r"]); wk.append(week_key(d))
+    if pa:
+        pa_, pb_ = np.array(pa), np.array(pb)
+        ma, ta = cluster_t(pa_, np.array(wk))
+        mb, tb = cluster_t(pb_, np.array(wk))
+        print(f"  trades {len(pa)}: proxy mean {bp(ma)} (t {ta:+.2f}); NQ mean {bp(mb)} (t {tb:+.2f}); "
+              f"per-trade correlation {np.corrcoef(pa_, pb_)[0, 1]:.3f}")
+
+    print("\n" + "=" * 100 + "\nD2 placebo times: his entries shifted, same direction and hold\n" + "=" * 100)
+    for s in (-120, -60, -30, 0, 30, 60, 120):
+        x, w = [], []
+        for t, b, stop, a in rows:
+            v = placebo(b, a["t_in"], a["t_out"], a["d"], stop, s)
+            if v is not None:
+                x.append(v); w.append(week_key(date.fromisoformat(t["date"])))
+        m, tt = cluster_t(np.array(x), np.array(w))
+        print(f"  shift {s:+4d} min: n {len(x):4d}  mean {bp(m):>10s}  t {tt:+5.2f}")
+
+    print("\n" + "=" * 100 + "\nD3 concentration\n" + "=" * 100)
+    r = np.array([a["r"] for *_, a in rows])
+    dates = np.array([t["date"] for t, *_ in rows])
+    srt = np.sort(r)
+    m_day, t_day = cluster_t(r, dates)
+    print(f"  mean {bp(r.mean())}; without the top 3 {bp(srt[:-3].mean())}; without the top 5 {bp(srt[:-5].mean())}; "
+          f"day-clustered t {t_day:+.2f}")
+    for y in sorted({x[:4] for x in dates}):
+        s = np.array([x.startswith(y) for x in dates])
+        my, ty = cluster_t(r[s], np.array([week_key(date.fromisoformat(x)) for x in dates[s]]))
+        print(f"  {y}: n {int(s.sum()):3d}  mean {bp(my)}  t {ty:+.2f}")
+    apr = np.array([x.startswith("2025-04") for x in dates])
+    print(f"  April 2025: n {int(apr.sum())}, share of the summed return {100 * r[apr].sum() / r.sum():.0f}%; "
+          f"without it mean {bp(r[~apr].mean())}")
+    top_days = pd.Series(r, index=dates).groupby(level=0).sum().sort_values()
+    print(f"  best 3 days' share of the summed return {100 * top_days.tail(3).sum() / r.sum():.0f}%")
+
+    print("\n" + "=" * 100 + "\nD4 event order\n" + "=" * 100)
+    before, short = 0, 0
+    for t, b, stop, a in rows:
+        ex = [ts_of(e, "", True) for e in t["events"] if e["type"] in A1_EXITS]
+        before += bool(ex) and min(ex) < a["t_in"]
+        short += a["hold_min"] < 2
+    print(f"  first exit cue stamped before the follower's entry bar: {before}; holds under 2 minutes: {short}")
+    print("DIAGNOSTICS_DONE")
+    return 0
+
+
+# ---------------------------------------------------------------------------------------------------
 # self-tests on synthetic data
 # ---------------------------------------------------------------------------------------------------
 def selftest() -> int:
@@ -640,6 +726,7 @@ def main() -> int:
     ap.add_argument("--selftest", action="store_true")
     ap.add_argument("--proxy-check", action="store_true")
     ap.add_argument("--report", action="store_true")
+    ap.add_argument("--diagnostics", action="store_true")
     a = ap.parse_args()
     if a.selftest:
         return selftest()
@@ -647,6 +734,8 @@ def main() -> int:
         return 0 if proxy_check(Underlying()) else 1
     if a.report:
         return report()
+    if a.diagnostics:
+        return diagnostics()
     return 0
 
 

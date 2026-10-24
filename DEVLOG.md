@@ -244,6 +244,23 @@ these trades or sessions).**
   - Level error moves the strike's moneyness in A3. It does not affect A1, A2 or A5, which use
     returns.
 
+*Post-hoc audit of the A1/A2 pass.* Stated 2026-10-24 after the first run printed A1 and A2 as
+passing, and before any of these were run. They cannot change a verdict; each looks for an engine
+or data artifact.
+- **D1 — second vendor.** Recompute A1 on CME NQ futures 1m (exchange data, to 2025-07-25) for the
+  trades in that span. It signals an artifact if the per-trade correlation with the proxy is below
+  0.9, or the mean differs by more than half.
+- **D2 — placebo times.** Shift his entries by −120, −60, −30, +30, +60 and +120 min, keeping the
+  direction and hold. If the shifted means match the true one, the edge is the day's direction,
+  not his entry timing.
+- **D3 — concentration.**
+  - The mean without the top 3 trades.
+  - t clustered by day.
+  - Results by year.
+  - April 2025's share of the total.
+- **D4 — event order.** Count exit events stamped before the follower's entry, and holds under 2
+  minutes.
+
 ## docs — HANDOFF.md: everything a new session needs (2026-10-09)
 
 The user asked: "push all u know to docs. im starting a new session." Until now the project's working
