@@ -232,6 +232,18 @@ these trades or sessions).**
   - 09:30 → 10:30 and 09:30 → 12:00;
   - label shares.
 
+*Implementation, committed before the first trade result.*
+- `backtest/options_signal_fallback.py` (19 self-tests) reuses the pre-registered `replay`, `null_diff`,
+  `describe` and `cluster_t` unchanged.
+- `backtest/fetch_yahoo_intraday.py` fetched QQQ: 495 daily, 3,463 hourly and 8,190 one-minute bars.
+- **Proxy check: passed.**
+  - 1m returns against Yahoo QQQ (3 overlapping sessions, 1,170 minutes): correlation 0.993 at
+    lag 0 and ≤ 0.03 at every other lag from −3 to +3. Level error RMS $0.08.
+  - Hourly closes over the whole span: RMS $0.19 at lag 0, against $2.0 at ±60 min. The median
+    month is $0.11; the worst are 2025-08 at $0.41 and 2026-01 at $0.40.
+  - Level error moves the strike's moneyness in A3. It does not affect A1, A2 or A5, which use
+    returns.
+
 ## docs — HANDOFF.md: everything a new session needs (2026-10-09)
 
 The user asked: "push all u know to docs. im starting a new session." Until now the project's working
