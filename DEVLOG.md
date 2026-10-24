@@ -261,6 +261,81 @@ or data artifact.
 - **D4 — event order.** Count exit events stamped before the follower's entry, and holds under 2
   minutes.
 
+**Addendum A results, A1–A4 (2026-10-24, commit `92fcb46` + diagnostics `cfbd603`).** V1 and V2
+stay OPEN.
+- **Scope.** Of 134 frozen trades:
+  - 1 has no underlying bars, 11 have a strike outside 3 %, and 1 is unfillable;
+  - **121 are scored.** 120 use the proxy and 1 uses Yahoo 1m.
+  - Exits: 41 hit the time stop (no cue at all), 33 go out at the first trim, 31 at an exit cue and
+    16 stopped out. The median hold is 39 min.
+- **A1 — direction over his holds: PASS.**
+  - **+8.5 bp per trade, t 2.81** (bar 2.39). 58.7 % of trades moved his way; the median is
+    +3.0 bp. The unconditional 30-min drift is +0.1 bp (sd 27.9 bp).
+  - **Live vs after-the-move:** live entries +8.8 bp (t 2.64, n 105); after-the-move entries
+    +6.5 bp (t 1.35, n 16).
+  - **Calls vs puts:** calls +11.1 bp (t 3.38, n 52); puts +6.5 bp (t 1.29, n 69).
+  - **Fixed holds of 5 / 15 / 30 / 60 min:** +0.2 / +4.3 / +7.2 / +6.5 bp, with t 0.19 / 2.41 /
+    2.80 / 2.05. Nothing happens in the first 5 minutes; the edge builds over 15–30.
+- **A2 — timing against random entries: PASS.** His +8.5 bp against +3.8 bp for random
+  same-direction entries within ±60 min with the same hold. The difference is **+4.7 bp, t 3.31**.
+- **Post-hoc audit (D1–D4): no artifact found, but the edge is concentrated.**
+  - **D1, second vendor.** CME NQ futures reproduce the proxy on the 53 trades they cover:
+    per-trade correlation 1.000, mean +9.0 bp vs +9.1 bp.
+  - **D2, placebo times.** Shifting his entries by −120 / −60 / −30 / +30 / +60 / +120 min gives
+    +3.3 / −6.5 / −3.0 / +0.5 / +4.8 / −3.2 bp, all with |t| < 1.7. The edge is at his actual entry
+    times. The negative −60 and −30 min values say the market had been moving against his
+    direction before he entered: these are reversal entries.
+  - **D3, concentration.** The mean falls to +5.9 bp without the top 3 trades and to +4.5 bp
+    without the top 5. The best 3 days carry 40 % of the summed return. April 2025 carries 13 %.
+    By year: 2025 +10.8 bp (t 2.64, n 85), 2026 +4.1 bp (t 1.30, n 32), 2024 −7.0 bp (n 4).
+    Clustering by day gives the same t, 2.81.
+  - **D4, event order.** One first exit cue is stamped before the follower's entry bar, and 5 holds
+    are under 2 minutes. Negligible.
+- **A3 — modelled follower P&L (an estimate).**
+  - **σ:** 93 trades solved from the stated premium, 26 had none, and 3 fell outside the bounds.
+    The median solved σ is 10 % in trading time (IQR 8–14 %), about 23 % in calendar convention,
+    which is ordinary for QQQ 0DTE. The period's realized trading-time RMS was about 16 %: if his
+    stated entries were cheap, this flatters the follower.
+  - **Premiums:** the median stated premium is $0.49 (IQR 0.43–0.60). The round-trip cost is
+    6.7 % of premium.
+  - **Literal follower (σ × 1): mean −4.1 % per trade, t −0.58, win 30.6 %, PF 0.86**, 95 % CI
+    [−17.8 %, +9.5 %].
+  - **Variants:**
+
+    | Run | Mean per trade | t | PF |
+    |---|---|---|---|
+    | Stress spread | −8.9 % | | |
+    | σ × 0.8 | +10.0 % | | 1.31 |
+    | σ × 1.2 | −11.3 % | −2.03 | |
+    | Live entries | −1.2 % | | |
+    | After-the-move entries | −23.1 % | | 0.45 |
+    | Full exit at the first trim | −4.1 % | | |
+    | **Fixed 30-min hold** | **+14.7 %** | 1.70 | 1.68 |
+
+  - **Following his exits costs about 19 points per trade against a fixed 30-min hold.** This
+    covers his cues, his BE stops and the 15:50 stop when no cue comes. A third of his trades (41
+    of 121) never get an exit, trim or stop cue and decay into the close. His BE stops end 27 trades
+    as small losses after costs.
+  - **Modelled V2:** +3.4 % (t 0.51). The underlying edge is real but too small to stand out in
+    noisy option returns.
+- **A4 — gain claims.**
+  - **8 of 92 checkable claims (9 %) exceed** 1.2 × the largest gain the underlying's path allows
+    from his stated entry with vol expanding 50 %.
+  - (1 + claim) / (1 + bound): median 0.66, 90th percentile 1.01, max 2.68.
+  - Not checked: 10 claims on trades with no stated entry, and 1 posted before the entry price.
+- **Perfect weeks.** 10 weeks are called perfect, with 12 tracked trades. Model-free, the
+  underlying moved against him on 4 of them (mean +7.2 bp). The modelled follower lost on 9 of 12.
+
+**What this says so far.**
+- **Real but small.** His entry timing carries real, short-lived information about QQQ: about
+  +8.5 bp over 40 minutes. It is not luck (vendor-robust, and specific to his timestamps). It is
+  also small, concentrated in a few days, and weaker in 2026.
+- **A 0DTE follower probably doesn't keep it.** At a $0.49 premium, 6.7 % costs and the time decay
+  of holding to his cues, the modelled literal follower sits around zero to negative. The answer
+  depends on the implied volatility actually paid, which only real option prices can settle.
+- **The claims are mostly consistent with his stated entries.** Whether those stated entries were
+  achievable cannot be tested without option prices.
+
 ## docs — HANDOFF.md: everything a new session needs (2026-10-09)
 
 The user asked: "push all u know to docs. im starting a new session." Until now the project's working
