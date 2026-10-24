@@ -487,7 +487,7 @@ def report() -> int:
 
     # ---------------- A4
     print("\n" + "=" * 100 + "\nA4 GAIN CLAIMS vs the underlying's path (sigma x1.5, 20 % headroom)\n" + "=" * 100)
-    n_cl, n_imp, untracked = 0, 0, 0
+    n_cl, n_imp, untracked, early = 0, 0, 0, 0
     ratios = []
     for t, b, stop, close in rows:
         claims = [e for e in t["events"] if e["type"] == "CLAIM" and e.get("pct") is not None]
@@ -505,12 +505,13 @@ def report() -> int:
             bound = claim_bound(b, t["cp"], t["strike"], sigma[t["trade_id"]], close, st,
                                 ts_of(e, "", True), float(t["stated_entry"]))
             if bound is None:
+                early += 1
                 continue
             n_cl += 1
             n_imp += claim_implausible(pct, bound)
             ratios.append((1 + pct / 100) / (1 + bound))
     print(f"  claims checked {n_cl}; implausible {n_imp} ({100 * n_imp / max(n_cl, 1):.0f}%); claims on trades without a "
-          f"stated entry (not checked) {untracked}")
+          f"stated entry (not checked) {untracked}; posted before the stated-entry minute (not checked) {early}")
     if ratios:
         r_ = np.array(ratios)
         print(f"  (1 + claim) / (1 + bound): median {np.median(r_):.2f}, 90th pct {np.percentile(r_, 90):.2f}, max {r_.max():.2f}")
