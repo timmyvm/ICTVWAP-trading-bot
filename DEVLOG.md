@@ -326,6 +326,18 @@ stay OPEN.
 - **Perfect weeks.** 10 weeks are called perfect, with 12 tracked trades. Model-free, the
   underlying moved against him on 4 of them (mean +7.2 bp). The modelled follower lost on 9 of 12.
 
+**A5 freeze record (2026-10-25, before any session return was read).**
+- **Sessions:** 260 have pre-open posts. 2,736 posts were pre-open and 219 intraday; none was edited
+  after its session's open.
+- **Two independent passes,** each read every session.
+  - Pass A: BULL 88, BEAR 93, CONDITIONAL 45, NEUTRAL 3, NONE 31.
+  - Pass B: BULL 80, BEAR 90, CONDITIONAL 51, NEUTRAL 6, NONE 33.
+- **Agreement 92.7 %.** 241 sessions agreed and 19 were excluded.
+- **Frozen:** BULL 79, BEAR 86, CONDITIONAL 43, NEUTRAL 3, NONE 30. sha256
+  `8fae093cfb8f9527566e4de429be7baf73194c1d1c557af46eb0f188ab2ee4d4`.
+- **Note:** both coders noticed that the caller uses "bear trap" for a setup that goes *down*, the
+  opposite of the usual meaning, and both read it his way.
+
 **What this says so far.**
 - **Real but small.** His entry timing carries real, short-lived information about QQQ: about
   +8.5 bp over 40 minutes. It is not luck (vendor-robust, and specific to his timestamps). It is
