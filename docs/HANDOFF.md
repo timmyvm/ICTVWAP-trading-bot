@@ -1,7 +1,7 @@
 # HANDOFF: read this first
 
-Everything the previous sessions knew, written down for the next one. Last updated **2026-10-09**,
-at the end of the long session that ran v0.16d → v0.34. Everything here is also in `DEVLOG.md`
+Everything the previous sessions knew, written down for the next one. Last updated **2026-10-25**,
+in the session that ran v0.16d → v0.37. That session also repaired the earnings routine (§7). Everything here is also in `DEVLOG.md`
 (newest first, full detail) or `CLAUDE.md` (rules and lessons). Three things live only here: the chat
 answers (§5), the data re-fetch commands (§6) and the environment notes (§10). This file is the map.
 
@@ -22,8 +22,13 @@ Reading order for a new session:
   **pre-tax hurdle is ~14-15 %/yr**.
 - **What the ideas were.** Instagram reels, a friend's method, Telegram signal channels, news,
   earnings, and websites selling bots.
-- **The result.** 34 versions in, **no trading signal has passed**. Every directional strategy failed
+- **The result.** 37 versions in, **no trading signal has passed**. Every directional strategy failed
   its pre-registered bar or was withdrawn after an engine audit.
+  - **One caveat.** In v0.35 Addendum A, a paid Discord options caller's own entry *timing* showed a
+    small, real-looking edge on the underlying: +8.5 bp per trade, t 2.81. A second vendor and
+    placebo times found no artifact.
+  - That is not a tradeable signal. A modelled 0DTE follower nets about zero to negative, his
+    pre-market bias calls are coin flips, and all seven of his statistical claims are false (v0.37).
   - The closest to real is **v0.28 post-earnings drift**: +0.48 % over 20 days, t 1.96 against a
     bar of 2.0. As a traded overlay it was mostly market exposure.
   - The previous best, the v0.23 "holdout pass", was a forming-bar lookahead and was withdrawn in
@@ -34,18 +39,27 @@ Reading order for a new session:
     risk is the exchange failing (FTX), which no backtest shows. It was never built: it needs spot
     and perp legs plus margin management.
 - **One thing runs unattended:** the **v0.29-live earnings routine**, weekdays at 17:54 New York
-  time (§7). **It has never pushed a commit.** It missed its only real event (Constellation Brands,
-  STZ, due on the 2026-10-07 run). Check it first; see §7.
-- **Git:** branch `claude/profitability-issues-backtest-5urpdh` and `main` are identical. Develop on
-  the branch, push, then fast-forward `main` (standing authorization from the user).
+  time (§7).
+  - Its original form never pushed a commit: 10-07 → 10-23, at least 72 events lost.
+  - On 2026-10-25 it was moved into a persistent session that holds the repository (push verified).
+    Every run now commits a line to `backtest/live_earnings/runs.log`.
+  - **Check that log first** (§7).
+- **Git:** develop on `claude/profitability-issues-backtest-5urpdh`, push, then fast-forward `main`
+  (standing authorization from the user).
+  - **A second branch exists,** `claude/edge-lab-v035`. It was pushed from a separate local session
+    on 10-10/11: an "edge lab" with a hypothesis catalogue.
+  - **Its version labels collide with ours** (v0.35-gate*, v0.36-catalogue-*), which is why the
+    Discord claims test here is v0.37. It was not merged and was left untouched; ask the user before
+    reconciling it.
 
 **First minutes of a new session:**
 
 ```bash
 git fetch origin claude/profitability-issues-backtest-5urpdh main && git log --oneline -8 FETCH_HEAD
 pip install -q -r requirements.txt requests histdata pyarrow   # the bot's deps + research extras
-# 1. did the earnings routine record anything? (§7)
+# 1. did the earnings routine run and push? one runs.log line per weekday (§7)
 git log --oneline -5 origin/claude/profitability-issues-backtest-5urpdh -- backtest/live_earnings
+git show origin/claude/profitability-issues-backtest-5urpdh:backtest/live_earnings/runs.log | tail -5
 python3 backtest/live_earnings_reader.py --selftest
 # 2. nothing under backtest/data_cache/local/ survives a container reset:
 #    re-fetch only what the next task needs (§6)
@@ -161,13 +175,15 @@ and v0.26 were all withdrawn after the fact.
 
 ---
 
-## 4. Experiment ledger (v0.1 → v0.34)
+## 4. Experiment ledger (v0.1 → v0.37)
 
 Newest first, as in DEVLOG. "Withdrawn" means a later engine audit showed the result was an
 artifact. Numbers are net of costs unless marked gross. R = multiples of the stop distance.
 
 | Version · date | What was tested (source) | Verdict | Key numbers | Script |
 |---|---|---|---|---|
+| v0.37-exp · 10-25 | **The v0.35 caller's own claims and levels.** Six statistical claims (no-news Mondays, OPEX Wed–Fri, the "classic 1300" low, month-end closes, VIX opens, same-date "odds" behind his paid indicator), named-contract gain claims, "no losses" records. Part G: his own pre-open levels, double-coded blind. | Claims: **all 7 NOT SUPPORTED**. Part G: see DEVLOG | Mondays 57.8 % up (claimed 80 %). OPEX Wed–Fri 50.7 % down (claimed 90 %). 13:00 low on 5.7 % of down mornings. Same-date odds 54.0 % vs a 53.0 % base. Named-contract gains: 0 of 10 impossible. "No losses": 10 of his own stop-outs fall in the window. | `caller_claims_test.py`, `caller_levels_test.py`, `discord_levels.py` |
+| v0.35-audit A · 10-24 | **Keyless fallback for the Discord QQQ 0DTE audit**; the options key never reached the session. Direction and timing on the underlying (NSXUSD × daily QQQ ratio, clock-checked), a Black–Scholes modelled follower, gain claims, pre-market bias calls. | V1/V2 **OPEN**. A1, A2 PASS; A5 FAIL | A1: +8.5 bp over his holds, t 2.81 (NQ futures agree, placebo times flat, best 3 days 40 %). A2: +4.7 bp vs random entries, t 3.31. A3 modelled follower: −4.1 %/trade, t −0.58, PF 0.86 (σ×0.8 +10 %, ×1.2 −11 %); a fixed 30-min hold +14.7 %. A5: bias calls 55.6 % right, t 0.33. | `options_signal_fallback.py`, `discord_bias_calls.py` |
 | v0.34-exp · 10-09 | **EMT "Exhaustion Mean Theory"** (reel, Cody G). 5m: price stretched beyond the VWAP 2σ band and ≥1 ATR from the 9 EMA, an exhaustion wick, entry on the next candle's break, stop beyond the wick, target VWAP. NQ futures and BTC/ETH. | **FAIL** both | NQ 2024+: n 1,000, PF 1.03, +0.018R, t 0.39. NQ 2015-23: PF 0.87, t −4.45. BTC/ETH: n 4,099, PF 0.56, −0.402R; a gross +0.064R (t 2.48) eaten by 0.36R of fees. | `emt_experiment.py` |
 | v0.33-audit · 10-07 | **TSA Telegram gold signals** (the user's private channel, read through 2 public mirrors). 674 signals from Jan-Oct 2026 replayed on real bid/ask, following every "move SL / close" message. | Win rate real, **loses** | TP1 (as advertised): 86 % win, PF 0.80, t −2.2. TP4: 60 %, PF 1.13, t 0.8, against a 57 % random null. A quarter off at each TP: PF 0.99. At a $0.30 spread: 0.90 / 1.18 / 1.07. | `signal_audit.py`, `fetch_tg_channel.py` |
 | v0.32-exp · 10-07 | **ForexFactory surprises** (user idea). EURUSD traded in the surprise direction from release +1 min to +60 min, \|S\| ≥ 1. | **FAIL** | Holdout 2021-25: n 132, +1.09 bp, t 0.60, hit 49.2 %. The first-minute reaction is t 7-12, so the news is priced before a retail fill. | `ff_surprise_test.py`, `fetch_ff_calendar.py` |
@@ -366,7 +382,7 @@ on disk now. Rebuild one before re-running its script, then reproduce a publishe
 
 ## 7. Live: the v0.29 earnings routine
 
-- **What it is.** Every US weekday evening a fresh cloud session reads yesterday's S&P 500 earnings
+- **What it is.** Every US weekday evening a scheduled run reads yesterday's S&P 500 earnings
   releases ("packets": press-release text, the first reaction, context). It writes a direction and a
   confidence for each company, following `backtest/live_earnings/RUBRIC.md`.
 - **Paper trades.** Calls at **≥ 0.70** open a paper trade at 1 % of the portfolio; **≥ 0.90**
@@ -379,11 +395,17 @@ on disk now. Rebuild one before re-running its script, then reproduce a publishe
   - mean net return > 0 with t ≥ 2.0, clustered by week;
   - the ≥ 0.70 bucket must hit ≥ 60 %, or the reading is declared overconfident;
   - the reader is compared against `model.json` on the same events.
-- **Results.** Every call goes to `predictions.jsonl`. Paper trades go to `ledger.csv` and scores to
-  `results.md`. Neither of those two files exists yet, because no call has reached 0.70.
-- **Trigger.** `trig_019f4HV3kS8g9NvP2tpPuoCB`, "Live earnings reader (v0.29-live)". Cron
-  `CRON_TZ=America/New_York 54 17 * * 1-5`. A fresh session per fire on the account's default model.
-  It works only on the branch and never edits code, RUBRIC.md, CLAUDE.md or DEVLOG.md.
+- **Results.** Every call goes to `predictions.jsonl` and scores to `results.md`. Paper trades go to
+  `ledger.csv`, which appears with the first call at ≥ 0.70. Each run appends a line to `runs.log`.
+- **Scheduled task (since 2026-10-25):** `trig_01NYmq5seKYsdq98UzhL9sAX`, "Live earnings reader
+  (v0.29-live, persistent)".
+  - Cron `CRON_TZ=America/New_York 54 17 * * 1-5`.
+  - It fires into the **persistent session `session_01BR6FbodZbMSG3KPGtZuwZu`**. That session was
+    created with the repository and this branch as its outcome, on the model the routine already
+    ran on. Its push was verified by `80327a4`.
+  - It works only on the branch and never edits code, RUBRIC.md, CLAUDE.md or DEVLOG.md.
+- **The old task.** `trig_019f4HV3kS8g9NvP2tpPuoCB` fired a fresh session with no repository, and
+  never pushed. It is **disabled, not deleted**.
 - **Pipeline:**
   1. `--prepare` (T = today in New York; reporters from the previous trading day);
   2. read the packets;
@@ -391,21 +413,20 @@ on disk now. Rebuild one before re-running its script, then reproduce a publishe
      weekday** (the script refuses otherwise);
   4. `--score`;
   5. commit and push.
-- **State on 2026-10-09:**
-  - `predictions.jsonl` holds 3 calls, recorded in-session on 2026-10-05 for the 2026-10-01
-    reporters: ACN UP 0.57, NKE DOWN 0.52, MKC DOWN 0.50. No paper trades yet.
-  - Run 2026-10-06: 0 events, correct.
-  - **Run 2026-10-07: 1 event (STZ, Constellation Brands, reported 10-06; a dry run today rebuilds
-    its packet) but nothing was pushed, so the call was missed.** The record deadline has passed.
-    Cause unknown: the run log was not visible from the previous session.
-  - Run 2026-10-08: 0 events, correct; reported "succeeded" after 68 s.
-  - **The routine has never pushed a commit**, so its push path is unproven.
+- **State on 2026-10-25:**
+  - 31 calls: 3 recorded on 10-05 and 28 for the 10-22 reporters, rescued in-session on 10-25.
+    None reached 0.70, so there are no paper trades yet.
+  - **Lost:** STZ (10-07) and at least 72 events for T = 10-14 … 10-22. The old routine reported
+    "succeeded" every time but never pushed.
+  - The first scheduled run of the new setup is **2026-10-26 17:54 NY**.
 - **First job for the next session:**
-  - Check the 2026-10-09 run (reporters of 10-08):
-    `git fetch origin claude/profitability-issues-backtest-5urpdh && git log --oneline -5 FETCH_HEAD`.
-  - If nothing was pushed although `--prepare --date 2026-10-09 --dry-run` shows events, read that
-    run's transcript (claude.ai → Routines) and fix the routine prompt, not the code.
-  - Log every finding in the v0.29-live operations notes in DEVLOG.
+  - Read the tail of `runs.log` on the branch. There should be one line per weekday since 10-26.
+  - If a weekday is missing, `get_session` on the persistent session shows whether it is alive.
+  - A session can be woken with `fire_trigger`. Fix the prompt with `update_trigger`, not the code.
+  - If the persistent session is gone, create a new one the same way (`create_session` with
+    `source_url`, `source_revision` and `outcome_branch` set to this branch) and point a new task
+    at it.
+  - Log every finding in a v0.29-live ops entry in DEVLOG.
 - **Useful commands:**
   - `python3 backtest/live_earnings_reader.py --prepare --date YYYY-MM-DD --dry-run` writes to the
     gitignored `queue_dryrun/`;
@@ -572,13 +593,21 @@ ones take `--cache/--explore-end`-style arguments and default to the `local/` ca
 
 ## 10b. In progress: v0.35-audit (a private Discord QQQ-options signal server)
 
-State on 2026-10-15:
+State on 2026-10-25:
 - **Done and committed:**
   - the pre-registration;
   - the extractor and the rubric;
   - the fetcher, the replay (17 self-tests) and the report;
-  - the freeze record: **134 trades**, sha256 `b1d50659…`.
-- **Waiting for:** the user's Massive key as a Network secret. Then run:
+  - the freeze record: **134 trades**, sha256 `b1d50659…`;
+  - **Addendum A**, the keyless fallback: A1/A2 pass, A3 is an estimate, A5 fails;
+  - **v0.37**, his claims and levels. See the ledger rows in §4 and DEVLOG.
+- **The class videos are gone.** The caller's YouTube account was closed between 16 and 24 Oct, so
+  there is nothing left to transcribe.
+- **Still open: the pre-registered V1/V2 on real option prices.**
+  - The user's Massive key never reached a session (HTTP 401). The key pasted in chat must not be
+    used; the user was told to regenerate it.
+  - Once the user adds a new key as a Network secret (host `api.massive.com`, header
+    `Authorization`, prefix `Bearer`), run:
   1. `python3 backtest/fetch_massive_options.py --check`
   2. `--stock QQQ --months 2024-12:2026-10`
   3. `--contracts backtest/data_cache/local/discord/v035/contracts.jsonl` (132 contract-days,
@@ -611,3 +640,7 @@ Each was offered to the user and **not yet accepted**. Don't start any of them u
    only. Carry came close to the S&P with a fraction of its drawdown in backtest; its real risk is
    the exchange failing.
 5. **Monitor the earnings routine** (§7). This one is ongoing, not optional.
+6. **Close v0.35's V1/V2 on real option bars,** once the user adds a Massive key as a Network secret
+   (§10b). Addendum A's modelled follower was −4 % per trade, too model-dependent to settle it.
+7. **Reconcile `claude/edge-lab-v035`** with this branch (its version labels collide). Ask the user
+   first.
