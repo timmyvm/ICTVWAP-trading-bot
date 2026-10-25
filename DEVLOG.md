@@ -59,6 +59,35 @@ and the trades QQQ moved against over his hold (v0.35 A1). Descriptive.
   same-date lookup and 29 Feb, the test statistics, the verdict rule, claim parsing, the best-gain
   bound).
 
+**Results (2026-10-25, commit `6391433`): all seven NOT SUPPORTED, over the full span and in his
+era.**
+
+| | Full span | His era (2024-12 →) |
+|---|---|---|
+| H1 no-news Mondays up | **57.8 %** (n 389, CI 53–63 %) vs 53.3 % base, p 0.048; claimed 80 % | every Monday counted (no calendar): 61.5 % vs 50.3 % (n 91) |
+| H2 OPEX Wed → expiry down | **50.7 %** (n 142) vs 42.5 %, p 0.044; claimed 90 %. Mean −26 bp vs +12 bp in other weeks | 56.5 % (n 23) |
+| H3 low in 12:50–13:29, then a higher close | **5.7 %** of down mornings (n 1,274) vs 1.8 %. The low alone falls in the window 6.5 % of the time, **below** the 10.3 % a uniform clock gives | 6.4 % (n 203) |
+| H4a month-end close in the top quarter | **33.3 %** (n 141) vs 37.4 % on other sessions | 50.0 % (n 22) vs 34.6 %, p 0.07 |
+| H4b 13:00 → close at month-end | +2.2 bp vs +0.6 bp, t 0.24 | +19.0 bp vs 0.0 bp, t 1.10 (n 21) |
+| H5 VIX opens below its prior close | QQQ open → close +0.4 bp vs +3.4 bp, t −0.74: the **wrong sign** | −4.3 bp vs +5.9 bp |
+| H6 same-date "odds" ≥ 70 % | **54.0 %** right (n 1,052) vs a 53.0 % base, p 0.25; signed +2.3 bp, t 0.57 | 55.4 % (n 193) |
+
+- **Reading H2.** The OPEX-week *mean* is negative (−26 bp), but the direction is a coin flip.
+  "Usually 90 % bearish" is false; a smaller average tilt may exist. It was not pre-registered, so
+  it is not claimed here.
+- **Reading H6.** The method his paid indicator appears to sell, odds from the same calendar date
+  in past years, has no predictive value: 54 % right against a 53 % base.
+- **C1.** All 10 checkable QQQ gain claims sit **inside** the best gain the day allowed with perfect
+  timing. (1 + claim) / (1 + best) has a median of 0.28 and a max of 0.84. Four single-stock or SPX
+  claims were skipped. **His named-contract gains were possible; this cannot tell whether he got
+  them.**
+- **C2.** Both "no losses" records are contradicted by his own alert posts.
+
+  | Record | Tracked trades in the window | With his own "stopped" post | QQQ moved against him over his hold |
+  |---|---|---|---|
+  | "No losses this year" (said 2025-11-20) | 84 | 10 | 32 |
+  | "No losses in seven months" (said 2026-09-04) | 23 | 3 | 9 |
+
 ## v0.35-audit — A private Discord options-signal server: what would a follower actually make? (2026-10-15) — PRE-REGISTERED
 
 **Source and privacy.** The user exported a private Discord server they don't own and asked for an
