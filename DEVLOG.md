@@ -140,6 +140,15 @@ levels were frozen or any was scored).**
   pivot = the previous session's TPO point of control, above it UP to the previous high, below it
   DOWN to the previous low. Same replay.
 
+**Part G freeze record (2026-10-25, before any level was scored).**
+- **Two passes.** Pass A found 226 rules on 119 of 260 sessions; pass B found 231 on 116.
+- **Agreement:** 173 rules (106 of them with the same first target). 53 rules were only in pass A
+  and 58 only in pass B; all are excluded.
+- **Frozen:** 173 rules on 98 sessions.
+  - By instrument: QQQ 69, UNKNOWN 53, OTHER 43 (mostly VIX and single stocks), SPY 7, SPX 1.
+  - By direction: UP 90, DOWN 83.
+- sha256 `d2404296ccc3a25efb0c072b58dfb1b43429fcee222b69c52e8ce3c6b4a37b99`.
+
 ## v0.35-audit — A private Discord options-signal server: what would a follower actually make? (2026-10-15) — PRE-REGISTERED
 
 **Source and privacy.** The user exported a private Discord server they don't own and asked for an
