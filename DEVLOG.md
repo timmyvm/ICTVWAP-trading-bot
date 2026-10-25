@@ -149,6 +149,34 @@ levels were frozen or any was scored).**
   - By direction: UP 90, DOWN 83.
 - sha256 `d2404296ccc3a25efb0c072b58dfb1b43429fcee222b69c52e8ce3c6b4a37b99`.
 
+**Part G results (2026-10-25, commit `a6d2446`): FAIL on both bars.**
+- **Population.** 119 rules were scored: QQQ, plus 50 UNKNOWN rules within 3 % of the open. Not
+  scored: OTHER 41, SPY 7, SPX 1, UNKNOWN outside the band 2, no bars 3.
+- **55 rules triggered.** Exits: 48 stopped by a close back across his level, 5 at his target and 2
+  at 15:50.
+- **G1: FAIL.** Mean **−5.6 bp** per trade, t −2.02, 12.7 % winners, PF 0.42.
+
+  | Subset | Mean | t | PF |
+  |---|---|---|---|
+  | UP rules (n 30) | −5.8 bp | −1.93 | |
+  | DOWN rules (n 25) | −5.4 bp | −1.16 | |
+  | Rules with a valid first target (n 34) | −5.2 bp | | 0.44 |
+  | 2025 (n 45) | −4.6 bp | | |
+  | 2026 (n 8) | −9.3 bp, all losers | | |
+
+- **G2: FAIL.** His levels beat only **27.3 %** of 1,000 placebo runs. Those runs, with every level
+  and target shifted ±0.1–0.5 %, averaged −3.8 bp, with a 95th percentile of +1.0 bp. His stated
+  levels do no better than arbitrary nearby prices.
+- **P (the textbook previous-session POC pivot, every session of his era).** n 394, +0.3 bp, t 0.27,
+  PF 1.05. Flat, like most level rules before it (v0.17, v0.9).
+- **Sanity checks on the real trades.**
+  - Every trigger closed on the trade side of its level, and all 5 target exits were positive.
+  - The low win rate comes from the pre-registered 1m close-back stop, which the placebo shares.
+- **Reading.** Taken with A5, the parts of his product a member can read before the open carry no
+  information: the bias (55.6 % right) and the levels (worse than shifted levels). The one positive
+  finding is his intraday entry timing (A1/A2), which members can only copy after he posts, at a
+  0DTE option's cost and decay.
+
 ## v0.35-audit — A private Discord options-signal server: what would a follower actually make? (2026-10-15) — PRE-REGISTERED
 
 **Source and privacy.** The user exported a private Discord server they don't own and asked for an
