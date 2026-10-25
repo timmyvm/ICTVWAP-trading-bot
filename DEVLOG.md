@@ -112,6 +112,34 @@ era.**
   | "No losses this year" (said 2025-11-20) | 84 | 10 | 32 |
   | "No losses in seven months" (said 2026-09-04) | 23 | 3 | 9 |
 
+**Part G — do his own pre-open levels carry information? (pre-registered 2026-10-25, before the
+levels were frozen or any was scored).**
+- **Why.** The method's own inputs cannot be rebuilt (see Source above). What can be tested is the
+  output he gave members: numeric conditional levels in his pre-open analysis posts ("hold above X
+  → Y", "lose Z → W", "pivot P"). The alert channel's game plans are almost all images (median 14
+  characters), so the analysis channel's text is used.
+- **Extraction** (`backtest/discord_levels.py`), from the same blinded A5 session file:
+  - Two independent subagent passes list every rule as {level, side, direction, targets,
+    instrument}, using the rubric in the script.
+  - A rule is frozen when both passes agree on level (±0.01), side, direction and instrument. Its
+    first target is kept only if both passes give the same one.
+  - The hash is committed before scoring.
+- **Replay** (`backtest/caller_levels_test.py`, 12 self-tests), on the v0.35 QQQ path.
+  - Population: QQQ rules, plus UNKNOWN-instrument rules whose level is within 3 % of that
+    session's QQQ open.
+  - Trigger: the first bar from 09:30 to 11:58 that closes beyond the level after testing or
+    crossing it. Entry at the next bar's open.
+  - Exits: his first target as a resting limit (fills on a trade-through, and fills first in a bar
+    that also closes back across); a close back across the level (next open); otherwise 15:50.
+  - Costs: 0.005 % per market fill, 0.001 % per limit fill.
+- **Verdicts.** Part G passes only if both hold:
+  - **G1:** mean net return per trade > 0, with t ≥ 2.0 clustered by ISO week.
+  - **G2:** his mean beats ≥ 95 % of 1,000 placebo runs in which every level and its target is
+    shifted by a random ±0.1–0.5 %.
+- **P (secondary, no verdict).** The textbook version of his method on every session of his era:
+  pivot = the previous session's TPO point of control, above it UP to the previous high, below it
+  DOWN to the previous low. Same replay.
+
 ## v0.35-audit — A private Discord options-signal server: what would a follower actually make? (2026-10-15) — PRE-REGISTERED
 
 **Source and privacy.** The user exported a private Discord server they don't own and asked for an
