@@ -47,6 +47,9 @@ def added_lines(diff: str) -> List[Tuple[str, int, str]]:
 
 
 SELF = "backtest/privacy_check.py"   # the checker's own source contains its patterns and test fixtures, no exported data
+# Machine-written earnings records (v0.29-live): long float decimals and SEC accession numbers look like
+# snowflake ids but are not; the denylist and the link patterns still apply to these files.
+NO_SNOWFLAKE = ("backtest/live_earnings/",)
 
 
 def scan(lines: List[Tuple[str, int, str]], terms: List[str]) -> List[Tuple[str, int, str]]:
@@ -59,6 +62,8 @@ def scan(lines: List[Tuple[str, int, str]], terms: List[str]) -> List[Tuple[str,
             if t and t in low:
                 hits.append((path, n, f"denylist#{i + 1}"))
         for name, rx in GENERIC:
+            if name == "snowflake-id" and path.startswith(NO_SNOWFLAKE):
+                continue
             if rx.search(text):
                 hits.append((path, n, name))
     return hits
@@ -79,9 +84,13 @@ def selftest() -> int:
     ok = kinds == ["denylist#1", "discord-cdn", "discord-link", "snowflake-id"] and all(h[0] == "x.md" for h in hits) \
         and [h[1] for h in hits if h[2] == "denylist#1"] == [2]
     clean = scan(added_lines("+++ b/y.py\n@@ -1,0 +1,1 @@\n+epoch 1790827080 is ten digits\n"), ["acme"])
+    earn = scan(added_lines("+++ b/backtest/live_earnings/p.jsonl\n@@ -1,0 +1,2 @@\n+s1 0.0007013517123720147\n"
+                            "+see discord.gg/x and ACME\n"), ["acme"])
+    earn_ok = sorted(h[2] for h in earn) == ["denylist#1", "discord-link"]
     print(f"{'PASS' if ok else 'FAIL'}  hits found with line numbers and pattern ids only")
     print(f"{'PASS' if not clean else 'FAIL'}  a 10-digit epoch is not a snowflake id")
-    return 0 if ok and not clean else 1
+    print(f"{'PASS' if earn_ok else 'FAIL'}  earnings records skip only the snowflake pattern")
+    return 0 if ok and not clean and earn_ok else 1
 
 
 def main() -> int:

@@ -1,5 +1,29 @@
 # DEVLOG — Powell Trades Bot
 
+## v0.29-live ops — the routine never pushed, two weeks of calls were lost, fixed with a persistent session (2026-10-25)
+
+- **What happened.** Every scheduled run since 2026-10-07 started a fresh session with no
+  repository attached. Each reported success, yet nothing reached the branch after the manual
+  2026-10-05 record.
+  - The run transcripts are only visible in claude.ai → Routines, not from here.
+  - The likely cause is that an unattended fresh session could not obtain push access.
+- **Lost.** At least 72 S&P 500 events for T = 10-14 … 10-22 (7, 6, 8, 5, 3, 17 and 26 by
+  dry-run), plus STZ on 10-07. Their record deadlines have passed.
+- **Rescued.** T = 2026-10-23, the 28 reporters of 10-22.
+  - Read in the research session by three subagents, following RUBRIC.md and the routine's steps
+    with the packet only.
+  - Recorded 2026-10-25 01:51 UTC, before the 10-26 09:30 NY deadline.
+  - 28 calls, maximum confidence 0.65, so 0 paper trades.
+- **Fix.**
+  - A persistent cloud session, created with the repository and this branch as its outcome. Push
+    was verified by commit `80327a4`.
+  - A new scheduled task fires into it: `trig_01NYmq5seKYsdq98UzhL9sAX`, same cron (17:54 NY on
+    weekdays), same steps, on the model the routine already ran on.
+  - Every run now appends a line to `backtest/live_earnings/runs.log` and commits it, even on quiet
+    days, so a missing line is a visible failure.
+  - The old task `trig_019f4HV3kS8g9NvP2tpPuoCB` is disabled, not deleted.
+- **Record now.** 31 calls (3 + 28), 0 paper trades.
+
 ## v0.37-exp — The v0.35 caller's explicit statistical claims, tested on QQQ history (2026-10-25) — PRE-REGISTERED
 
 **Numbering.** A separate local session's branch (`claude/edge-lab-v035`, 10–11 Oct) already uses
