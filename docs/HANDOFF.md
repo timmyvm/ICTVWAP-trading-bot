@@ -46,17 +46,19 @@ Reading order for a new session:
   - **Check that log first** (§7).
 - **Git:** develop on `claude/profitability-issues-backtest-5urpdh`, push, then fast-forward `main`
   (standing authorization from the user).
-  - **A second branch exists,** `claude/edge-lab-v035`. It was pushed from a separate local session
-    on 10-10/11: an "edge lab" with a hypothesis catalogue.
-  - **Its version labels collide with ours** (v0.35-gate*, v0.36-catalogue-*), which is why the
-    Discord claims test here is v0.37. It was not merged and was left untouched; ask the user before
-    reconciling it.
+  - **`claude/edge-lab-v035` was merged** into the branch and `main` on 2026-10-25, at the user's
+    request. It came from a separate local session on 10-10/11: an "edge lab" with an agent team, a
+    measurement harness, and a strategy catalogue of 144 cards.
+  - **Two series share the v0.35 number:** v0.35-audit (the Discord audit) and
+    v0.35-infra / gate0 / gate1 (the edge lab). The v0.36 labels are the catalogue's; the Discord
+    claims test is v0.37.
+  - In DEVLOG and the §4 ledger, both series sit in date order.
 
 **First minutes of a new session:**
 
 ```bash
 git fetch origin claude/profitability-issues-backtest-5urpdh main && git log --oneline -8 FETCH_HEAD
-pip install -q -r requirements.txt requests histdata pyarrow   # the bot's deps + research extras
+pip install -q -r requirements.txt requests histdata pyarrow scipy   # the bot's deps + research extras (scipy: edge lab)
 # 1. did the earnings routine run and push? one runs.log line per weekday (§7)
 git log --oneline -5 origin/claude/profitability-issues-backtest-5urpdh -- backtest/live_earnings
 git show origin/claude/profitability-issues-backtest-5urpdh:backtest/live_earnings/runs.log | tail -5
@@ -184,6 +186,11 @@ artifact. Numbers are net of costs unless marked gross. R = multiples of the sto
 |---|---|---|---|---|
 | v0.37-exp · 10-25 | **The v0.35 caller's own claims and levels.** Six statistical claims (no-news Mondays, OPEX Wed–Fri, the "classic 1300" low, month-end closes, VIX opens, same-date "odds" behind his paid indicator), named-contract gain claims, "no losses" records. Part G: his own pre-open levels, double-coded blind. | Claims: **all 7 NOT SUPPORTED**. Part G: **FAIL** | Mondays 57.8 % up (claimed 80 %). OPEX Wed–Fri 50.7 % down (claimed 90 %). 13:00 low on 5.7 % of down mornings. Same-date odds 54.0 % vs a 53.0 % base. Named-contract gains: 0 of 10 impossible. "No losses": 10 of his own stop-outs fall in the window. Part G: his own levels −5.6 bp/trade (n 55, t −2.02, PF 0.42); they beat only 27 % of shifted-level placebos. Textbook POC pivot: +0.3 bp, t 0.27. | `caller_claims_test.py`, `caller_levels_test.py`, `discord_levels.py` |
 | v0.35-audit A · 10-24 | **Keyless fallback for the Discord QQQ 0DTE audit**; the options key never reached the session. Direction and timing on the underlying (NSXUSD × daily QQQ ratio, clock-checked), a Black–Scholes modelled follower, gain claims, pre-market bias calls. | V1/V2 **OPEN**. A1, A2 PASS; A5 FAIL | A1: +8.5 bp over his holds, t 2.81 (NQ futures agree, placebo times flat, best 3 days 40 %). A2: +4.7 bp vs random entries, t 3.31. A3 modelled follower: −4.1 %/trade, t −0.58, PF 0.86 (σ×0.8 +10 %, ×1.2 −11 %); a fixed 30-min hold +14.7 %. A5: bias calls 55.6 % right, t 0.33. | `options_signal_fallback.py`, `discord_bias_calls.py` |
+| v0.36-catalogue-1 · 10-11 | **Strategy catalogue, phase 1**: 226 probe records (130 groups), explore/sealed split fixed in code, 304-cell P2 grid, power table, pre-registration. | Design only, no probe run | T1 102 / T2 27 / T3 21 / parked 51 probes. Sealed set confirms only market-neutral 1-3 day forms; 129 of 304 cells descriptive only; one batch of at most 5 opens at t 2.576. Coin halves correlate 0.94, so the coin split does not protect directional signals. | `docs/CATALOGUE.md`, `research/prereg/P2_*`, `backtest/edge_lab/split.py` |
+| v0.36-catalogue-0 · 10-10 | **Strategy catalogue, phase 0**: 144 sourced cards from nine families, decomposed into primitives (user's pivot: learn what published strategies rely on, then combine by mechanism). | Catalogue only, no test run | 64 A / 52 B / 28 C; P1 55, P5 17, P4 16, P8 16; 86 cards testable on our data; 53 cards hold a recalled-not-re-fetched claim. No trials spent (71). | `docs/CATALOGUE.md`, `research/catalogue/` |
+| v0.35-gate1 · 10-10 | **Edge lab batch 1, H001 tail-funding carry rotation and H010 post-flush reversal** (scout cards, not user ideas). | **Shelved, untestable** (no verdict era opened) | H001: explore half-life > 21 days at 7 bp over 768 episodes, but 69 % in 2021 and only ~8 of 82 verdict-era episodes have a spot hedge (93 % of 2026 tail episodes are perp-only). H010: ~15 verdict-era coin-days on 5 dates; needs ~517 independent events, history has ~100-150. | `research/data_reports/`, `fetch_edge_data_*.py` |
+| v0.35-gate0 · 10-10 | **Edge lab batch 1 scouting**: 7 cards (carry, forced flow, cross-sectional momentum), written blind. | 5 shelved on power at card stage (H002, H011, H020, H021; H012 folded into H010), 2 advanced | Predicted gross 50-110 bp, minimum detectable edge 79-200 bp. | `research/hypotheses/` |
+| v0.35-infra · 10-10 | Edge lab harness and agent team (chair + 5). | infra | 8 self-tests pass; planted 30 bp edge recovered as 30.5 bp. | `backtest/edge_lab/`, `.claude/agents/` |
 | v0.34-exp · 10-09 | **EMT "Exhaustion Mean Theory"** (reel, Cody G). 5m: price stretched beyond the VWAP 2σ band and ≥1 ATR from the 9 EMA, an exhaustion wick, entry on the next candle's break, stop beyond the wick, target VWAP. NQ futures and BTC/ETH. | **FAIL** both | NQ 2024+: n 1,000, PF 1.03, +0.018R, t 0.39. NQ 2015-23: PF 0.87, t −4.45. BTC/ETH: n 4,099, PF 0.56, −0.402R; a gross +0.064R (t 2.48) eaten by 0.36R of fees. | `emt_experiment.py` |
 | v0.33-audit · 10-07 | **TSA Telegram gold signals** (the user's private channel, read through 2 public mirrors). 674 signals from Jan-Oct 2026 replayed on real bid/ask, following every "move SL / close" message. | Win rate real, **loses** | TP1 (as advertised): 86 % win, PF 0.80, t −2.2. TP4: 60 %, PF 1.13, t 0.8, against a 57 % random null. A quarter off at each TP: PF 0.99. At a $0.30 spread: 0.90 / 1.18 / 1.07. | `signal_audit.py`, `fetch_tg_channel.py` |
 | v0.32-exp · 10-07 | **ForexFactory surprises** (user idea). EURUSD traded in the surprise direction from release +1 min to +60 min, \|S\| ≥ 1. | **FAIL** | Holdout 2021-25: n 132, +1.09 bp, t 0.60, hit 49.2 %. The first-minute reaction is t 7-12, so the news is priced before a retail fill. | `ff_surprise_test.py`, `fetch_ff_calendar.py` |
@@ -356,6 +363,7 @@ the earnings calendar and Yahoo. Only these are committed:
 | Yahoo daily bars for every event symbol plus SPY | `yahoo_daily/` | `python3 backtest/fetch_yahoo_daily.py --pause 0.1` (run twice; the second pass fills gaps) | The close is adjusted for later splits; the script handles it. **IVV.AX has a fake −93 % month at 2011-01**, so check every series over its full history. |
 | PEAD event table | `pead_events.csv.gz` | `python3 backtest/pead_drift_test.py --build` | |
 | VGS/VAS/IVV benchmark series, FRED SP500 | `benchmark/`, `sp500_fred.csv` | `backtest/benchmark_portfolio.py`, `backtest/benchmark_sp500.py` | AUD, distributions reinvested. |
+| **Edge lab (v0.35)**: PIT universe (700 symbols), funding (418 symbols, 756,648 settlements), spot coverage and perp-to-spot mapping, Bybit listing dates, 1h klines + 5-min OI for 10 symbols | `edge/` under `data_cache/local/` | `pip install pytz`, then the commands in `research/data_reports/H001_carry_data.md` and `H010_flow_data.md` (`fetch_edge_data_funding.py`, `fetch_edge_data_oi.py`) | Archive keeps zombie rows after delistings (146 symbols); OI starts 2021-12 except BTC; OI stamp convention changes 2024-03-04; Bybit archive has no funding or USDT premium history. ~865 MB. |
 | Telegram TSA mirrors (@tradesmartacademy, @tsafreetrades) | `tg/*_messages.csv`, `tg_raw/` | `python3 backtest/fetch_tg_channel.py <channel> --out backtest/data_cache/local/tg/<channel>_messages.csv` | Public preview only. Gaps in message ids are deletions or service messages, counted in the summary. |
 
 **Older caches that the pre-v0.22 scripts expect** were lost in earlier container resets and are not
@@ -441,6 +449,18 @@ on disk now. Rebuild one before re-running its script, then reproduce a publishe
 Each script's module docstring holds the full rule and its DEVLOG pointer, and `--help` lists the
 flags. Most engines from v0.24 on have a `--selftest`, and the table lists each one's modes. Older
 ones take `--cache/--explore-end`-style arguments and default to the `local/` cache paths in §6.
+
+**Edge lab (v0.35).** `docs/EDGE_LAB.md` is the protocol for the chair + five-agent team
+(`/edge-lab <family|next>`, agents in `.claude/agents/`, artifacts in `research/`). The shared
+harness is `backtest/edge_lab/` (`python3 -m backtest.edge_lab.selftest`): `measure.py` (information
+test, nulls, hedged alpha, truncation guard), `power.py`, `ledger.py` (pre-registration check,
+one-shot holdout, total trial count, deflated Sharpe). Nothing has been run through it yet.
+
+**Strategy catalogue (v0.36).** `docs/CATALOGUE.md` is the protocol for learning what published
+strategies rely on; cards are in `research/catalogue/` (`INDEX.md` is generated by `build_index.py`).
+Phases 0 and 1 are done (cards, probe library, split in `backtest/edge_lab/split.py`, P2 pre-registration in
+`research/prereg/`). Phases 2-4 (primitive probes on the explore quadrant, combination search, one sealed batch)
+have not started: build preconditions are listed in P2 section 3 and 16.
 
 **Current research engines (v0.22+).**
 
@@ -640,7 +660,12 @@ Each was offered to the user and **not yet accepted**. Don't start any of them u
    only. Carry came close to the S&P with a fraction of its drawdown in backtest; its real risk is
    the exchange failing.
 5. **Monitor the earnings routine** (§7). This one is ongoing, not optional.
-6. **Close v0.35's V1/V2 on real option bars,** once the user adds a Massive key as a Network secret
+6. **A forward paper tracker for tail-funding episodes** (H001): log every perp episode with
+   trailing-24h funding >= 7 bp, whether a Bybit/Binance spot hedge exists, the funding actually
+   paid and the basis. New data accrues out of sample, so it resolves what the archive cannot.
+   Offered 2026-10-10, not accepted. Builds on thread 4.
+7. **Catalogue phase 2 build**: data patches (1d gaps, half-A funding), loader guard that enforces the
+   split, the probe engine with self-tests, auditor stage A, then `log_catalogue_explore` and the 304-cell
+   run. Offered 2026-10-11; the user has not yet said go.
+8. **Close v0.35's V1/V2 on real option bars,** once the user adds a Massive key as a Network secret
    (§10b). Addendum A's modelled follower was −4 % per trade, too model-dependent to settle it.
-7. **Reconcile `claude/edge-lab-v035`** with this branch (its version labels collide). Ask the user
-   first.

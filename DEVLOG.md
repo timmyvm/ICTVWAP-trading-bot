@@ -1,5 +1,27 @@
 # DEVLOG — Powell Trades Bot
 
+## merge — `claude/edge-lab-v035` into the research branch and `main` (2026-10-25)
+
+- **What came in.** At the user's request ("main"), the branch a separate local session pushed on
+  10-10/11 was merged, with no change to its content:
+  - the edge-lab harness (`backtest/edge_lab/`) and its agent team (`.claude/agents/`, `/edge-lab`);
+  - the strategy catalogue (`research/`, `docs/CATALOGUE.md`, `docs/EDGE_LAB.md`);
+  - its DEVLOG entries v0.35-infra, gate0, gate1, v0.36-catalogue-0 and -1, plus seven CLAUDE.md
+    lessons.
+- **Conflicts:** DEVLOG and HANDOFF only, where both sides had added entries at the top.
+  - Both sides were kept in date order: this branch's 10-15 → 10-25 entries above the edge lab's
+    10-10/11 ones.
+  - HANDOFF's open threads were renumbered: the edge lab's 6 and 7, then this branch's V1/V2 thread
+    as 8.
+- **Numbering.** v0.35 now names two series, v0.35-audit and v0.35-infra/gate*; their suffixes keep
+  them distinct. v0.36 is the catalogue's, and the Discord claims test is v0.37.
+- **Checks in the merged tree:**
+  - `privacy_check.py` flagged one of 21,952 added lines: a DOI in a journal URL in
+    `research/catalogue/calendar_events.md`. It is not a Discord id, and that content was already
+    public on the edge-lab branch.
+  - Every self-test passes: the edge lab's 10 (they need scipy, now in HANDOFF's install line),
+    this branch's 91, and the earnings reader's 39.
+
 ## v0.29-live ops — the routine never pushed, two weeks of calls were lost, fixed with a persistent session (2026-10-25)
 
 - **What happened.** Every scheduled run since 2026-10-07 started a fresh session with no
@@ -534,6 +556,212 @@ stay OPEN.
   depends on the implied volatility actually paid, which only real option prices can settle.
 - **The claims are mostly consistent with his stated entries.** Whether those stated entries were
   achievable cannot be tested without option prices.
+
+## v0.36-catalogue-1 — Strategy catalogue, phase 1: probe library, explore/sealed split in code, P2 pre-registration (2026-10-11)
+
+**Why.** The user said go on phase 1 (docs/CATALOGUE.md). Phase 1 turns 144 sourced cards into
+concrete probes, fixes the data split before any result exists, and writes the pre-registration for
+phase 2. No market return conditional on any state was computed; trials stay at 71.
+
+**What changed.**
+- `research/catalogue/probes/*.json` (nine mapper files), `build_probe_library.py`, `PROBE_LIBRARY.md`,
+  `probes/library.json`. 226 probe records from 144 cards: 201 real, 25 with no probe (not
+  mechanizable, wrapper only, or data we lack). 130 (archetype, variable) groups; 83 runnable on the
+  public crypto archive, 47 parked.
+- `backtest/edge_lab/split.py` and `research/prereg/split_assignment.csv`: era cut 2024-12-31; 715
+  USDT-perp symbols ranked by lifetime median quote volume, paired, halves by sha256 of
+  "edge-split-v036" + symbol. 358 A / 357 B; 10 of the top 20 and 25 of the top 50 coins in each half.
+  Explore quadrant (early, A) = 135,228 coin-days (23.3 %); sealed = 76.7 %. Self-test `t_split_rules`.
+- `backtest/edge_lab/ledger.py`: `log_catalogue_explore`, `catalogue_trials`, `trials_for(lineage)`,
+  `lineage` field on `register()`. Catalogue explore cells are not charged to `total_trials()`
+  (self-test `t_catalogue_ledger`; harness self-tests now 10, all pass).
+- `research/prereg/P2_power_table.md`, `P2_primitive_probes.md`, `scripts/` (the statistician's
+  scripts; first left in a scratchpad, copied here and re-run: tiers 102 / 27 / 21 / 51 and the 0.942
+  sub-half correlation reproduce).
+
+**Result (outcome-blind).** Probe tiers: T1 102, T2 27, T3 21, parked 51. Phase-2 grid: 304 cells (TS
+163, XS 76, VOL 41, LEVEL 21, CLOCK 2, FLOW 1), 5,092 views with regimes. 129 cells are descriptive
+only (every hold of 20 days or more, every monthly cell, CLOCK and EVENT, OI flushes, raw directional
+signals beyond 1 day). The sealed set can confirm market-neutral forms at 1-3 day holds (minimum
+detectable gross edge about 25-35 bp for a daily cross-sectional spread, 10-25 bp for a market-hedged
+state) and almost nothing directional (62-69 bp a day on the late era alone). Recommended and adopted:
+one batch of at most 5 sealed opens, t-bar `bonferroni_t(5)` = 2.576.
+
+**Correction.** The protocol said unseen era plus unseen coins gave two chances to fail. Two random halves
+of the coin universe have index correlation 0.94 (sub-half proxy, half A only), so for market-wide
+directional signals early_B is nearly explore's own dates. Fixed in docs/CATALOGUE.md section 5 and
+P2 section 16.
+
+**Not done.** Build preconditions (1d gap patch for 21 coins on 2022-02-26..28, funding for 54 half-A
+coins, loader guard with planted-row self-test), the probe engine, auditor stage A, and the
+`log_catalogue_explore` call. No probe has run.
+
+**Commit:** the commit that carries this entry (see `git log`).
+
+## v0.36-catalogue-0 — Strategy catalogue, phase 0: 144 sourced cards, no trials spent (2026-10-10)
+
+**Why.** The user's pivot: tests of single strategies cannot reach significance on ~6 years of
+data, so instead compile what published strategies rely on, who is on the other side and when it
+holds, then combine at the level of mechanism. `docs/CATALOGUE.md` is the protocol: a fixed
+primitive list (P1-P9, P10 added by the chair), a card template with no results allowed, an
+explore/sealed data split (early era + coin half A vs freshest era + coin half B, rule fixed before
+any probe), and phases 0-4.
+
+**What changed.** New: `docs/CATALOGUE.md`, `research/catalogue/` (nine family files of 16 cards
+each, `INDEX.md`, `build_index.py`). No strategy code, no data fetch, no ledger entry: trials stay
+at 71.
+
+**Phase 0 result.** 144 cards. Fidelity A/B/C = 64 / 52 / 28. Primary primitive: P1 55, P5 17,
+P4 16, P8 16, P2 10, P9 (+ sub-tags) 13, P6 6, P7 6, P3 4. The scouts judge 86 cards testable on our
+data, 33 partly, 25 not. 53 cards carry at least one claim recalled from memory and not re-fetched.
+The chair re-read three key sources against the originals (Zarattini/Barbon/Aziz ORB, Kitron and
+Wengrowicz 2026 on 15-minute crypto reversal, Borri/Liu/Tsyvinski/Wu on carry): numbers matched; one
+section label was wrong ("Fact 9", really stylised fact 6) and was fixed. The other cards remain
+scout-reported.
+
+**Leads, not conclusions (published numbers).** Several published effects are below a 13 bp round
+trip as published (crypto hour-of-day about 9-11 bp gross; 15-minute reversal about 1.3 bp gross;
+weekly realized skewness about 19 bp against a 26 bp weekly cost floor). Funding carry has
+compressed in the latest sample. None of the ML papers read used purged validation. P1 is too
+coarse (trend and reversal share it), so phase 1 splits it by horizon band.
+
+**Commit:** the commit that carries this entry (see `git log`).
+
+## v0.35-gate1 — Edge lab, first batch: both advancing cards shelved on testability (2026-10-10)
+
+No verdict era was opened, no pre-registration was registered, and no return or P&L was computed
+by any agent. Trials spent: 3 exploratory persistence cells (ledger: 71 total including the 68
+legacy). Data work ran on Opus; the scouts and the chair's screen ran earlier (v0.35-gate0).
+
+**H001, tail-funding cash-and-carry rotation: shelved as a hedged test; the explore-era mechanism
+holds but cannot be harvested today.**
+- Explore era (2020-09 to 2024-12), ranks 3-50, de-clustered at a 2 bp exit: 768 episodes at an
+  entry of 7 bp over 25 months (1,182 at 5 bp, 450 at 10 bp). The half-life of excess funding after
+  entry is over 21 days at 5 and 7 bp (bootstrap median 14.3 days at 7 bp; interval 3.1 to over 21
+  days) and 7.6 days at 10 bp (interval 2.9 to over 21): the card's falsifier 1 does not fire.
+- But 69 % of episodes are in 2021 and the top five months hold 54 %, so this describes one bull
+  market. Episodes by year at 7 bp: 2020: 112, 2021: 533, 2022: 0, 2023: 21, 2024: 102, 2025: 10,
+  2026: 72.
+- Verdict era (2025-01 on): 82 episodes at 7 bp, but only **8** have a Binance spot market to
+  hedge with (9 on Bybit). In 2026, 93 % of tail episodes are perp-only coins. With sd 150-300 bp
+  the minimum detectable edge on 8 episodes is 151-301 bp against a predicted net of 75 bp.
+- Bybit and Binance basis differ by 2-7 bp a day in tail states (hourly correlation 0.14-0.76), the
+  same size as the excess being harvested, and Bybit's archive has no funding history, so Binance
+  funding is a noisy proxy for what Bybit pays. Funding intervals of 4h/1h are 36 % of settlements
+  in 2024, 55 % in 2025, 64 % in 2026.
+- Reading: the premium is paid where it cannot be arbitraged, which is why it persists, and also
+  why a retail hedged position cannot take it. The unhedged version is a directional short (H002),
+  whose noise is ~15x the carry. Forward paper tracking is the only honest way to resolve it
+  (HANDOFF open thread 4).
+
+**H010, post-flush reversal: shelved, unresolvable with this data.**
+- Held: 10 symbols (BTC, ETH, SOL, XRP, DOGE, BNB, ADA, LINK, AVAX, DOT), 1h klines with taker
+  volume and 5-minute OI metrics. Not held: the other 222 symbols that were ever in ranks 3-40
+  (3-5 hours more download at the archive's ~10 files/s).
+- OI history starts 2021-12-01 for every symbol except BTC, so the alt explore era is about
+  2022-03 to 2024-12 (22.3 coin-years), not 2020-09.
+- Verdict era events (k = 3, q ~ 4 coin-days a coin-year, completion on): 15 coin-days on 5 dates
+  (10 on 2 dates on the long side). Minimum detectable edge at sd 800 bp: 1,017 bp (5 dates), 496 bp
+  (all 21 dates), 286 bp even if all 63 coin-days were independent, 144 bp for a hypothetical full
+  universe with 250 independent dates. 517 independent events are needed to resolve +100 bp.
+  The card's own 400-800 "entries" were not independent.
+- Data defects: the OI stamp convention changed at 2024-03-04 00:00 UTC (END to START of the
+  snapshot); outages ramp OI from near zero (looks like a flush); an OI flicker on 2024-06-22/23;
+  BTC files duplicated for 2020-09 to 2021-05; taker ratio missing 2021-12-31 to 2022-05-11; SOL
+  and XRP monthly 1h zips truncated on 2022-02-26..28 and 2022-04-01..02. OI exceeding traded
+  volume is rare (at most 0.23 % of hours per symbol-year).
+- A collapsing coin does not show an OI collapse (LUNA's coin-unit OI rose 86M to 256M as it died),
+  so the worst crashes fall in the placebo group, and the completion condition removed only 10-20 %
+  of events, not half. Bybit's SOL perp traded 8-13 % below Binance's at eight hourly closes in the
+  FTX week: the flush is exactly where the vendors disagree.
+
+**Process change (the lesson).** The power check should have preceded the downloads. It would have
+shelved H010 in minutes, since the card itself said date-independent events were 90-180. Gate 1 is
+now split: 1a power on date-clustered events and usable history before any download, 1b data and
+pre-registration. Edited `.claude/commands/edge-lab.md`, `.claude/agents/edge-statistician.md`,
+`docs/EDGE_LAB.md`, and six CLAUDE.md lessons added (power before download, zombie archive rows,
+proxy screening, OI stamp change, ticker names, untradable tail states).
+
+**What this says about the earlier 34 strategies.** The harness and the team reach, by a different
+route, the same place the ledger did: with about six years of data, thirteen basis points of cost
+and noise of several hundred bp per trade, a retail-sized edge below roughly 150-300 bp per
+independent event cannot be told from zero. Breakeven results are what that looks like.
+
+**Data now held locally (gitignored; rebuild commands are in the two reports):** universe_pit.csv
+(700 symbols, 2020-02 to 2026-09), funding for 418 symbols (756,648 settlements), spot coverage and
+perp-to-spot mapping (333 pairs), Bybit listing dates (848 perps), 1h klines and 5-minute OI for 10
+symbols. Fetchers: `backtest/fetch_edge_data_funding.py`, `backtest/fetch_edge_data_oi.py`
+(`pip install pytz` first). Reports: `research/data_reports/H001_carry_data.md`, `H010_flow_data.md`.
+
+## v0.35-gate0 — Edge lab, first batch: scouts' cards and the chair's screen (2026-10-10)
+
+Three `mechanism-scout` runs (carry, forced-flow states, cross-sectional momentum), each blind to
+all data and results, wrote 7 cards to `research/hypotheses/`. No data was opened and no trial was
+spent (the ledger is unchanged at 68 legacy trials). Every predicted edge below is the scout's
+ASSUMPTION, flagged as such in its card; none is a measurement.
+
+| Card | Claim | Predicted gross | Scout's own power arithmetic | Chair decision |
+|---|---|---|---|---|
+| H001 | Long spot / short perp on alts whose trailing-24h funding is >= ~7 bp/8h, exit near 2 bp | ~110 bp per episode, cost 35 bp (spot leg is 0.10% a side), ratio 3.1 | ~150 independent episodes, MDE 34-69 bp vs predicted net 75: feasible at the low-noise end, because funding is a near-deterministic cash flow | **Advance.** Gate 1 kill: tail half-life under ~3 days (breakeven ~2.5), or under ~60 episodes |
+| H010 | After an alt's open interest collapses in a >=5% move and the collapse has stopped, the next 24h partly reverse | ~100 bp, claim for liquid alts only | 240-480 entries but 90-180 date-independent; MDE 79-112 bp vs predicted 100: marginal | **Advance** to a power check; shelve if the verdict era cannot resolve it |
+| H012 | On broad-drop days, long flushed / short unflushed alts | ~100 bp spread, ratio 3.8 | 90-200 decision days, MDE ~126 bp | **Folded into H010** as its placebo comparison (same mechanism, correlated trial) |
+| H002 | Perp-vs-perp relative funding pairs | ~80 bp per pair | needs ~1,760 independent pairs, has 180-360: "FAIL or UNRESOLVED, never PASS" | **Shelved** (untestable) |
+| H011 | Fade crowded leverage before the unwind | ~50 bp + 30 bp funding | MDE ~200 bp vs 50 | **Shelved** (under-powered by construction) |
+| H020 | 14-day residual momentum, top-40 perps, dollar neutral | ~55 bp, below the ~80 bp bar | MDE ~105 bp; ~30% power even if right; scout's own odds ~1 in 10 | **Shelved.** Tradable-universe literature is null (Arefev 2026 preprint, Han-Kang-Ryu) |
+| H021 | Same, restricted to continuous-information coins | ~80 bp | MDE ~137 bp | **Shelved** (same) |
+
+Findings that change the next gates:
+- **Funding is censored.** Binance and Bybit both set F = 1 bp whenever the 8h premium is between
+  -4 and +6 bp, so a rank sort over the whole universe compares mostly ties. The paid carry exists
+  only in the tails; the premium index is the informative continuous state.
+- **H001's spot leg costs 0.10% a side** at Bybit VIP0, so its ratio is 3.1, not the ~8 the perp leg
+  alone would suggest. Its portfolio-level yield lands near 12-15%/yr, around the user's hurdle,
+  not clearly above it.
+- **Open interest is symmetric** (every long has a short), so which side was liquidated is inferred
+  from price direction. That inference is the weakest link in H010. OI is also reported to
+  exceed traded volume at times on Binance (Giagkiozis and Said, 2024), so it is noisy.
+- **Funding intervals vary** (8h, 4h, 1h per symbol and period); per-8h-equivalent rates are needed.
+- The flat 13 bp cost is a BTC-grade number. Alt costs after a flush are several times wider.
+- Sign trap for H001: positive funding is RECEIVED by the short perp; the engine needs a mutation
+  test that flips it.
+
+Eras proposed for both advancing cards: explore 2020-09 to 2024-12, verdict 2025-01 to data end.
+Data engineers report coverage and outcome-blind counts only; nothing in the verdict era is read.
+
+## v0.35-infra — Edge lab: a chair and five agents, with a shared measurement harness (2026-10-10)
+
+The user asked for a team of agents (a chair plus five) to look for an edge, after 34 tested
+strategies with about twice as many variants all came back breakeven or negative, and for
+published strategies to be treated as likely duds because everyone trades them. Costs and fees
+must be fully counted; adverse selection is set aside for now.
+
+**What changed (infrastructure only; no strategy code, no result):**
+- **`backtest/edge_lab/` (new).** `measure.py` (drift-matched information test with the repo's
+  13 bp round-trip cost, week-clustered t, de-overlapped trades, hedged alpha, circular-shift
+  null, cross-sectional long-short, plateau score, `truncation_guard`); `power.py`;
+  `ledger.py` (append-only `ledger.jsonl`, pre-registration must be committed, pushed and
+  unmodified, one-shot holdout, `total_trials()` starting from 68 legacy tests, Bonferroni bar,
+  deflated Sharpe). `python3 -m backtest.edge_lab.selftest`: 8 tests, all pass. Checked by
+  mutation: a planted 30 bp edge is recovered as 30.5 bp (t 7.8); random signals give a 8.7 %
+  false-positive rate at |t| > 2 over 150 draws (expect ~5 %); a signal that peeks at the outcome
+  scores t = 61 in the information test, which is why `truncation_guard` is a separate mandatory
+  gate (its test catches shift(-1) lookahead and full-sample normalisation).
+- **`.claude/agents/` (new):** `mechanism-scout`, `data-engineer`, `quant-builder`,
+  `edge-auditor`, `edge-statistician`. **`.claude/commands/edge-lab.md`:** the chair protocol.
+  Subagents cannot start subagents, so the chair is the main session.
+- **`docs/EDGE_LAB.md` (new):** why the roles are split, the measurement battery, the gates, and a
+  starting backlog of six untested families. **`research/`:** hypotheses, prereg, audits, verdicts,
+  data_reports.
+- **Data reachability, checked 2026-10-10 from the cloud container:** the Bybit and Binance live
+  APIs are blocked (403 / 451). `data.binance.vision` and `public.bybit.com` work. Binance USDT-M
+  has `metrics` (open interest, long/short ratios, taker volume; 5 min, from 2020-09),
+  `premiumIndexKlines` and `fundingRate` (from 2020-01), `bookDepth` (from 2023-01). BTCUSDT
+  `liquidationSnapshot` is empty.
+
+**Limits.** The legacy trial count (68) is the user's estimate of 34 strategies doubled by
+variants; refine it from this DEVLOG. The harness assumes taker fills, so it cannot rank
+maker-based ideas. The ledger's checks are enforced by code but an agent can bypass them; the
+bypass would be visible in git. Nothing has been run through the team yet.
 
 ## docs — HANDOFF.md: everything a new session needs (2026-10-09)
 
