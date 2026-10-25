@@ -291,6 +291,13 @@ scripts/, deploy/ — paper-run dashboard/stats, VPS setup
   of jobs) would shrink every later jobs z towards zero for good. Check the qualifying-event counts
   by family (outcome-blind) to catch it.
 
+- A scheduled routine that reports "succeeded" may have done nothing durable. The v0.29-live
+  routine ran green for two weeks and never pushed: each run was a fresh session with no repository
+  and no unattended push access, and at least 72 earnings calls were lost. Verify that the FIRST
+  run produced its commit before leaving a routine alone. Make every run commit a heartbeat line
+  (`runs.log`) even on quiet days, and give the routine a session that already holds the
+  repository and the branch (`create_session` with `source_url` and `outcome_branch`).
+
 - Measure "stretched from VWAP" in the session's VWAP sigma bands, never in ATR multiples. Distance
   from a session-anchored VWAP grows with time since the anchor, so the median NQ 5m bar is already
   2.4 ATR(14) from VWAP and "2 ATR" is the typical state, not a stretch (v0.34-exp, found
