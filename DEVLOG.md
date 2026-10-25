@@ -1,5 +1,64 @@
 # DEVLOG — Powell Trades Bot
 
+## v0.37-exp — The v0.35 caller's explicit statistical claims, tested on QQQ history (2026-10-25) — PRE-REGISTERED
+
+**Numbering.** A separate local session's branch (`claude/edge-lab-v035`, 10–11 Oct) already uses
+v0.35-gate*, v0.35-infra and v0.36-catalogue-*. This entry takes v0.37 so the ledgers stay distinct
+when the branches meet.
+
+**Source.** Six of the v0.35 caller's quantitative claims are tested here.
+- They come from the outcome-blind distillation of every caller post outside the alert channel:
+  about 171k characters, kept local.
+- That distillation also found the model itself mostly untestable. Its levels and bias come from
+  proprietary third-party tools: a "vector" script, fractal software, IV-chart levels, put/call
+  feeds and GEX. Most levels lived in chart images, and the toolset changed every 2–4 months.
+- The claims, by contrast, are testable on public prices.
+- Nothing here names the server or the person.
+
+**Claims and outcomes.** Primary: the full span. Context: the caller's own era, from 2024-12.
+
+| | His claim | Test | Base |
+|---|---|---|---|
+| H1 | No-news Mondays "pump" (80 %, "99 % chance") | Mondays with no high-impact US release from 08:00 to 10:30 ET (ForexFactory calendar, so 2015-01 → 2025-03): QQQ open → close up | all other sessions |
+| H2 | OPEX week, "favour bearish Wed–Fri", "usually 90 %" | Monthly expiry (third Friday, or the session before when that Friday is a holiday): Wednesday's open → expiry close is down | other weeks' Wed → Fri |
+| H3 | "Classic 1300": down into 13:00–13:30, rally from there ("usually", so 50 %) | NSXUSD 1m; mornings that are down at 12:00. The session low falls in a bar from 12:50 to 13:29 **and** the close is above 13:29 | the same on up mornings |
+| H4a | "Most month-end candles close to the top" (50 %) | Last session of the month, close in the top quarter of its range | other sessions |
+| H4b | His month-end trade | 13:00 → close on month-end sessions | other sessions (Welch t) |
+| H5 | "Lower VIX is bullish" | VIX opening below its prior close: QQQ open → close | other days (Welch t) |
+| H6 | Same-calendar-date "odds", the inferred method of his paid indicator (claimed hit rates ≥ 70 %) | For each session from 2016 on: if ≥ 7 of the previous 10 years were up on this calendar date, call it up (≤ 3, down). Close to close | the prior 10 years' up/down base rate, per call |
+
+**Verdicts.**
+- A claim is **SUPPORTED** if the observed rate is at least the claimed rate minus 10 points **and**
+  beats its base at one-sided p < 0.05 / 6.
+- H4b and H5 have no claimed rate; they need a Welch t ≥ 2.64 on the difference.
+- 95 % Wilson intervals are reported.
+
+**C1 — same-day gain claims that name a QQQ contract.** Descriptive, with no pass bar.
+- Claimed gain: an entry/exit price pair if one is given, otherwise the largest % figure.
+- The session is an explicit m/d/yyyy date if given; otherwise the posting session, or the previous
+  session for posts before 09:30.
+- A strike counts as a QQQ strike if it is within 3 % of that session's open.
+- Bound: the best gain any entry minute → same-or-later exit minute allowed that session.
+  - Black–Scholes on the v0.35 proxy path.
+  - Entry is taken at the bar's unfavourable extreme with σ, and exit at the favourable extreme with
+    1.5 σ. σ is the v0.35 Addendum A3 month median.
+  - A claim is called implausible if 1 + claim > 1.2 × (1 + bound).
+- Single stocks, SPX and forecasts are skipped and counted.
+
+**C2 — "no losses" records** ("no losses this year", said 2025-11-20; "none in the last seven
+months", said 2026-09-04). For each window, count his own "stopped" posts in the frozen alert table
+and the trades QQQ moved against over his hold (v0.35 A1). Descriptive.
+
+**Data.**
+- Yahoo QQQ daily 2004-01 → 2026-10: 5,739 sessions, no close-to-close move above 15 %.
+- Yahoo VIX daily 2014-12 → 2026-10. The open equals the prior close on only 1.4 % of days, so VIX
+  opens are real.
+- HistData NSXUSD 1m to 2026-09 (clock-checked in v0.35).
+- ForexFactory USD high-impact calendar to 2025-03.
+- Script: `backtest/caller_claims_test.py`, with 13 self-tests (expiry and holiday shift, month-end,
+  same-date lookup and 29 Feb, the test statistics, the verdict rule, claim parsing, the best-gain
+  bound).
+
 ## v0.35-audit — A private Discord options-signal server: what would a follower actually make? (2026-10-15) — PRE-REGISTERED
 
 **Source and privacy.** The user exported a private Discord server they don't own and asked for an
