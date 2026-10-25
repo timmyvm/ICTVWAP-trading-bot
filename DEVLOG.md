@@ -338,6 +338,16 @@ stay OPEN.
 - **Note:** both coders noticed that the caller uses "bear trap" for a setup that goes *down*, the
   opposite of the usual meaning, and both read it his way.
 
+**A5 result (2026-10-25, commit `a959031`): FAIL.**
+- **Scored:** 162 calls (BULL 76, BEAR 86), from 460 sessions in the span. Three calls fell on days
+  without bars. The mean open-to-close move is +1.9 bp.
+- **Drift-adjusted signed open-to-close: +3.1 bp, t 0.33.** The raw version is +2.9 bp; 55.6 % of
+  calls had the right sign, and the median is +9.6 bp.
+- **Secondaries:** 09:30 → 10:30 +5.0 bp (t 0.94); 09:30 → 12:00 +0.7 bp (t 0.10).
+- **Reading.** The pre-market game plan, the part members read before the open, does not call the
+  session's direction. Whatever skill exists is in the intraday entry timing (A1/A2), not in the
+  morning bias.
+
 **What this says so far.**
 - **Real but small.** His entry timing carries real, short-lived information about QQQ: about
   +8.5 bp over 40 minutes. It is not luck (vendor-robust, and specific to his timestamps). It is
