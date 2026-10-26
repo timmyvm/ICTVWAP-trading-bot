@@ -1,2 +1,3 @@
 2026-10-25T01:41:55Z setup check: persistent session created; push test
 2026-10-25T01:51:44Z T=2026-10-23 events=28 calls=28 paper_trades_opened=0 status=ok (manual run from the research session; the old scheduled routine never pushed)
+2026-10-26T21:55:35Z T=2026-10-26 events=2 calls=2 paper_trades_opened=0 status=ok
