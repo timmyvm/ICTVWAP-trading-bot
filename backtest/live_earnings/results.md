@@ -1,6 +1,6 @@
 # v0.29-live — live earnings reader: results
 
-Scored 2026-11-13 17:55 New York time by `python backtest/live_earnings_reader.py --score`. Every call is scored from the first regular-session open after its decision date (adjusted open) to the adjusted close of the 20th session; costs 0.10 % per side plus 3 %/yr short financing on DOWN calls. Hit = the move went the called way, before costs; hit rates and means use closed calls only.
+Scored 2026-11-16 17:55 New York time by `python backtest/live_earnings_reader.py --score`. Every call is scored from the first regular-session open after its decision date (adjusted open) to the adjusted close of the 20th session; costs 0.10 % per side plus 3 %/yr short financing on DOWN calls. Hit = the move went the called way, before costs; hit rates and means use closed calls only.
 
 ## Counts
 
@@ -12,12 +12,12 @@ Scored 2026-11-13 17:55 New York time by `python backtest/live_earnings_reader.p
 
 | confidence | closed | open | pending | hit rate | mean net |
 |---|---:|---:|---:|---:|---:|
-| [0.50-0.60) | 2 | 228 | 2 | 50 % (1/2) | +8.82 % |
+| [0.50-0.60) | 2 | 230 | 0 | 50 % (1/2) | +8.82 % |
 | [0.60-0.70) | 0 | 97 | 0 | n/a | n/a |
 | [0.70-0.80) | 0 | 0 | 0 | n/a | n/a |
 | [0.80-0.90) | 0 | 0 | 0 | n/a | n/a |
 | [0.90-1.00] | 0 | 0 | 0 | n/a | n/a |
-| all | 2 | 325 | 2 | 50 % (1/2) | +8.82 % |
+| all | 2 | 327 | 0 | 50 % (1/2) | +8.82 % |
 
 ## Paper trades (confidence >= 0.70: 1 % of the portfolio; >= 0.90: 2 %)
 
@@ -30,11 +30,11 @@ Model calls on 361 recorded events (2 skipped: no s1 or reaction).
 
 | model confidence | closed | open | pending | hit rate | mean net |
 |---|---:|---:|---:|---:|---:|
-| [0.50-0.60) | 3 | 356 | 2 | 100 % (3/3) | +17.71 % |
+| [0.50-0.60) | 3 | 358 | 0 | 100 % (3/3) | +17.71 % |
 | [0.60-0.70) | 0 | 0 | 0 | n/a | n/a |
 | [0.70-0.80) | 0 | 0 | 0 | n/a | n/a |
 | [0.80-0.90) | 0 | 0 | 0 | n/a | n/a |
 | [0.90-1.00] | 0 | 0 | 0 | n/a | n/a |
-| all | 3 | 356 | 2 | 100 % (3/3) | +17.71 % |
+| all | 3 | 358 | 0 | 100 % (3/3) | +17.71 % |
 
 Head to head on closed events where Claude had a view: Claude 1 of 2, model 2 of 2; same direction on 1 of 2.
