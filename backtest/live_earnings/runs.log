@@ -23,3 +23,4 @@
 2026-11-23T22:58:29Z T=2026-11-23 events=0 calls=0 paper_trades_opened=0 status=ok (0 S&P 500 events for Fri 2026-11-20; prepare warned S&P 500 list is 49 days old, universe not refreshed)
 2026-11-24T22:57:16Z T=2026-11-24 events=4 calls=4 paper_trades_opened=0 status=ok
 2026-11-25T22:57:13Z T=2026-11-25 events=9 calls=9 paper_trades_opened=0 status=ok
+2026-11-26T22:57:13Z T=2026-11-26 events=0 calls=0 paper_trades_opened=0 status=ok (US Thanksgiving, not a trading day; prepare exited 1 with nothing prepared; S&P 500 list 52 days old, universe not refreshed)

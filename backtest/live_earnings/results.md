@@ -1,6 +1,6 @@
 # v0.29-live — live earnings reader: results
 
-Scored 2026-11-25 17:55 New York time by `python backtest/live_earnings_reader.py --score`. Every call is scored from the first regular-session open after its decision date (adjusted open) to the adjusted close of the 20th session; costs 0.10 % per side plus 3 %/yr short financing on DOWN calls. Hit = the move went the called way, before costs; hit rates and means use closed calls only.
+Scored 2026-11-26 17:55 New York time by `python backtest/live_earnings_reader.py --score`. Every call is scored from the first regular-session open after its decision date (adjusted open) to the adjusted close of the 20th session; costs 0.10 % per side plus 3 %/yr short financing on DOWN calls. Hit = the move went the called way, before costs; hit rates and means use closed calls only.
 
 ## Counts
 
@@ -13,7 +13,7 @@ Scored 2026-11-25 17:55 New York time by `python backtest/live_earnings_reader.p
 | confidence | closed | open | pending | hit rate | mean net |
 |---|---:|---:|---:|---:|---:|
 | [0.50-0.60) | 53 | 196 | 8 | 49 % (26/53) | -2.20 % |
-| [0.60-0.70) | 16 | 82 | 0 | 50 % (8/16) | -3.89 % |
+| [0.60-0.70) | 16 | 82 | 0 | 50 % (8/16) | -3.88 % |
 | [0.70-0.80) | 0 | 0 | 0 | n/a | n/a |
 | [0.80-0.90) | 0 | 0 | 0 | n/a | n/a |
 | [0.90-1.00] | 0 | 0 | 0 | n/a | n/a |
